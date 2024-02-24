@@ -1,16 +1,16 @@
 import strawberry
-
+from typing import Optional
 
 @strawberry.type
-class AnnoqData:
+class AnnoqSampleData:
     id: strawberry.ID
     chr: str
     pos: int
     ref: str
     alt: str
-    ANNOVAR_ensembl_Effect: str = None
-    ANNOVAR_ensembl_Transcript_ID: str = None
-    ANNOVAR_ensembl_Gene_ID: str = None
-    ANNOVAR_ensembl_summary: str = None
-    SnpEff_ensembl_Effect: str = None
-    SnpEff_ensembl_Effect_impact: str = None
+    ANNOVAR_ensembl_Effect: str
+    ANNOVAR_ensembl_Transcript_ID: Optional[str]
+    ANNOVAR_ensembl_Gene_ID: Optional[str]
+    ANNOVAR_ensembl_summary: str
+    SnpEff_ensembl_Effect: str
+    SnpEff_ensembl_Effect_impact: str
