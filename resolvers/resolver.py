@@ -1,7 +1,7 @@
 from itertools import islice
 from config.es import es
 from config.settings import settings
-from models.model import AnnoqSampleData
+from models.model import AnnoqSampleData, AnnoqDataType
 
 async def search_by_ID(id:str):
 
@@ -22,17 +22,19 @@ async def get_annotations():
           size=20
     )
 
-    results = [AnnoqSampleData(id=hit['_id'], 
-                         chr = hit['_source']['chr'],
-                         pos = hit['_source']['pos'],
-                         ref = hit['_source']['ref'],
-                         alt = hit['_source']['alt'],
-                         ANNOVAR_ensembl_Effect = hit['_source'].get('ANNOVAR_ensembl_Effect', None),
-                         ANNOVAR_ensembl_Transcript_ID = hit['_source'].get('ANNOVAR_ensembl_Transcript_ID', None),
-                         ANNOVAR_ensembl_Gene_ID = hit['_source'].get('ANNOVAR_ensembl_Gene_ID', None),
-                         ANNOVAR_ensembl_summary = hit['_source']['ANNOVAR_ensembl_summary'],
-                         SnpEff_ensembl_Effect = hit['_source']['SnpEff_ensembl_Effect'],
-                         SnpEff_ensembl_Effect_impact = hit['_source']['SnpEff_ensembl_Effect_impact']) 
-              for hit in resp['hits']['hits']]
+    # results = [AnnoqSampleData(id=hit['_id'], 
+    #                      chr = hit['_source']['chr'],
+    #                      pos = hit['_source']['pos'],
+    #                      ref = hit['_source']['ref'],
+    #                      alt = hit['_source']['alt'],
+    #                      ANNOVAR_ensembl_Effect = hit['_source'].get('ANNOVAR_ensembl_Effect', None),
+    #                      ANNOVAR_ensembl_Transcript_ID = hit['_source'].get('ANNOVAR_ensembl_Transcript_ID', None),
+    #                      ANNOVAR_ensembl_Gene_ID = hit['_source'].get('ANNOVAR_ensembl_Gene_ID', None),
+    #                      ANNOVAR_ensembl_summary = hit['_source']['ANNOVAR_ensembl_summary'],
+    #                      SnpEff_ensembl_Effect = hit['_source']['SnpEff_ensembl_Effect'],
+    #                      SnpEff_ensembl_Effect_impact = hit['_source']['SnpEff_ensembl_Effect_impact']) 
+    #           for hit in resp['hits']['hits']]
+
+    results = [AnnoqDataType(id=resp['_id'], **resp['_source'])]
         
     return results

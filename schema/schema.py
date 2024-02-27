@@ -1,7 +1,7 @@
 from typing import List
 import strawberry
 from strawberry.types import Info
-from models.model import AnnoqSampleData
+from models.model import AnnoqSampleData, PersonType, AnnoqDataType
 
 from resolvers.resolver import get_annotations, search_by_ID
 
@@ -14,12 +14,12 @@ class Query:
     
 
     @strawberry.field
-    async def get_annotations(self, info: Info) -> List[AnnoqSampleData]:
+    async def get_annotations(self, info: Info) -> List[AnnoqDataType]:
         return await get_annotations()
     
     @strawberry.field
-    def hello(self) -> str:
-        return "Hello World"
-    
+    def hello(self) -> PersonType:
+        person = PersonType(name='Alice', occupation='engineer')
+        return person    
 
 
