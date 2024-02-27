@@ -35,6 +35,6 @@ async def get_annotations():
     #                      SnpEff_ensembl_Effect_impact = hit['_source']['SnpEff_ensembl_Effect_impact']) 
     #           for hit in resp['hits']['hits']]
 
-    results = [AnnoqDataType(id=resp['_id'], **resp['_source'])]
+    results = [AnnoqDataType(**hit['_source']) for hit in resp['hits']['hits']]
         
     return results

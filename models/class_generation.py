@@ -2,6 +2,13 @@
 import urllib.request 
 import json
 import re
+from config.es import es
+from config.settings import settings
+import asyncio 
+
+async def get_mapping():
+    mapping = await es.indices.get_mapping(index=settings.ES_INDEX)
+    return mapping
 
 
 def create_class_schema():
@@ -16,6 +23,10 @@ def create_class_schema():
         try:
             name = re.sub(r'\([^)]*\)', '', leaf['name'])
             name = re.sub(r'\/[^\/]*', '', name)
+            if name[0].isdigit():
+                name = 'x_' + name
+            name = name.replace('-', '_')
+            name = name.replace('+', '')
 
             if leaf['field_type'] == 'text':
                 properties[name] = {"type": 'string'}
@@ -40,24 +51,6 @@ def create_class_schema():
     schema['properties'] = properties
     print('Number of attributes:', len(list(properties.keys())))
     print(types)
-    # print(schema)
-
-    # schema = {
-    #     "title": "Person",
-    #     "type": "object",
-    #     "properties": {
-    #         "name": {
-    #             "type": "string"
-    #         },
-    #         "age": {
-    #             "type": "integer"
-    #         },
-    #         "occupation": {
-    #             "type": "string"
-    #         }
-    #     }
-    # }
 
     with open("models/class_schema.json", "w") as f:
         json.dump(schema, f)
-    
