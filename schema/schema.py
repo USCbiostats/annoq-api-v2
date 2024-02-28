@@ -3,18 +3,23 @@ import strawberry
 from strawberry.types import Info
 from models.model import AnnoqSampleData, PersonType, AnnoqDataType
 
-from resolvers.resolver import get_annotations, search_by_ID
+from resolvers.resolver import get_annotations, get_sample_annotations, search_by_ID
 
 @strawberry.type
 class Query:
 
     @strawberry.field
-    async def get_data_by_ID(self, info: Info, id: str) -> List[AnnoqSampleData]:
+    async def data_by_ID(self, info: Info, id: str) -> List[AnnoqSampleData]:
         return await search_by_ID(id)
+    
+    
+    @strawberry.field
+    async def sample_annotations(self, info: Info) -> List[AnnoqSampleData]:
+        return await get_sample_annotations()
     
 
     @strawberry.field
-    async def get_annotations(self, info: Info) -> List[AnnoqDataType]:
+    async def annotations(self, info: Info) -> List[AnnoqDataType]:
         return await get_annotations()
     
     @strawberry.field

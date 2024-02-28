@@ -1,6 +1,5 @@
 import strawberry
 from typing import Optional
-from models.class_generation import create_class_schema
 from models.generated_class import Person
 from models.AnnoqData_class import AnnoqData
 
@@ -18,7 +17,6 @@ class AnnoqSampleData:
     SnpEff_ensembl_Effect: str
     SnpEff_ensembl_Effect_impact: str
 
-create_class_schema()
 
 @strawberry.experimental.pydantic.type(model=Person, all_fields=True)
 class PersonType:

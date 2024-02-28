@@ -15,25 +15,36 @@ async def search_by_ID(id:str):
     return results
 
 
-async def get_annotations():
+async def get_sample_annotations():
     resp = await es.search(
           index=settings.ES_INDEX,
           query={"match_all": {}},
           size=20
     )
 
-    # results = [AnnoqSampleData(id=hit['_id'], 
-    #                      chr = hit['_source']['chr'],
-    #                      pos = hit['_source']['pos'],
-    #                      ref = hit['_source']['ref'],
-    #                      alt = hit['_source']['alt'],
-    #                      ANNOVAR_ensembl_Effect = hit['_source'].get('ANNOVAR_ensembl_Effect', None),
-    #                      ANNOVAR_ensembl_Transcript_ID = hit['_source'].get('ANNOVAR_ensembl_Transcript_ID', None),
-    #                      ANNOVAR_ensembl_Gene_ID = hit['_source'].get('ANNOVAR_ensembl_Gene_ID', None),
-    #                      ANNOVAR_ensembl_summary = hit['_source']['ANNOVAR_ensembl_summary'],
-    #                      SnpEff_ensembl_Effect = hit['_source']['SnpEff_ensembl_Effect'],
-    #                      SnpEff_ensembl_Effect_impact = hit['_source']['SnpEff_ensembl_Effect_impact']) 
-    #           for hit in resp['hits']['hits']]
+    results = [AnnoqSampleData(id=hit['_id'], 
+                         chr = hit['_source']['chr'],
+                         pos = hit['_source']['pos'],
+                         ref = hit['_source']['ref'],
+                         alt = hit['_source']['alt'],
+                         ANNOVAR_ensembl_Effect = hit['_source'].get('ANNOVAR_ensembl_Effect', None),
+                         ANNOVAR_ensembl_Transcript_ID = hit['_source'].get('ANNOVAR_ensembl_Transcript_ID', None),
+                         ANNOVAR_ensembl_Gene_ID = hit['_source'].get('ANNOVAR_ensembl_Gene_ID', None),
+                         ANNOVAR_ensembl_summary = hit['_source']['ANNOVAR_ensembl_summary'],
+                         SnpEff_ensembl_Effect = hit['_source']['SnpEff_ensembl_Effect'],
+                         SnpEff_ensembl_Effect_impact = hit['_source']['SnpEff_ensembl_Effect_impact']) 
+              for hit in resp['hits']['hits']]
+
+        
+    return results
+
+
+async def get_annotations():
+    resp = await es.search(
+          index=settings.ES_INDEX,
+          query={"match_all": {}},
+          size=20
+    )
 
     results = [AnnoqDataType(**hit['_source']) for hit in resp['hits']['hits']]
         
