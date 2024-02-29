@@ -2,11 +2,15 @@ from itertools import islice
 from config.es import es
 from config.settings import settings
 from models.model import AnnoqSampleData, AnnoqDataType
+import re
 
 def to_graphql_name(name):
-    # Just like waht you did on the generator add more
     if name[0].isdigit():
         return f"x_{name}"
+    name = re.sub(r'\([^)]*\)', '', name)
+    name = re.sub(r'\/[^\/]*', '', name)
+    name = name.replace('-', '_')
+    name = name.replace('+', '')
     return name
 
 # Sample
@@ -64,7 +68,5 @@ async def get_annotations(es_fields: list[str]):
     )
 
     results = convert_hits(resp['hits']['hits'])
-    
-    
         
     return results

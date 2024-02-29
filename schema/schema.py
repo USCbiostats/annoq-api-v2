@@ -21,7 +21,6 @@ class Query:
 
     @strawberry.field
     async def annotations(self, info: Info) -> List[AnnoqDataType]: 
-        print(info)
         fields = get_selected_fields(info)
         return await get_annotations(fields)
     
