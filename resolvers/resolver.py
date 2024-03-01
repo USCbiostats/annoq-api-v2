@@ -31,7 +31,6 @@ async def get_annotations(es_fields: list[str]):
           query = {"match_all": {}},
           size = 20
     )
-
     results = convert_hits(resp['hits']['hits'])  
     return results
 
@@ -49,6 +48,37 @@ async def query_by_chromosome(es_fields: list[str], chr: str, start: int, end: i
               }
           }
     )
+    results = convert_hits(resp['hits']['hits'])    
+    return results
 
+
+async def query_by_rsID(es_fields: list[str], rsID:str):
+    resp = await es.search(
+          index = settings.ES_INDEX,
+          source = es_fields,
+          query = {
+              "bool": {
+                    "must": [
+                      {"term": {"rs_dbSNP151": rsID}},
+                    ]
+              }
+          }
+    )
+    results = convert_hits(resp['hits']['hits'])    
+    return results
+
+
+async def query_by_rsIDs(es_fields: list[str], rsIDs: list[str]):
+    resp = await es.search(
+          index = settings.ES_INDEX,
+          source = es_fields,
+          query = {
+              "bool": {
+                    "must": [
+                      {"terms": {"rs_dbSNP151": rsIDs}},
+                    ]
+              }
+          }
+    )
     results = convert_hits(resp['hits']['hits'])    
     return results
