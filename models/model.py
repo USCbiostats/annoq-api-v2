@@ -20,3 +20,8 @@ class AnnoqSampleData:
 @strawberry.experimental.pydantic.type(model=AnnoqData, all_fields=True)
 class AnnoqDataType:
     pass
+
+@strawberry.input
+class PageArgs:
+    page: Optional[int] = 0
+    size: Optional[int] = 50

@@ -1,8 +1,9 @@
-from itertools import islice
 from config.es import es
 from config.settings import settings
-from models.model import AnnoqSampleData, AnnoqDataType
+from models.model import AnnoqDataType, PageArgs
 import re
+import requests
+from config.settings import settings
 
 def to_graphql_name(name):
     if name[0].isdigit():
@@ -35,10 +36,15 @@ async def get_annotations(es_fields: list[str]):
     return results
 
 # Query for getting annotation by chromosome with start and end range of pos
-async def query_by_chromosome(es_fields: list[str], chr: str, start: int, end: int):
+async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: int, page_args=PageArgs):
+    if page_args is None:
+      page_args = PageArgs
+
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
+          from_=page_args.page*page_args.size,
+          size=page_args.size,
           query = {
               "bool": {
                     "must": [
@@ -52,7 +58,7 @@ async def query_by_chromosome(es_fields: list[str], chr: str, start: int, end: i
     return results
 
 
-async def query_by_rsID(es_fields: list[str], rsID:str):
+async def search_by_rsID(es_fields: list[str], rsID:str):
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
@@ -68,7 +74,7 @@ async def query_by_rsID(es_fields: list[str], rsID:str):
     return results
 
 
-async def query_by_rsIDs(es_fields: list[str], rsIDs: list[str]):
+async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str]):
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
@@ -82,3 +88,39 @@ async def query_by_rsIDs(es_fields: list[str], rsIDs: list[str]):
     )
     results = convert_hits(resp['hits']['hits'])    
     return results
+
+# query for VCF file
+async def search_by_ID(es_fields: list[str], id:str):
+    resp = await es.get(
+        index = settings.ES_INDEX,
+        source = es_fields,
+        id = id
+    )
+    results = convert_hits(resp['hits']['hits'])    
+    return results
+
+
+async def search_by_gene(es_fields: list[str], gene:int):
+    response = requests.get(settings.ANNOTATION_API + '/gene?gene=' + str(gene))
+
+    if response.status_code == 200:
+        
+        data = response.json()
+        chr = data['gene_info']['contig']
+        start = data['gene_info']['start']
+        end = data['gene_info']['end']
+
+        resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              query = {
+                  "bool": {
+                        "must": [
+                          {"term": {"chr": chr}},
+                          {"range": {"pos": {"gte": start, "lte": end}}}
+                        ]
+                  }
+              }
+        )
+        results = convert_hits(resp['hits']['hits'])    
+        return results

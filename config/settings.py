@@ -10,5 +10,6 @@ class Settings(BaseSettings):
     ES_INDEX:str = os.getenv("ES_INDEX")
     ES_SCHEME:str = os.getenv("ES_SCHEME")
     ES_URL:str = os.getenv("ES_URL")
+    ANNOTATION_API:str = os.getenv("ANNOTATION_API")
 
 settings = Settings()
