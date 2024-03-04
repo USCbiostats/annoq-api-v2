@@ -21,23 +21,27 @@ class Query:
         return await search_by_chromosome(fields, chr, start, end, page_args)
     
     @strawberry.field
-    async def GetSNPsByRsID(self, info: Info, rsID: str) -> List[AnnoqDataType]:
+    async def GetSNPsByRsID(self, info: Info, rsID: str,
+                            page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_rsID(fields, rsID)
+        return await search_by_rsID(fields, rsID, page_args)
     
     @strawberry.field
-    async def GetSNPsByRsIDs(self, info: Info, rsIDs: list[str]) -> List[AnnoqDataType]:
+    async def GetSNPsByRsIDs(self, info: Info, rsIDs: list[str],
+                             page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_rsIDs(fields, rsIDs)
+        return await search_by_rsIDs(fields, rsIDs, page_args)
      
     @strawberry.field
-    async def GetSNPsByID(self, info: Info, id: str) -> List[AnnoqDataType]:
+    async def GetSNPsByID(self, info: Info, id: str,
+                          page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_ID(fields, id)
+        return await search_by_ID(fields, id, page_args)
     
     @strawberry.field
-    async def GetSNPsByGeneProduct(self, info: Info, gene: int) -> List[AnnoqDataType]:
+    async def GetSNPsByGeneProduct(self, info: Info, gene: int,
+                                   page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_gene(fields, gene)
+        return await search_by_gene(fields, gene, page_args)
 
 

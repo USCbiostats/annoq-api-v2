@@ -43,8 +43,8 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_=page_args.page*page_args.size,
-          size=page_args.size,
+          from_= page_args._from + 1,
+          size = page_args.size,
           query = {
               "bool": {
                     "must": [
@@ -58,10 +58,15 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     return results
 
 
-async def search_by_rsID(es_fields: list[str], rsID:str):
+async def search_by_rsID(es_fields: list[str], rsID:str, page_args=PageArgs):
+    if page_args is None:
+      page_args = PageArgs
+
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
+          from_= page_args._from + 1,
+          size = page_args.size,
           query = {
               "bool": {
                     "must": [
@@ -74,10 +79,15 @@ async def search_by_rsID(es_fields: list[str], rsID:str):
     return results
 
 
-async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str]):
+async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], page_args=PageArgs):
+    if page_args is None:
+      page_args = PageArgs
+
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
+          from_= page_args._from + 1,
+          size = page_args.size,
           query = {
               "bool": {
                     "must": [
@@ -90,31 +100,41 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str]):
     return results
 
 # query for VCF file
-async def search_by_ID(es_fields: list[str], id:str):
+async def search_by_ID(es_fields: list[str], id:str, page_args=PageArgs):
+    if page_args is None:
+      page_args = PageArgs
+
     resp = await es.get(
         index = settings.ES_INDEX,
         source = es_fields,
+        from_= page_args._from + 1,
+        size = page_args.size,
         id = id
     )
     results = convert_hits(resp['hits']['hits'])    
     return results
 
-
-async def search_by_gene(es_fields: list[str], gene:int):
+# query for gene product
+async def search_by_gene(es_fields: list[str], gene:int, page_args=PageArgs):
+    if page_args is None:
+      page_args = PageArgs
+      
     response = requests.get(settings.ANNOTATION_API + '/gene?gene=' + str(gene))
 
     if response.status_code == 200:
-        
+
         data = response.json()
         chr = data['gene_info']['contig']
         start = data['gene_info']['start']
         end = data['gene_info']['end']
 
         resp = await es.search(
-              index = settings.ES_INDEX,
-              source = es_fields,
-              query = {
-                  "bool": {
+                index = settings.ES_INDEX,
+                source = es_fields,
+                from_= page_args._from + 1,
+                size = page_args.size,
+                query = {
+                    "bool": {
                         "must": [
                           {"term": {"chr": chr}},
                           {"range": {"pos": {"gte": start, "lte": end}}}

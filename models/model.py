@@ -23,5 +23,5 @@ class AnnoqDataType:
 
 @strawberry.input
 class PageArgs:
-    page: Optional[int] = 0
+    _from: Optional[int] = 0
     size: Optional[int] = 50
