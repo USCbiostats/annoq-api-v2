@@ -19,9 +19,10 @@ class AnnoqSampleData:
 
 @strawberry.experimental.pydantic.type(model=AnnoqData, all_fields=True)
 class AnnoqDataType:
+    id: strawberry.ID
     pass
 
 @strawberry.input
 class PageArgs:
-    _from: Optional[int] = 0
+    from_: Optional[int] = 0
     size: Optional[int] = 50

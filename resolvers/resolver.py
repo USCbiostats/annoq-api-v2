@@ -20,6 +20,7 @@ def convert_hits(hits):
     for hit in hits:
         source = hit['_source']
         compliant_source = {to_graphql_name(key): value for key, value in source.items()}
+        compliant_source['id']  = hit['_id']
         compliant_results.append(AnnoqDataType(**compliant_source))
     return compliant_results
 
@@ -43,7 +44,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args._from + 1,
+          from_= page_args.from_ + 1,
           size = page_args.size,
           query = {
               "bool": {
@@ -54,7 +55,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
               }
           }
     )
-    results = convert_hits(resp['hits']['hits'])    
+    results = convert_hits(resp['hits']['hits']) 
     return results
 
 
@@ -65,7 +66,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, page_args=PageArgs):
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args._from + 1,
+          from_= page_args.from_ + 1,
           size = page_args.size,
           query = {
               "bool": {
@@ -86,12 +87,12 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], page_args=Page
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args._from + 1,
+          from_= page_args.from_ + 1,
           size = page_args.size,
           query = {
               "bool": {
-                    "must": [
-                      {"terms": {"rs_dbSNP151": rsIDs}},
+                    "filter": [
+                      {"terms": {"rs_dbSNP151": rsIDs}}
                     ]
               }
           }
@@ -100,16 +101,22 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], page_args=Page
     return results
 
 # query for VCF file
-async def search_by_ID(es_fields: list[str], id:str, page_args=PageArgs):
+async def search_by_IDs(es_fields: list[str], ids: list[str], page_args=PageArgs):
     if page_args is None:
       page_args = PageArgs
 
-    resp = await es.get(
-        index = settings.ES_INDEX,
-        source = es_fields,
-        from_= page_args._from + 1,
-        size = page_args.size,
-        id = id
+    resp = await es.search(
+          index = settings.ES_INDEX,
+          source = es_fields,
+          from_= page_args.from_ + 1,
+          size = page_args.size,
+          query = {
+              "bool": {
+                 "filter": [
+                    {"ids": {"values": ids}}
+                 ]
+              }
+          }
     )
     results = convert_hits(resp['hits']['hits'])    
     return results
@@ -131,7 +138,7 @@ async def search_by_gene(es_fields: list[str], gene:int, page_args=PageArgs):
         resp = await es.search(
                 index = settings.ES_INDEX,
                 source = es_fields,
-                from_= page_args._from + 1,
+                from_= page_args.from_ + 1,
                 size = page_args.size,
                 query = {
                     "bool": {
@@ -144,3 +151,7 @@ async def search_by_gene(es_fields: list[str], gene:int, page_args=PageArgs):
         )
         results = convert_hits(resp['hits']['hits'])    
         return results
+    
+    
+async def get_aggregation(es_fields: list[str], fields:list[str], page_args=PageArgs):
+    return None
