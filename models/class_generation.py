@@ -64,14 +64,14 @@ def create_class_schema_from_anno_tree():
 
 
 async def get_mapping():
-    mapping = await es.indices.get_mapping(index=ES_INDEX)
+    mapping = await es.indices.get_mapping(index = ES_INDEX)
     return mapping
 
 
 def create_class_schema_from_es_mapping():
     mapping = loop.run_until_complete(get_mapping())
 
-    raw_properties = mapping['es_index']['mappings']['properties']
+    raw_properties = mapping[ES_INDEX]['mappings']['properties']
 
     properties = {}
     types = set()
@@ -86,14 +86,7 @@ def create_class_schema_from_es_mapping():
             name = name.replace('-', '_')
             name = name.replace('+', '')
 
-            if leaf['type'] == 'text':
-                properties[name] = {"type": 'string'}
-
-            elif leaf['type'] == 'long':
-                properties[name] = {"type": 'integer'}
-
-            elif leaf['type'] == 'float':
-                properties[name] = {"type": 'number', "format": 'float'}
+            properties[name] = {"type": "model.Field"}
 
             types.add(leaf['type'])
 
@@ -107,8 +100,6 @@ def create_class_schema_from_es_mapping():
     }
 
     schema['properties'] = properties
-    print('Number of attributes:', len(list(properties.keys())))
-    print(types)
 
     with open("models/class_schema.json", "w") as f:
         json.dump(schema, f)

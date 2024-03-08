@@ -1,6 +1,7 @@
 from config.es import es
 from config.settings import settings
-from models.model import AnnoqDataType, PageArgs
+from models.annoq_model import AnnoqDataType
+from models.helper_models import AggregationItem, Field, PageArgs
 import re
 import requests
 from config.settings import settings
@@ -15,13 +16,19 @@ def to_graphql_name(name):
     return name
 
 
-def convert_hits(hits):
+def convert_hits(hits, aggs):
     compliant_results = []
     for hit in hits:
         source = hit['_source']
         compliant_source = {to_graphql_name(key): value for key, value in source.items()}
-        compliant_source['id']  = hit['_id']
-        compliant_results.append(AnnoqDataType(**compliant_source))
+
+        data = {}
+        for key, val in compliant_source.items():
+           data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggs[key]['doc_count']) if aggs and key in aggs else None)
+           
+        data['id']  = hit['_id']
+            
+        compliant_results.append(AnnoqDataType(**data))
     return compliant_results
 
 
@@ -31,9 +38,10 @@ async def get_annotations(es_fields: list[str]):
           index = settings.ES_INDEX,
           source = es_fields,
           query = {"match_all": {}},
+          aggs = await get_aggregation_query(es_fields),
           size = 20
     )
-    results = convert_hits(resp['hits']['hits'])  
+    results = convert_hits(resp['hits']['hits'], resp['aggregations'])  
     return results
 
 # Query for getting annotation by chromosome with start and end range of pos
@@ -53,9 +61,10 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
                       {"range": {"pos": {"gte": start, "lte": end}}}
                     ]
               }
-          }
+          },
+          aggs = await get_aggregation_query(es_fields)
     )
-    results = convert_hits(resp['hits']['hits']) 
+    results = convert_hits(resp['hits']['hits'], resp['aggregations']) 
     return results
 
 
@@ -74,9 +83,10 @@ async def search_by_rsID(es_fields: list[str], rsID:str, page_args=PageArgs):
                       {"term": {"rs_dbSNP151": rsID}},
                     ]
               }
-          }
+          },
+          aggs = await get_aggregation_query(es_fields)
     )
-    results = convert_hits(resp['hits']['hits'])    
+    results = convert_hits(resp['hits']['hits'], resp['aggregations'])    
     return results
 
 
@@ -95,9 +105,10 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], page_args=Page
                       {"terms": {"rs_dbSNP151": rsIDs}}
                     ]
               }
-          }
+          },
+          aggs = await get_aggregation_query(es_fields)
     )
-    results = convert_hits(resp['hits']['hits'])    
+    results = convert_hits(resp['hits']['hits'], resp['aggregations'])    
     return results
 
 # query for VCF file
@@ -116,9 +127,10 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], page_args=PageArgs
                     {"ids": {"values": ids}}
                  ]
               }
-          }
+          },
+          aggs = await get_aggregation_query(es_fields)
     )
-    results = convert_hits(resp['hits']['hits'])    
+    results = convert_hits(resp['hits']['hits'], resp['aggregations'])    
     return results
 
 # query for gene product
@@ -147,11 +159,22 @@ async def search_by_gene(es_fields: list[str], gene:int, page_args=PageArgs):
                           {"range": {"pos": {"gte": start, "lte": end}}}
                         ]
                   }
-              }
+                },
+                aggs = await get_aggregation_query(es_fields)
         )
-        results = convert_hits(resp['hits']['hits'])    
+        results = convert_hits(resp['hits']['hits'], resp['aggregations'])    
         return results
+
     
-    
-async def get_aggregation(es_fields: list[str], fields:list[str], page_args=PageArgs):
-    return None
+async def get_aggregation_query(es_fields: list[str]):
+    results = dict()
+    for field in es_fields:
+        
+        results[field] = {
+           "filter" : {
+            "exists": {
+              "field": field
+            }
+           }
+        }
+    return results

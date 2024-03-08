@@ -43,3 +43,7 @@ After this models/class_schema.json was generated. The python file of the pydant
 ```
 datamodel-codegen --input models/class_schema.json --input-file-type jsonschema --output models/AnnoqData_class.py
 ```
+After this manually replaced Any with Field in AnnoqData_class.py and added the following line 
+```
+from models.helper_models import Field
+```
