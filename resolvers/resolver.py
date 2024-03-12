@@ -52,7 +52,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_ + 1,
+          from_= page_args.from_,
           size = page_args.size,
           query = {
               "bool": {
@@ -75,7 +75,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, page_args=PageArgs):
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_ + 1,
+          from_= page_args.from_,
           size = page_args.size,
           query = {
               "bool": {
@@ -97,7 +97,7 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], page_args=Page
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_ + 1,
+          from_= page_args.from_,
           size = page_args.size,
           query = {
               "bool": {
@@ -119,7 +119,7 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], page_args=PageArgs
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_ + 1,
+          from_= page_args.from_,
           size = page_args.size,
           query = {
               "bool": {
@@ -150,7 +150,7 @@ async def search_by_gene(es_fields: list[str], gene:int, page_args=PageArgs):
         resp = await es.search(
                 index = settings.ES_INDEX,
                 source = es_fields,
-                from_= page_args.from_ + 1,
+                from_= page_args.from_,
                 size = page_args.size,
                 query = {
                     "bool": {
