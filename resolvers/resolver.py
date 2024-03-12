@@ -16,7 +16,7 @@ def to_graphql_name(name):
     return name
 
 
-def convert_hits(hits, aggs):
+def convert_hits(hits, aggregations):
     compliant_results = []
     for hit in hits:
         source = hit['_source']
@@ -24,7 +24,9 @@ def convert_hits(hits, aggs):
 
         data = {}
         for key, val in compliant_source.items():
-           data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggs[key]['doc_count']) if aggs and key in aggs else None)
+           data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
+                              min=aggregations['pos_min']['value'] if 'pos_min' in aggregations else None,
+                              max=aggregations['pos_max']['value'] if 'pos_max' in aggregations else None))
            
         data['id']  = hit['_id']
             
@@ -177,4 +179,17 @@ async def get_aggregation_query(es_fields: list[str]):
             }
            }
         }
+
+    if field == "pos":
+       results['pos_min'] = {
+          "min": {
+            "field": "pos"
+          }
+       }
+       results['pos_max'] = {
+            "max": {
+              "field": "pos"
+            }
+        }
+       
     return results

@@ -6,10 +6,17 @@ class PageArgs:
     from_: Optional[int] = 0
     size: Optional[int] = 50
 
+@strawberry.type
+class Bucket:
+    key: str
+    doc_count: int
 
 @strawberry.type
 class AggregationItem:    
     doc_count: int
+    min: Optional[float] = None
+    max: Optional[float] = None
+    histogram: Optional[list[Bucket]] = None
 
 @strawberry.type
 class Field:
