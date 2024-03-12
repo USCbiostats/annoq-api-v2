@@ -1,7 +1,7 @@
 from config.es import es
 from config.settings import settings
 from models.annoq_model import AnnoqDataType
-from models.helper_models import AggregationItem, Field, PageArgs
+from models.helper_models import AggregationItem, Bucket, Field, PageArgs
 import re
 import requests
 from config.settings import settings
@@ -26,7 +26,9 @@ def convert_hits(hits, aggregations):
         for key, val in compliant_source.items():
            data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
                               min=aggregations['pos_min']['value'] if 'pos_min' in aggregations else None,
-                              max=aggregations['pos_max']['value'] if 'pos_max' in aggregations else None))
+                              max=aggregations['pos_max']['value'] if 'pos_max' in aggregations else None,
+                              histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
+                              if 'histogram' in aggregations else None))
            
         data['id']  = hit['_id']
             
@@ -191,5 +193,14 @@ async def get_aggregation_query(es_fields: list[str]):
               "field": "pos"
             }
         }
-       
+       results['histogram'] = {
+          "histogram": {
+            "field": "pos",
+            "interval": 4893.27,
+            "extended_bounds": {
+              "min": 10636,
+              "max": 499963
+            }
+          }
+       }
     return results
