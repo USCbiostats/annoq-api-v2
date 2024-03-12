@@ -1,9 +1,10 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
-from models.model import AnnoqDataType, PageArgs
+from models.annoq_model import AnnoqDataType
+from models.helper_models import PageArgs
 
-from resolvers.resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs, get_aggregation
+from resolvers.resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
 from utils import get_selected_fields
 
 @strawberry.type
@@ -43,11 +44,5 @@ class Query:
                                    page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
         return await search_by_gene(fields, gene, page_args)
-    
-    @strawberry.field
-    async def GetAggregations(self, info: Info, fields: list[str],
-                                   page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
-        fields = get_selected_fields(info)
-        return await get_aggregation(fields, fields, page_args)
 
 
