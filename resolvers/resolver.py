@@ -1,7 +1,7 @@
 from config.es import es
 from config.settings import settings
 from models.annoq_model import AnnoqDataType
-from models.helper_models import AggregationItem, Bucket, DocCount, Field, Frequency, PageArgs
+from models.helper_models import AggregationItem, Bucket, DocCount, Field, PageArgs
 import re
 import requests
 from config.settings import settings
@@ -25,15 +25,12 @@ def convert_hits(hits, aggregations):
         data = {}
         for key, val in compliant_source.items():
            data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
-                              min=aggregations['pos_min']['value'] if 'pos_min' in aggregations else None,
-                              max=aggregations['pos_max']['value'] if 'pos_max' in aggregations else None,
+                              min=aggregations[f'{key}_min']['value'] if f'{key}_min' in aggregations else None,
+                              max=aggregations[f'{key}_max']['value'] if f'{key}_max' in aggregations else None,
                               histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
                               if 'histogram' in aggregations else None,
-                              missing=DocCount(doc_count=aggregations['pos_missing']['doc_count']) if 'pos_missing' in aggregations else None,
-                              frequency=Frequency(doc_count_error_upper_bound=aggregations['pos_frequency']['doc_count_error_upper_bound'],
-                                                 sum_other_doc_count=aggregations['pos_frequency']['sum_other_doc_count'],
-                                                 buckets=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['pos_frequency']['buckets']] 
-                                                 if 'pos_frequency' in aggregations else None)))
+                              missing=DocCount(doc_count=aggregations[f'{key}_missing']['doc_count']) if f'{key}_missing' in aggregations else None,
+                              frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations[f'{key}_frequency']['buckets']]))
            
         data['id']  = hit['_id']
             
@@ -187,31 +184,19 @@ async def get_aggregation_query(es_fields: list[str]):
            }
         }
 
-    if field == "pos":
-       results['pos_min'] = {
+        results[f'{field}_min'] = {
           "min": {
             "field": "pos"
           }
        }
 
-       results['pos_max'] = {
+        results[f'{field}_max'] = {
             "max": {
               "field": "pos"
             }
         }
-       
-       results['histogram'] = {
-          "histogram": {
-            "field": "pos",
-            "interval": 4893.27,
-            "extended_bounds": {
-              "min": 10636,
-              "max": 499963
-            }
-          }
-       }
 
-       results['pos_frequency'] = {
+        results[f'{field}_frequency'] = {
           "terms": {
             "field": "pos",
             "min_doc_count": 0,
@@ -219,10 +204,21 @@ async def get_aggregation_query(es_fields: list[str]):
           }
        }
 
-       results['pos_missing'] = {
+        results[f'{field}_missing'] = {
           "missing": {
               "field": "pos"
             }
+       }
+
+        results['histogram'] = {
+          "histogram": {
+            "field": "pos",
+            "interval": 50000,
+            "extended_bounds": {
+              "min": 0,
+              "max": 500000
+            }
+          }
        }
 
     return results
