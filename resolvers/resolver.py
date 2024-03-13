@@ -1,7 +1,7 @@
 from config.es import es
 from config.settings import settings
 from models.annoq_model import AnnoqDataType
-from models.helper_models import AggregationItem, Bucket, Field, PageArgs
+from models.helper_models import AggregationItem, Bucket, DocCount, Field, Frequency, PageArgs
 import re
 import requests
 from config.settings import settings
@@ -28,7 +28,12 @@ def convert_hits(hits, aggregations):
                               min=aggregations['pos_min']['value'] if 'pos_min' in aggregations else None,
                               max=aggregations['pos_max']['value'] if 'pos_max' in aggregations else None,
                               histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
-                              if 'histogram' in aggregations else None))
+                              if 'histogram' in aggregations else None,
+                              missing=DocCount(doc_count=aggregations['pos_missing']['doc_count']) if 'pos_missing' in aggregations else None,
+                              frequency=Frequency(doc_count_error_upper_bound=aggregations['pos_frequency']['doc_count_error_upper_bound'],
+                                                 sum_other_doc_count=aggregations['pos_frequency']['sum_other_doc_count'],
+                                                 buckets=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['pos_frequency']['buckets']] 
+                                                 if 'pos_frequency' in aggregations else None)))
            
         data['id']  = hit['_id']
             
@@ -188,11 +193,13 @@ async def get_aggregation_query(es_fields: list[str]):
             "field": "pos"
           }
        }
+
        results['pos_max'] = {
             "max": {
               "field": "pos"
             }
         }
+       
        results['histogram'] = {
           "histogram": {
             "field": "pos",
@@ -203,4 +210,19 @@ async def get_aggregation_query(es_fields: list[str]):
             }
           }
        }
+
+       results['pos_frequency'] = {
+          "terms": {
+            "field": "pos",
+            "min_doc_count": 0,
+            "size": 20
+          }
+       }
+
+       results['pos_missing'] = {
+          "missing": {
+              "field": "pos"
+            }
+       }
+
     return results
