@@ -21,50 +21,50 @@ class Query:
         return await get_annotations_count()
     
     @strawberry.field
-    async def GetSNPsByChromosome(self, info: Info, chr: str, start: int, end: int, 
+    async def GetSNPsByChromosome(self, info: Info, chr: str, start: int, end: int, aggs_bool: bool = False,
                                   page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_chromosome(fields, chr, start, end, page_args)
+        return await search_by_chromosome(fields, chr, start, end, aggs_bool, page_args)
     
     @strawberry.field
     async def CountSNPsByChromosome(self, chr: str, start: int, end: int) -> int:
         return await count_by_chromosome(chr, start, end)
     
     @strawberry.field
-    async def GetSNPsByRsID(self, info: Info, rsID: str,
+    async def GetSNPsByRsID(self, info: Info, rsID: str, aggs_bool: bool = False,
                             page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_rsID(fields, rsID, page_args)
+        return await search_by_rsID(fields, rsID, aggs_bool, page_args)
     
     @strawberry.field
     async def CountSNPsByRsID(self, rsID: str) -> int:
         return await count_by_rsID(rsID)
     
     @strawberry.field
-    async def GetSNPsByRsIDs(self, info: Info, rsIDs: list[str],
+    async def GetSNPsByRsIDs(self, info: Info, rsIDs: list[str], aggs_bool: bool = False,
                              page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_rsIDs(fields, rsIDs, page_args)
+        return await search_by_rsIDs(fields, rsIDs, aggs_bool, page_args)
     
     @strawberry.field
     async def CountSNPsByRsIDs(self, rsIDs: list[str]) -> int:
         return await count_by_rsIDs(rsIDs)
      
     @strawberry.field
-    async def GetSNPsByIDs(self, info: Info, ids: list[str],
+    async def GetSNPsByIDs(self, info: Info, ids: list[str], aggs_bool: bool = False,
                           page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_IDs(fields, ids, page_args)
+        return await search_by_IDs(fields, ids, aggs_bool, page_args)
     
     @strawberry.field
     async def CountSNPsByIDs(self, ids: list[str]) -> int:
         return await count_by_IDs(ids)
     
     @strawberry.field
-    async def GetSNPsByGeneProduct(self, info: Info, gene: int,
+    async def GetSNPsByGeneProduct(self, info: Info, gene: int, aggs_bool: bool = False,
                                    page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
         fields = get_selected_fields(info)
-        return await search_by_gene(fields, gene, page_args)
+        return await search_by_gene(fields, gene, aggs_bool, page_args)
     
     @strawberry.field
     async def CountSNPsByGeneProduct(self, gene: int) -> int:

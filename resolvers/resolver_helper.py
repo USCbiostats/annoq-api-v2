@@ -22,14 +22,19 @@ def convert_hits(hits, aggregations):
         compliant_source = {to_graphql_name(key): value for key, value in source.items()}
 
         data = {}
-        for key, val in compliant_source.items():
-           data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
-                              min=aggregations[f'{key}_min']['value'] if f'{key}_min' in aggregations else None,
-                              max=aggregations[f'{key}_max']['value'] if f'{key}_max' in aggregations else None,
-                              histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
-                              if 'histogram' in aggregations else None,
-                              missing=DocCount(doc_count=aggregations[f'{key}_missing']['doc_count']) if f'{key}_missing' in aggregations else None,
-                              frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations[f'{key}_frequency']['buckets']]))
+
+        if aggregations is not None:
+            for key, val in compliant_source.items():
+                data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
+                                    min=aggregations[f'{key}_min']['value'] if f'{key}_min' in aggregations else None,
+                                    max=aggregations[f'{key}_max']['value'] if f'{key}_max' in aggregations else None,
+                                    histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
+                                    if 'histogram' in aggregations else None,
+                                    missing=DocCount(doc_count=aggregations[f'{key}_missing']['doc_count']) if f'{key}_missing' in aggregations else None,
+                                    frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations[f'{key}_frequency']['buckets']]))
+        else:
+            for key, val in compliant_source.items():
+                data[key] = Field(value=val)
            
         data['id']  = hit['_id']
             
