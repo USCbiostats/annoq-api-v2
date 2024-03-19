@@ -32,7 +32,7 @@ The fastAPI application would be running on http://0.0.0.0:8000 and the elastics
 Follow the https://github.com/USCbiostats/annoq-database repository and use the sample_data folder to setup the sample data for elasticsearch
 
 
-### Dynamic AnnoqData class generation
+### Dynamic Snps class generation
 Annoq has 500+ attributes, so the strawberry type for it had to be generated dynamically as it would not make sense to manually write 500 fields. Since the class is already present in this repository there is no need to run the following code again, but just for knowledge: 
 
 First a json schema was generated using the following command which takes the mapping for the elasticsearch database and creates a schema for a pydantic Baseclass. 
