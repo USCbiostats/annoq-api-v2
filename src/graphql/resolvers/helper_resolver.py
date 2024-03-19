@@ -1,7 +1,7 @@
 import requests
 from ...config.settings import Settings
 from ..models.snp_model import AnnoqDataType
-from ..models.annotation_model import AggregationItem, Bucket, DocCount, Field
+from ..models.annotation_model import AggregationItem, Bucket, DocCount, Annotation
 import re
 
 
@@ -25,7 +25,7 @@ def convert_hits(hits, aggregations):
 
         if aggregations is not None:
             for key, val in compliant_source.items():
-                data[key] = Field(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
+                data[key] = Annotation(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
                                     min=aggregations[f'{key}_min']['value'] if f'{key}_min' in aggregations else None,
                                     max=aggregations[f'{key}_max']['value'] if f'{key}_max' in aggregations else None,
                                     histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
@@ -34,7 +34,7 @@ def convert_hits(hits, aggregations):
                                     frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations[f'{key}_frequency']['buckets']]))
         else:
             for key, val in compliant_source.items():
-                data[key] = Field(value=val)
+                data[key] = Annotation(value=val)
            
         data['id']  = hit['_id']
             

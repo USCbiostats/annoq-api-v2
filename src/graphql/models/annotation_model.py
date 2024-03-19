@@ -25,6 +25,6 @@ class AggregationItem:
     missing: Optional[DocCount] = None
 
 @strawberry.type
-class Field:
+class Annotation:
     value: str
     aggs: Optional[AggregationItem] = None
