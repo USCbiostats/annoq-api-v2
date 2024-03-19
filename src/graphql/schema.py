@@ -61,11 +61,11 @@ class Query:
         return await count_by_IDs(ids)
     
     @strawberry.field
-    async def GetSNPsByGeneProduct(self, info: Info, gene: int, aggs_bool: bool = False,
+    async def GetSNPsByGeneProduct(self, info: Info, gene: str, aggs_bool: bool = False,
                                    page_args: Optional[PageArgs] = None) -> List[SnpsType]:
         fields = get_selected_fields(info)
         return await search_by_gene(fields, gene, aggs_bool, page_args)
     
     @strawberry.field
-    async def CountSNPsByGeneProduct(self, gene: int) -> int:
+    async def CountSNPsByGeneProduct(self, gene: str) -> int:
         return await count_by_gene(gene)

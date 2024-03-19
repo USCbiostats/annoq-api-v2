@@ -1,5 +1,5 @@
 import requests
-from ...config.settings import Settings
+from ...config.settings import settings
 from ..models.snp_model import SnpsType
 from ..models.annotation_model import AggregationItem, Bucket, DocCount, Annotation
 import re
@@ -87,7 +87,7 @@ def IDs_query(ids):
 
 def gene_query(gene):
 
-    response = requests.get(Settings.ANNOTATION_API + '/gene?gene=' + str(gene))
+    response = requests.get(settings.ANNOTATION_API + '/gene?gene=' + gene)
 
     if response.status_code == 200:
 
