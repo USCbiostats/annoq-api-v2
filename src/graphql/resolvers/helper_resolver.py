@@ -1,5 +1,4 @@
-import requests
-from ...config.settings import settings
+from ..gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
 from ..models.snp_model import SnpsType
 from ..models.annotation_model import AggregationItem, Bucket, DocCount, Annotation
 import re
@@ -87,14 +86,13 @@ def IDs_query(ids):
 
 def gene_query(gene):
 
-    response = requests.get(settings.ANNOTATION_API + '/gene?gene=' + gene)
+    gene_id = map_gene(gene)
+    gene_pos = get_pos_from_gene_id(gene_id, chromosomal_location_dic)
 
-    if response.status_code == 200:
-
-        data = response.json()
-        chr = data['gene_info']['contig']
-        start = data['gene_info']['start']
-        end = data['gene_info']['end']
+    if gene_pos:
+        chr = gene_pos[0]
+        start = gene_pos[1]
+        end = gene_pos[2]
 
         query = chromosome_query(chr, start, end)
         return query
