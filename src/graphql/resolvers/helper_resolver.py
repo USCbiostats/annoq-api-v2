@@ -1,6 +1,6 @@
 import requests
 from ...config.settings import Settings
-from ..models.snp_model import AnnoqDataType
+from ..models.snp_model import SnpsType
 from ..models.annotation_model import AggregationItem, Bucket, DocCount, Annotation
 import re
 
@@ -38,7 +38,7 @@ def convert_hits(hits, aggregations):
            
         data['id']  = hit['_id']
             
-        compliant_results.append(AnnoqDataType(**data))
+        compliant_results.append(SnpsType(**data))
     return compliant_results
 
 def annotation_query():

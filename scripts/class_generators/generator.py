@@ -49,7 +49,7 @@ def create_class_schema_from_es_mapping():
            pass
 
     schema = {
-        "title": "AnnoqData",
+        "title": "Snps",
         "type": "object", 
         "properties": {}
     }

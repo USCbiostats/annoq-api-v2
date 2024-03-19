@@ -1,7 +1,7 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
-from .models.snp_model import AnnoqDataType
+from .models.snp_model import SnpsType
 from .models.annotation_model import PageArgs
 
 from .resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
@@ -12,7 +12,7 @@ from scripts.utils import get_selected_fields
 class Query:
     
     @strawberry.field
-    async def GetAnnotations(self, info: Info) -> List[AnnoqDataType]: 
+    async def GetAnnotations(self, info: Info) -> List[SnpsType]: 
         fields = get_selected_fields(info)
         return await get_annotations(fields)
     
@@ -22,7 +22,7 @@ class Query:
     
     @strawberry.field
     async def GetSNPsByChromosome(self, info: Info, chr: str, start: int, end: int, aggs_bool: bool = False,
-                                  page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
+                                  page_args: Optional[PageArgs] = None) -> List[SnpsType]:
         fields = get_selected_fields(info)
         return await search_by_chromosome(fields, chr, start, end, aggs_bool, page_args)
     
@@ -32,7 +32,7 @@ class Query:
     
     @strawberry.field
     async def GetSNPsByRsID(self, info: Info, rsID: str, aggs_bool: bool = False,
-                            page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
+                            page_args: Optional[PageArgs] = None) -> List[SnpsType]:
         fields = get_selected_fields(info)
         return await search_by_rsID(fields, rsID, aggs_bool, page_args)
     
@@ -42,7 +42,7 @@ class Query:
     
     @strawberry.field
     async def GetSNPsByRsIDs(self, info: Info, rsIDs: list[str], aggs_bool: bool = False,
-                             page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
+                             page_args: Optional[PageArgs] = None) -> List[SnpsType]:
         fields = get_selected_fields(info)
         return await search_by_rsIDs(fields, rsIDs, aggs_bool, page_args)
     
@@ -52,7 +52,7 @@ class Query:
      
     @strawberry.field
     async def GetSNPsByIDs(self, info: Info, ids: list[str], aggs_bool: bool = False,
-                          page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
+                          page_args: Optional[PageArgs] = None) -> List[SnpsType]:
         fields = get_selected_fields(info)
         return await search_by_IDs(fields, ids, aggs_bool, page_args)
     
@@ -62,7 +62,7 @@ class Query:
     
     @strawberry.field
     async def GetSNPsByGeneProduct(self, info: Info, gene: int, aggs_bool: bool = False,
-                                   page_args: Optional[PageArgs] = None) -> List[AnnoqDataType]:
+                                   page_args: Optional[PageArgs] = None) -> List[SnpsType]:
         fields = get_selected_fields(info)
         return await search_by_gene(fields, gene, aggs_bool, page_args)
     
