@@ -1,0 +1,135 @@
+query myQuery {
+  GetSNPsByChromosome(
+    chr: "2"
+    end: 10000000
+    start: 10
+    page_args: {from_: 0, size: 5}
+  ) {
+    chr {
+      aggs {
+        doc_count
+        min
+        max
+      }
+      value
+    }
+    pos {
+      aggs {
+        doc_count
+        min
+        max
+        missing {
+          doc_count
+        }
+        histogram {
+          key
+          doc_count
+        }
+        frequency {
+          doc_count
+          key
+        }
+      }
+      value
+    }
+  }
+}
+
+query myQuery {
+  GetSNPsByGeneProduct(gene: 10) {
+    chr{
+      aggs{
+        doc_count
+      }
+      value
+    }
+    pos{
+      aggs{
+        min
+        max
+      }
+    }
+  }
+}
+
+query myQuery {
+  GetSNPsByIDs(ids: ["2:10662G>C", "2:10632C>A"], page_args: {from_: 0, size: 5}) {
+    chr {
+      aggs {
+        doc_count
+        histogram{
+          key
+          doc_count
+        }
+      }
+      value
+    },
+    id,
+    pos{
+      aggs{
+        min,
+    		max
+      }
+      value
+    }
+  }
+}
+
+query myQuery {
+  GetSNPsByRsID(rsID: "rs189126619") {
+    rs_dbSNP151 {
+      value
+      aggs {
+        doc_count
+      }
+    },
+    chr {
+      value
+      aggs {
+        doc_count
+      }
+    },
+    pos{
+      aggs{
+        min,
+        max,
+        histogram{
+          key,
+          doc_count
+        }
+      }
+    }
+  }
+}
+
+
+query myQuery {
+  GetSNPsByRsIDs(rsIDs: ["rs115366554", "rs189126619"]) {
+    rs_dbSNP151 {
+      value
+      aggs {
+        doc_count
+      }
+    },
+    chr {
+      value
+      aggs {
+        doc_count
+      }
+    },
+    pos{
+      aggs{
+        min,
+        max,
+        histogram{
+          key,
+          doc_count
+        }
+      }
+    }
+  }
+}
+
+
+
+

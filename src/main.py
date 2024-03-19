@@ -5,8 +5,9 @@ from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from schema.schema import Query
-from config.settings import settings
+
+from .config.settings import settings
+from .graphql.schema import Query
 
 app = FastAPI()
 

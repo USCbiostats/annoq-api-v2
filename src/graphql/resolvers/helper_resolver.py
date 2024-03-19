@@ -1,7 +1,7 @@
 import requests
-from config.settings import Settings
-from models.annoq_model import AnnoqDataType
-from models.helper_models import AggregationItem, Bucket, DocCount, Field
+from ...config.settings import Settings
+from ..models.snp_model import AnnoqDataType
+from ..models.annotation_model import AggregationItem, Bucket, DocCount, Field
 import re
 
 

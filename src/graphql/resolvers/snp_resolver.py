@@ -1,7 +1,7 @@
-from config.es import es
-from config.settings import settings
-from models.helper_models import PageArgs
-from resolvers.resolver_helper import IDs_query, annotation_query, chromosome_query, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
+from ...config.es import es
+from ...config.settings import settings
+from ..models.annotation_model import PageArgs
+from .helper_resolver import IDs_query, annotation_query, chromosome_query, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
 # Query for getting all annotations, no filter, size 20

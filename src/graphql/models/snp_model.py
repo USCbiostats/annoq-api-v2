@@ -1,5 +1,5 @@
 import strawberry
-from models.AnnoqData_class import AnnoqData
+from scripts.class_generators.AnnoqData_class import AnnoqData
 
 
 @strawberry.experimental.pydantic.type(model=AnnoqData, all_fields=True)
