@@ -1,6 +1,5 @@
 
 import asyncio
-import urllib.request 
 import json
 import re
 from elasticsearch import AsyncElasticsearch

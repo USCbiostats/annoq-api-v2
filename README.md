@@ -41,7 +41,7 @@ python scripts/class_generators/generator.py
 ```
 After this scripts/class_generators/class_schema.json was generated. The python file of the pydantic Baseclass - models/Snps.py is generated using the following
 ```
-datamodel-codegen --input scripts/class_generators/class_schema.json --input-file-type jsonschema --output scripts/class_generators/Snps.py
+datamodel-codegen --input scripts/class_generators/class_schema.json --input-file-type jsonschema --output src/graphql/models/Snps.py
 ```
 After this manually replaced Any with Annotation in Snps.py and added the following line 
 ```

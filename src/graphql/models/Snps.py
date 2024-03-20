@@ -8,7 +8,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from src.graphql.models.annotation_model import Annotation
+from .annotation_model import Annotation
 
 
 class Snps(BaseModel):
