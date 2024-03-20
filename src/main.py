@@ -5,6 +5,7 @@ from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import json
+import re
 
 
 from .config.settings import settings
@@ -34,25 +35,27 @@ def read_root():
 @app.get("/annotations")
 def read_annotations():
 
-    with open('./data/anno_tree.json') as f1:
-        data = json.load(f1)
+    with open('./data/anno_tree.json') as f:
+        data = json.load(f)
+        anno_tree = []
 
-        with open('./data/annotation_mapping.json') as f2:
-            mapping = json.load(f2)
-
-            anno_tree = []
-
-            for elt in data:
-                if elt['leaf'] == True:
-                    try:
-                        elt['api_field'] = mapping[elt['name']]
-                        anno_tree.append(elt)
-                    except KeyError:
-                        pass
-                else:
+        for elt in data:
+            if elt['leaf'] == True:
+                try:
+                    name = re.sub(r'\([^)]*\)', '', elt['name'])
+                    name = re.sub(r'\/[^\/]*', '', name)
+                    if name[0].isdigit():
+                        name = '_' + name
+                    name = name.replace('-', '_')
+                    name = name.replace('+', '')
+                    elt['api_field'] = name
                     anno_tree.append(elt)
+                except KeyError:
+                    pass
+            else:
+                anno_tree.append(elt)
 
-            return {"results": anno_tree}
+        return {"results": anno_tree}
 
 
 if __name__ == "__main__":
