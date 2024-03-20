@@ -413,3 +413,5 @@ $RECYCLE.BIN/
 
 get_sample_data.sh
 query
+scripts/class_generators/AnnoqData_class.py
+scripts/class_generators/class_schema.json

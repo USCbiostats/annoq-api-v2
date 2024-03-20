@@ -4,9 +4,12 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+import json
+import re
 
-from schema.schema import Query
-from config.settings import settings
+
+from .config.settings import settings
+from .graphql.schema import Query
 
 app = FastAPI()
 
@@ -27,6 +30,32 @@ app.include_router(graphql_app, prefix="/graphql")
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+
+@app.get("/annotations")
+def read_annotations():
+
+    with open('./data/anno_tree.json') as f:
+        data = json.load(f)
+        anno_tree = []
+
+        for elt in data:
+            if elt['leaf'] == True:
+                try:
+                    name = re.sub(r'\([^)]*\)', '', elt['name'])
+                    name = re.sub(r'\/[^\/]*', '', name)
+                    if name[0].isdigit():
+                        name = '_' + name
+                    name = name.replace('-', '_')
+                    name = name.replace('+', '')
+                    elt['api_field'] = name
+                    anno_tree.append(elt)
+                except KeyError:
+                    pass
+            else:
+                anno_tree.append(elt)
+
+        return {"results": anno_tree}
 
 
 if __name__ == "__main__":

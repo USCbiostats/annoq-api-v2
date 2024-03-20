@@ -1,6 +1,6 @@
 from elasticsearch import AsyncElasticsearch
 
-from config.settings import settings
+from .settings import settings
 
 es = AsyncElasticsearch(settings.ES_URL,
     connections_per_node=400,
