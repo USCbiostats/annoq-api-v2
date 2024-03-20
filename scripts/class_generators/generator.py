@@ -16,6 +16,8 @@ es = AsyncElasticsearch(ES_URL,
     max_retries=10,
     retry_on_timeout=True)
 
+annotation_mapping = {}
+
 
 async def get_mapping():
     mapping = await es.indices.get_mapping(index = ES_INDEX)
@@ -33,16 +35,18 @@ def create_class_schema_from_es_mapping():
     for key in raw_properties.keys():
         leaf = raw_properties[key]
         try:
+            original = key
             name = re.sub(r'\([^)]*\)', '', key)
             name = re.sub(r'\/[^\/]*', '', name)
             if name[0].isdigit():
-                name = 'x_' + name
+                name = '_' + name
             name = name.replace('-', '_')
             name = name.replace('+', '')
 
             properties[name] = {"type": "model.Annotation"}
 
             types.add(leaf['type'])
+            annotation_mapping[original] = name
 
         except KeyError:
            pass
@@ -55,11 +59,12 @@ def create_class_schema_from_es_mapping():
 
     schema['properties'] = properties
 
-    with open("models/class_schema.json", "w") as f:
+    with open("./scripts/class_generators/class_schema.json", "w") as f:
         json.dump(schema, f)
 
 
 loop = asyncio.get_event_loop()
 create_class_schema_from_es_mapping()
+json.dump(annotation_mapping, open("./data/annotation_mapping.json", "w"))
 loop.run_until_complete(es.close())
 loop.close()
