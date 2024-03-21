@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ES_INDEX:str = os.getenv("ES_INDEX")
     ES_SCHEME:str = os.getenv("ES_SCHEME")
     ES_URL:str = os.getenv("ES_URL")
-    ANNOTATION_API:str = os.getenv("ANNOTATION_API")
     FASTAPI_PORT:int = int(os.getenv("FASTAPI_PORT"))
+    API_URL:str = os.getenv("API_URL")
 
 settings = Settings()
