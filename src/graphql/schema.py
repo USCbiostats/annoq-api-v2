@@ -1,11 +1,14 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
+
 from .models.snp_model import SnpsType
 from .models.annotation_model import PageArgs
 
+from .resolvers.download_resolver import download_annotations
 from .resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
 from .resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
+
 from scripts.utils import get_selected_fields
 
 @strawberry.type
@@ -19,6 +22,11 @@ class Query:
     @strawberry.field
     async def CountAnnotations(self) -> int: 
         return await get_annotations_count()
+    
+    @strawberry.field
+    async def DownloadAnnotations(self, info: Info) -> List[SnpsType]: 
+        fields = get_selected_fields(info)
+        return await download_annotations(fields)
     
     @strawberry.field
     async def GetSNPsByChromosome(self, info: Info, chr: str, start: int, end: int, aggs_bool: bool = False,
