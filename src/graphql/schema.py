@@ -24,8 +24,7 @@ class Query:
         return await get_annotations_count()
     
     @strawberry.field
-    async def DownloadAnnotations(self, info: Info) -> List[SnpsType]: 
-        fields = get_selected_fields(info)
+    async def DownloadAnnotations(self, info: Info, fields: list[str]) -> str: 
         return await download_annotations(fields)
     
     @strawberry.field
