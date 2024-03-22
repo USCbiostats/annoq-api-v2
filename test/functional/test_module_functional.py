@@ -14,3 +14,8 @@ def test_annotations():
     with open('./data/api_mapping_anno_tree.json') as f:
         data = json.load(f)
         assert response.json() == data
+
+
+def test_strawberry():
+    response = requests.get(settings.API_URL + 'graphql')
+    assert response.status_code == 200
