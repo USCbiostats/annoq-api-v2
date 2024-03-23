@@ -17,7 +17,12 @@ async def download_annotations(fields: list[str], resp: dict):
             if count > settings.DOWNLOAD_SIZE: 
                 return "/download/" + 'tmp/' + filename
             
-            li = [str(doc['_source'].get(k, '.')) for k in fields]
+            li = []
+            for k in fields:
+                if k == "id":
+                    li.append(str(doc['_id']))
+                else:
+                    li.append(str(doc['_source'].get(k, '.')))
             f.write('\t'.join(li) + "\n")
 
         resp = await es.scroll(

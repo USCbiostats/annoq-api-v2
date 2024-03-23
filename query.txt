@@ -36,7 +36,7 @@ query myQuery {
 }
 
 query myQuery {
-  GetSNPsByGeneProduct(gene: 10) {
+  GetSNPsByGeneProduct(gene: "Q9BVC4") {
     chr{
       aggs{
         doc_count
