@@ -1,20 +1,28 @@
+from .download_resolver import download_annotations
 from ...config.es import es
 from ...config.settings import settings
-from ..models.annotation_model import PageArgs
+from ..models.annotation_model import PageArgs, QueryType
 from .helper_resolver import IDs_query, annotation_query, chromosome_query, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
 # Query for getting all annotations, no filter, size 20
-async def get_annotations(es_fields: list[str]):
+async def get_annotations(es_fields: list[str], query_type: str):
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
           query = annotation_query(),
           aggs = await get_aggregation_query(es_fields),
-          size = 20
+          size = 20,
+          scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
-    results = convert_hits(resp['hits']['hits'], resp['aggregations'])  
-    return results
+
+    if query_type == QueryType.DOWNLOAD:
+      url = await download_annotations(es_fields, resp)
+      return url
+    
+    elif query_type == QueryType.SNPS:
+      results = convert_hits(resp['hits']['hits'], resp['aggregations'])  
+      return results
 
 
 # Query for getting annotation by chromosome with start and end range of pos

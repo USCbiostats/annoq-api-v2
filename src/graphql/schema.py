@@ -3,7 +3,7 @@ import strawberry
 from strawberry.types import Info
 
 from .models.snp_model import SnpsType
-from .models.annotation_model import PageArgs
+from .models.annotation_model import PageArgs, QueryType
 
 from .resolvers.download_resolver import download_annotations
 from .resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
@@ -17,15 +17,15 @@ class Query:
     @strawberry.field
     async def GetAnnotations(self, info: Info) -> List[SnpsType]: 
         fields = get_selected_fields(info)
-        return await get_annotations(fields)
+        return await get_annotations(fields, QueryType.SNPS)
     
     @strawberry.field
     async def CountAnnotations(self) -> int: 
         return await get_annotations_count()
     
     @strawberry.field
-    async def DownloadAnnotations(self, info: Info, fields: list[str]) -> str: 
-        return await download_annotations(fields)
+    async def DownloadAnnotations(self, fields: list[str]) -> str: 
+        return await get_annotations(fields, QueryType.DOWNLOAD)
     
     @strawberry.field
     async def GetSNPsByChromosome(self, info: Info, chr: str, start: int, end: int, aggs_bool: bool = False,
