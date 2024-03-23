@@ -47,3 +47,9 @@ After this manually replaced Any with Annotation in Snps.py and added the follow
 ```
 from src.graphql.models.annotation_model import Annotation
 ```
+
+# Testing
+To run the tests on the code use the following command
+```
+python -m pytest test
+```
