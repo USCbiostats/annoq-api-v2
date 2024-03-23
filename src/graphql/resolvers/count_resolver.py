@@ -1,6 +1,6 @@
 from ...config.es import es
 from ...config.settings import settings
-from ..models.annotation_model import PageArgs
+from src.graphql.models.annotation_model import PageArgs
 from .helper_resolver import IDs_query, annotation_query, chromosome_query, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 

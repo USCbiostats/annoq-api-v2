@@ -1,5 +1,5 @@
 import strawberry
-from .Snps import Snps
+from src.graphql.models.generated.snp import Snps
 
 
 @strawberry.experimental.pydantic.type(model=Snps, all_fields=True)

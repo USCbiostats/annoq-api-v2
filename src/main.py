@@ -8,8 +8,9 @@ import json
 import re
 
 
-from .config.settings import settings
-from .graphql.schema import Query
+from src.config.settings import settings
+from src.graphql.schema import Query
+from utils import clean_field_name
 
 app = FastAPI()
 
@@ -42,12 +43,7 @@ def read_annotations():
         for elt in data:
             if elt['leaf'] == True:
                 try:
-                    name = re.sub(r'\([^)]*\)', '', elt['name'])
-                    name = re.sub(r'\/[^\/]*', '', name)
-                    if name[0].isdigit():
-                        name = '_' + name
-                    name = name.replace('-', '_')
-                    name = name.replace('+', '')
+                    name = clean_field_name(elt['name'])
                     elt['api_field'] = name
                     anno_tree.append(elt)
                 except KeyError:
@@ -60,6 +56,6 @@ def read_annotations():
 
 if __name__ == "__main__":
     print(f'Debug...{settings.DEBUG}')
-    print(f'Starting server...{settings.FASTAPI_PORT}')
+    print(f'Starting server.  ..{settings.FASTAPI_PORT}')
     # uvicorn.run("main:app", host=settings.ES_HOST, port=settings.FASTAPI_PORT, reload=settings.DEBUG, log_level='info', log_config='./log.ini')
-    uvicorn.run("main:app", host=settings.ES_HOST, port=settings.FASTAPI_PORT, reload=settings.DEBUG)
+    uvicorn.run("src.main:app", host=settings.ES_HOST, port=settings.FASTAPI_PORT, reload=settings.DEBUG)

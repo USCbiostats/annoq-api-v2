@@ -1,12 +1,12 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
-from .models.snp_model import SnpsType
-from .models.annotation_model import PageArgs
+from src.graphql.models.snp_model import SnpsType
+from src.graphql.models.annotation_model import PageArgs
 
-from .resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
-from .resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
-from scripts.utils import get_selected_fields
+from src.graphql.resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
+from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
+from utils import get_selected_fields
 
 @strawberry.type
 class Query:
