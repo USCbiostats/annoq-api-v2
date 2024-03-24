@@ -34,14 +34,13 @@ def create_class_schema_from_es_mapping():
         leaf = raw_properties[key]
         try:
             name = re.sub(r'\([^)]*\)', '', key)
-            name = re.sub(r'\/[^\/]*', '', name)
+            name = name.replace('/', '_')
             if name[0].isdigit():
                 name = '_' + name
             name = name.replace('-', '_')
             name = name.replace('+', '')
 
             properties[name] = {"type": "model.Annotation"}
-
             types.add(leaf['type'])
 
         except KeyError:

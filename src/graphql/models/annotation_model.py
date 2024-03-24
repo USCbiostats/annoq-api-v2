@@ -1,3 +1,4 @@
+from enum import Enum
 import strawberry
 from typing import Optional
 
@@ -28,3 +29,7 @@ class AggregationItem:
 class Annotation:
     value: str
     aggs: Optional[AggregationItem] = None
+
+class QueryType(Enum):
+    DOWNLOAD = 'DOWNLOAD'
+    SNPS = 'SNPS'
