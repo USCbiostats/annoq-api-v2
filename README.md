@@ -47,6 +47,11 @@ Make sure that the above scripts has permissions, if not run
 chmod +x scripts/class_generators/generate_model.sh
 ```
 
+# To run the project
+```
+uvicorn src.main:app --reload
+```
+
 # Testing
 To run the tests on the code use the following command
 ```
