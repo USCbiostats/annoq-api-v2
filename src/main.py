@@ -10,7 +10,7 @@ import re
 
 from src.config.settings import settings
 from src.graphql.schema import Query
-from utils import clean_field_name
+from src.utils import clean_field_name
 
 app = FastAPI()
 

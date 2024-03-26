@@ -3,7 +3,7 @@ from src.graphql.models.snp_model import SnpsType
 from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, Annotation
 import re
 
-from utils import clean_field_name
+from src.utils import clean_field_name
 
 def convert_hits(hits, aggregations):
     compliant_results = []

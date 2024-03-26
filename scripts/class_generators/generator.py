@@ -2,11 +2,11 @@
 import asyncio
 import json
 import re
+import sys
 from elasticsearch import AsyncElasticsearch
 import os
 from dotenv import load_dotenv
-
-from utils import clean_field_name
+from src.utils import clean_field_name
 
 load_dotenv()
 ES_URL:str = os.getenv("ES_URL")
