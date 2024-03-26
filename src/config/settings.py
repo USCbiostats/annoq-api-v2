@@ -11,5 +11,8 @@ class Settings(BaseSettings):
     ES_INDEX:str = os.getenv("ES_INDEX")
     ES_URL:str = os.getenv("ES_URL")
     FASTAPI_PORT:int = int(os.getenv("FASTAPI_PORT"))
+    API_URL: str = str(os.getenv("API_URL"))
+    DOWNLOAD_DIR:str = os.getenv("DOWNLOAD_DIR")
+    DOWNLOAD_SIZE:int = int(os.getenv("DOWNLOAD_SIZE"))
 
 settings = Settings()

@@ -1,8 +1,6 @@
 
 import asyncio
 import json
-import re
-import sys
 from elasticsearch import AsyncElasticsearch
 import os
 from dotenv import load_dotenv
@@ -38,7 +36,6 @@ def create_class_schema_from_es_mapping():
             name = clean_field_name(key)
 
             properties[name] = {"type": "model.Annotation"}
-
             types.add(leaf['type'])
 
         except KeyError:

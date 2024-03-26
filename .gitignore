@@ -416,3 +416,4 @@ query
 scripts/class_generators/AnnoqData_class.py
 scripts/class_generators/class_schema.json
 generated
+.downloads/

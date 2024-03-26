@@ -37,7 +37,7 @@ Annoq has 500+ attributes, so the strawberry type for it had to be generated dyn
 
 First a json schema was generated using the following command which takes the mapping for the elasticsearch database and creates a schema for a pydantic Baseclass. 
 ```
-python3 -m scripts.class_generators.generator.py
+python3 -m scripts.class_generators.generator
 ```
 After this scripts/class_generators/class_schema.json was generated. The python file of the pydantic Baseclass - models/Snps.py is generated using the following
 ```
@@ -46,4 +46,10 @@ datamodel-codegen --input scripts/class_generators/class_schema.json --input-fil
 After this manually replaced Any with Annotation in Snps.py and added the following line 
 ```
 from src.graphql.models.annotation_model import Annotation
+```
+
+# Testing
+To run the tests on the code use the following command
+```
+python -m pytest test
 ```
