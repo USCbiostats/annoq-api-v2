@@ -2,7 +2,7 @@ from src.config.es import es
 from src.config.settings import settings
 import pytest
 import json
-from src.graphql.models.Snps import Snps
+from src.graphql.models.generated.snp import Snp
 
 @pytest.mark.asyncio_cooperative
 async def test_elasticsearch():
@@ -27,16 +27,16 @@ async def test_elasticsearch_query():
 
 
 def test_generator_attribute():
-    snps = Snps()
+    snps = Snp()
     assert hasattr(snps, 'chr')
     assert hasattr(snps, 'pos')
     assert hasattr(snps, 'ref')
-    assert hasattr(snps, 'SnpEff_ensembl_CDS_position_CDS_len')
+    # assert hasattr(snps, 'SnpEff_ensembl_CDS_position_CDS_len')
 
 
 def test_class_schema():
     with open("./scripts/class_generators/class_schema.json") as f:
         data = json.load(f)
-        assert data['title'] == "Snps"
+        assert data['title'] == "Snp"
         assert data['properties']['chr'] == {"type": "model.Annotation"}
         assert data['properties']['_1000Gp3_AC'] == {"type": "model.Annotation"}

@@ -1,10 +1,10 @@
 
 import asyncio
 import json
-import re
 from elasticsearch import AsyncElasticsearch
 import os
 from dotenv import load_dotenv
+from src.utils import clean_field_name
 
 load_dotenv()
 ES_URL:str = os.getenv("ES_URL")
@@ -33,12 +33,7 @@ def create_class_schema_from_es_mapping():
     for key in raw_properties.keys():
         leaf = raw_properties[key]
         try:
-            name = re.sub(r'\([^)]*\)', '', key)
-            name = name.replace('/', '_')
-            if name[0].isdigit():
-                name = '_' + name
-            name = name.replace('-', '_')
-            name = name.replace('+', '')
+            name = clean_field_name(key)
 
             properties[name] = {"type": "model.Annotation"}
             types.add(leaf['type'])
@@ -47,7 +42,7 @@ def create_class_schema_from_es_mapping():
            pass
 
     schema = {
-        "title": "Snps",
+        "title": "Snp",
         "type": "object", 
         "properties": {}
     }
