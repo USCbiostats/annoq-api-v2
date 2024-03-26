@@ -1,8 +1,8 @@
-python scripts/class_generators/generator.py
+python -m scripts.class_generators.generator
 
-datamodel-codegen --input scripts/class_generators/class_schema.json --input-file-type jsonschema --output src/graphql/models/Snps.py
+datamodel-codegen --input scripts/class_generators/class_schema.json --input-file-type jsonschema --output src/graphql/models/generated/snp.py
 
-FILE="src/graphql/models/Snps.py"
+FILE="src/graphql/models/generated/snp.py"
 LINE="from typing import Any, Optional"
 REMOVE_TEXT="Any, "
 sed -i "/$LINE/s/$REMOVE_TEXT//g" $FILE
