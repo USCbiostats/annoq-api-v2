@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     ES_HOST:str = os.getenv("ES_HOST")
     ES_PORT:int = int(os.getenv("ES_PORT"))
     ES_INDEX:str = os.getenv("ES_INDEX")
-    ES_SCHEME:str = os.getenv("ES_SCHEME")
     ES_URL:str = os.getenv("ES_URL")
     FASTAPI_PORT:int = int(os.getenv("FASTAPI_PORT"))
     API_URL: str = str(os.getenv("API_URL"))
