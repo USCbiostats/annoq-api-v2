@@ -13,3 +13,4 @@ strawberry-graphql==0.219.2
 python-dotenv
 datamodel-code-generator
 requests
+pandas
