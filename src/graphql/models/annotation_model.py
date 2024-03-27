@@ -33,3 +33,4 @@ class Annotation:
 class QueryType(Enum):
     DOWNLOAD = 'DOWNLOAD'
     SNPS = 'SNPS'
+    AGGS = 'AGGS'
