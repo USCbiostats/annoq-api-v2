@@ -1,35 +1,66 @@
+from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
-from src.graphql.models.snp_model import SnpsType
-from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, Annotation
-import re
+from src.graphql.models.snp_model import Snp, SnpAggs
+from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount
 
 from src.utils import clean_field_name
 
-def convert_hits(hits, aggregations):
+def convert_hits(hits):
     compliant_results = []
     for hit in hits:
         source = hit['_source']
-        compliant_source = {clean_field_name(key): value for key, value in source.items()}
-
-        data = {}
-
-        if aggregations is not None:
-            for key, val in compliant_source.items():
-                data[key] = Annotation(value=val, aggs=AggregationItem(doc_count=aggregations[key]['doc_count'] if key in aggregations else None,
-                                    min=aggregations[f'{key}_min']['value'] if f'{key}_min' in aggregations else None,
-                                    max=aggregations[f'{key}_max']['value'] if f'{key}_max' in aggregations else None,
-                                    histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations['histogram']['buckets']] 
-                                    if 'histogram' in aggregations else None,
-                                    missing=DocCount(doc_count=aggregations[f'{key}_missing']['doc_count']) if f'{key}_missing' in aggregations else None,
-                                    frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggregations[f'{key}_frequency']['buckets']]))
-        else:
-            for key, val in compliant_source.items():
-                data[key] = Annotation(value=val)
-           
-        data['id']  = hit['_id']
-            
-        compliant_results.append(SnpsType(**data))
+        values = {clean_field_name(key): value for key, value in source.items()} 
+        values['id']  = hit['_id']
+        compliant_results.append(Snp(**values))   
+        
     return compliant_results
+  
+  
+def convert_aggs2(aggs):
+    compliant_aggs = {clean_field_name(key): value for key, value in aggs.items()}
+
+    data = {}
+    for key, val in compliant_aggs.items():
+        data[key] = AggregationItem(doc_count=aggs[key]['doc_count'] if key in aggs else None,
+                            min=aggs[f'{key}_min']['value'] if f'{key}_min' in aggs else None,
+                            max=aggs[f'{key}_max']['value'] if f'{key}_max' in aggs else None,
+                            histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggs['histogram']['buckets']] 
+                            if 'histogram' in aggs else None,
+                            missing=DocCount(doc_count=aggs[f'{key}_missing']['doc_count']) if f'{key}_missing' in aggs else None,
+                            frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggs[f'{key}_frequency']['buckets']])
+                          
+                          
+    return SnpAggs(**data)
+  
+  
+  
+def convert_aggs(aggs: Dict) -> SnpAggs:
+    # Mapping function to handle special cases
+    def map_value(key, value):
+        if key.endswith(('min', 'max')):
+            return value.get('value')
+        elif key.endswith('missing'):
+            return DocCount(doc_count=value['doc_count'])
+        elif key in ('histogram', 'frequency'):
+            return [Bucket(key=b['key'], doc_count=b['doc_count']) for b in value['buckets']]
+        else:
+            return value.get('doc_count')
+
+    data = {}
+
+    for key, val in aggs.items():
+        prefix, *suffix = key.split('_')
+        suffix = '_'.join(suffix) or 'doc_count'
+
+        if prefix not in data:
+            data[prefix] = AggregationItem(doc_count=None)
+
+        if hasattr(data[prefix], suffix):
+            setattr(data[prefix], suffix, map_value(suffix, val))
+
+    return SnpAggs(**data)
+  
+  
 
 def annotation_query():
     return {"match_all": {}}

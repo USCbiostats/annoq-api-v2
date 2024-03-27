@@ -25,12 +25,10 @@ class AggregationItem:
     frequency: Optional[list[Bucket]] = None
     missing: Optional[DocCount] = None
 
-@strawberry.type
-class Annotation:
-    value: str
-    aggs: Optional[AggregationItem] = None
 
 class QueryType(Enum):
     DOWNLOAD = 'DOWNLOAD'
     SNPS = 'SNPS'
     AGGS = 'AGGS'
+
+

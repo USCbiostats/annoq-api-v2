@@ -42,11 +42,12 @@ async def get_mapping():
 def generate_snp_schema(mapping):
     json_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "Snp",
+        "title": "SnpModel",
         "type": "object",
         "properties": {},
     }
-        
+    
+    json_schema['properties']['id'] = {"type": "string"}
     for field, details in mapping.items():
         cleaned_field = clean_field_name(field)
         es_type = details['type']
@@ -58,7 +59,7 @@ def generate_snp_schema(mapping):
 def generate_snp_aggs_schema(mapping):
     json_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "SnpAggs",
+        "title": "SnpAggsModel",
         "type": "object",
         "properties": {},
     }
