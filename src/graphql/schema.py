@@ -1,7 +1,7 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
-from src.graphql.models.snp_model import Snp
+from src.graphql.models.snp_model import Snp, SnpAggs
 from src.graphql.models.annotation_model import PageArgs, QueryType
 
 from src.graphql.resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
@@ -33,7 +33,7 @@ class Query:
     
     @strawberry.field
     async def GetAggsByChromosome(self, info: Info, chr: str, start: int, end: int,
-                                  page_args: Optional[PageArgs] = None) -> List[Snp]:
+                                  page_args: Optional[PageArgs] = None) -> SnpAggs:
         fields = get_selected_fields(info)
         return await search_by_chromosome(fields, chr, start, end, QueryType.AGGS, page_args)
     

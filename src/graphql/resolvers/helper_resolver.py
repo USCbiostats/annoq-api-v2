@@ -5,6 +5,17 @@ from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCoun
 
 from src.utils import clean_field_name
 
+def _map_aggs_value(key, value):
+        if key.endswith(('min', 'max')):
+            return value.get('value')
+        elif key.endswith('missing'):
+            return DocCount(doc_count=value['doc_count'])
+        elif key in ('histogram', 'frequency'):
+            return [Bucket(key=b['key'], doc_count=b['doc_count']) for b in value['buckets']]
+        else:
+            return value.get('doc_count')
+          
+
 def convert_hits(hits):
     compliant_results = []
     for hit in hits:
@@ -34,17 +45,7 @@ def convert_aggs2(aggs):
   
   
   
-def convert_aggs(aggs: Dict) -> SnpAggs:
-    # Mapping function to handle special cases
-    def map_value(key, value):
-        if key.endswith(('min', 'max')):
-            return value.get('value')
-        elif key.endswith('missing'):
-            return DocCount(doc_count=value['doc_count'])
-        elif key in ('histogram', 'frequency'):
-            return [Bucket(key=b['key'], doc_count=b['doc_count']) for b in value['buckets']]
-        else:
-            return value.get('doc_count')
+def convert_aggs(aggs: Dict) -> SnpAggs: 
 
     data = {}
 
@@ -56,7 +57,7 @@ def convert_aggs(aggs: Dict) -> SnpAggs:
             data[prefix] = AggregationItem(doc_count=None)
 
         if hasattr(data[prefix], suffix):
-            setattr(data[prefix], suffix, map_value(suffix, val))
+            setattr(data[prefix], suffix, _map_aggs_value(suffix, val))
 
     return SnpAggs(**data)
   
@@ -159,7 +160,7 @@ async def get_aggregation_query(es_fields: list[str]):
             }
        }
 
-        results['histogram'] = {
+        results[f'{field}_histogram'] = {
           "histogram": {
             "field": "pos",
             "interval": 50000,
