@@ -2,7 +2,7 @@ from src.config.es import es
 from src.config.settings import settings
 import pytest
 import json
-from src.graphql.models.generated.snp import Snp
+from src.graphql.models.snp_model import Snp
 
 @pytest.mark.asyncio_cooperative
 async def test_elasticsearch():
