@@ -15,7 +15,7 @@ async def download_annotations(fields: list[str], resp: dict):
         for doc in resp['hits']['hits']:
             count += 1
             if count > settings.DOWNLOAD_SIZE: 
-                return "/download/" + 'tmp/' + filename
+                return "/downloads/" + filename
             
             li = []
             for k in fields:
@@ -35,4 +35,4 @@ async def download_annotations(fields: list[str], resp: dict):
 
         old_scroll_id = resp['_scroll_id']
 
-    return "/download/" + 'tmp/' + filename
+    return "/downloads/" + filename
