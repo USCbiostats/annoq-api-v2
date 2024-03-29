@@ -50,8 +50,14 @@ def convert_aggs(aggs: Dict) -> SnpAggs:
     data = {}
 
     for key, val in aggs.items():
-        prefix, *suffix = key.split('_')
-        suffix = '_'.join(suffix) or 'doc_count'
+        key_split = key.split('_')
+        prefix = '_'.join(key_split[:-1])
+        suffix = key_split[-1]
+
+        if suffix == 'count':
+            suffix = 'doc_count'
+            prefix_split = prefix.split('_')
+            prefix = '_'.join(prefix_split[:-1])
 
         if prefix not in data:
             data[prefix] = AggregationItem(doc_count=None)
@@ -126,7 +132,7 @@ async def get_aggregation_query(es_fields: list[str]):
     results = dict()
     for field in es_fields:
         
-        results[field] = {
+        results[f'{field}_doc_count'] = {
            "filter" : {
             "exists": {
               "field": field

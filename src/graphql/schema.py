@@ -54,6 +54,12 @@ class Query:
         return await search_by_rsID(fields, rsID, QueryType.SNPS, page_args)
     
     @strawberry.field
+    async def GetAggsByRsID(self, info: Info, rsID: str,
+                                  page_args: Optional[PageArgs] = None) -> SnpAggs:
+        fields = get_selected_fields(info)
+        return await search_by_rsID(fields, rsID, QueryType.AGGS, page_args)
+    
+    @strawberry.field
     async def CountSNPsByRsID(self, rsID: str) -> int:
         return await count_by_rsID(rsID)
     
@@ -68,6 +74,12 @@ class Query:
                              page_args: Optional[PageArgs] = None) -> List[Snp]:
         fields = get_selected_fields(info)
         return await search_by_rsIDs(fields, rsIDs, QueryType.SNPS, page_args)
+    
+    @strawberry.field
+    async def GetAggsByRsIDs(self, info: Info, rsIDs: list[str],
+                                  page_args: Optional[PageArgs] = None) -> SnpAggs:
+        fields = get_selected_fields(info)
+        return await search_by_rsIDs(fields, rsIDs, QueryType.AGGS, page_args)
     
     @strawberry.field
     async def CountSNPsByRsIDs(self, rsIDs: list[str]) -> int:
@@ -86,6 +98,12 @@ class Query:
         return await search_by_IDs(fields, ids, QueryType.SNPS, page_args)
     
     @strawberry.field
+    async def GetAggsByIDs(self, info: Info, ids: list[str],
+                                  page_args: Optional[PageArgs] = None) -> SnpAggs:
+        fields = get_selected_fields(info)
+        return await search_by_IDs(fields, ids, QueryType.AGGS, page_args)
+    
+    @strawberry.field
     async def CountSNPsByIDs(self, ids: list[str]) -> int:
         return await count_by_IDs(ids)
     
@@ -100,6 +118,12 @@ class Query:
                                    page_args: Optional[PageArgs] = None) -> List[Snp]:
         fields = get_selected_fields(info)
         return await search_by_gene(fields, gene, QueryType.SNPS, page_args)
+    
+    @strawberry.field
+    async def GetAggsByGeneProduct(self, info: Info, gene: str,
+                                  page_args: Optional[PageArgs] = None) -> SnpAggs:
+        fields = get_selected_fields(info)
+        return await search_by_gene(fields, gene, QueryType.AGGS, page_args)
     
     @strawberry.field
     async def CountSNPsByGeneProduct(self, gene: str) -> int:
