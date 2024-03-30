@@ -6,12 +6,12 @@ from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, c
 
 
 # Query for getting all annotations, no filter, size 20
-async def get_annotations(es_fields: list[str], query_type: str):
+async def get_annotations(es_fields: list[str], query_type: str, histogram=Histogram):
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
           query = annotation_query(),
-          aggs = await get_aggregation_query(es_fields),
+          aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
           size = 20,
           scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
