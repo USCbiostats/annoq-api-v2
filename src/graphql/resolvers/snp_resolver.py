@@ -35,6 +35,9 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     if page_args is None:
       page_args = PageArgs
 
+    if histogram is None:
+      histogram = Histogram
+
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
@@ -59,8 +62,12 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
 
 
 async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
+    
     if page_args is None:
       page_args = PageArgs
+
+    if histogram is None:
+      histogram = Histogram
 
     resp = await es.search(
           index = settings.ES_INDEX,
@@ -86,8 +93,12 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
     
 
 async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
+    
     if page_args is None:
       page_args = PageArgs
+
+    if histogram is None:
+      histogram = Histogram
 
     resp = await es.search(
           index = settings.ES_INDEX,
@@ -114,8 +125,12 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
 
 # query for VCF file
 async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
+    
     if page_args is None:
       page_args = PageArgs
+
+    if histogram is None:
+      histogram = Histogram
 
     resp = await es.search(
           index = settings.ES_INDEX,
@@ -141,30 +156,34 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
 
 # query for gene product
 async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
+    
     if page_args is None:
       page_args = PageArgs
 
-      query = gene_query(gene, filter_args)
+    if histogram is None:
+      histogram = Histogram
 
-      if query is not None:
-        resp = await es.search(
-                index = settings.ES_INDEX,
-                source = es_fields,
-                from_= page_args.from_,
-                size = page_args.size,
-                query = query,
-                aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
-                scroll = '2m' if query_type == QueryType.DOWNLOAD else None
-        )
-        
-        if query_type == QueryType.DOWNLOAD:
-          url = await download_annotations(es_fields, resp)
-          return url
+    query = gene_query(gene, filter_args)
 
-        elif query_type == QueryType.SNPS:
-          results = convert_hits(resp['hits']['hits'])  
-          return results
-    
-        elif query_type == QueryType.AGGS:
-          results = convert_aggs(resp['aggregations'])  
-          return results
+    if query is not None:
+      resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              from_= page_args.from_,
+              size = page_args.size,
+              query = query,
+              aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
+              scroll = '2m' if query_type == QueryType.DOWNLOAD else None
+      )
+      
+      if query_type == QueryType.DOWNLOAD:
+        url = await download_annotations(es_fields, resp)
+        return url
+
+      elif query_type == QueryType.SNPS:
+        results = convert_hits(resp['hits']['hits'])  
+        return results
+  
+      elif query_type == QueryType.AGGS:
+        results = convert_aggs(resp['aggregations'])  
+        return results
