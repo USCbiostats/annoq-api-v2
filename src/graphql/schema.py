@@ -37,6 +37,8 @@ class Query:
     async def GetAggsByChromosome(self, info: Info, chr: str, start: int, end: int,
                                   page_args: Optional[PageArgs] = None) -> SnpAggs:
         fields = get_selected_fields(info)
+        if page_args is not None:
+            page_args.size = 0
         return await search_by_chromosome(fields, chr, start, end, QueryType.AGGS, page_args)
     
     @strawberry.field
@@ -59,6 +61,8 @@ class Query:
     async def GetAggsByRsID(self, info: Info, rsID: str,
                                   page_args: Optional[PageArgs] = None) -> SnpAggs:
         fields = get_selected_fields(info)
+        if page_args is not None:
+            page_args.size = 0
         return await search_by_rsID(fields, rsID, QueryType.AGGS, page_args)
     
     @strawberry.field
@@ -81,6 +85,8 @@ class Query:
     async def GetAggsByRsIDs(self, info: Info, rsIDs: list[str],
                                   page_args: Optional[PageArgs] = None) -> SnpAggs:
         fields = get_selected_fields(info)
+        if page_args is not None:
+            page_args.size = 0
         return await search_by_rsIDs(fields, rsIDs, QueryType.AGGS, page_args)
     
     @strawberry.field
@@ -103,6 +109,8 @@ class Query:
     async def GetAggsByIDs(self, info: Info, ids: list[str],
                                   page_args: Optional[PageArgs] = None) -> SnpAggs:
         fields = get_selected_fields(info)
+        if page_args is not None:
+            page_args.size = 0
         return await search_by_IDs(fields, ids, QueryType.AGGS, page_args)
     
     @strawberry.field
@@ -125,6 +133,8 @@ class Query:
     async def GetAggsByGeneProduct(self, info: Info, gene: str,
                                   page_args: Optional[PageArgs] = None) -> SnpAggs:
         fields = get_selected_fields(info)
+        if page_args is not None:
+            page_args.size = 0
         return await search_by_gene(fields, gene, QueryType.AGGS, page_args)
     
     @strawberry.field
