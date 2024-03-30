@@ -1,6 +1,6 @@
 from ...config.es import es
 from ...config.settings import settings
-from src.graphql.models.annotation_model import PageArgs
+from src.graphql.models.annotation_model import FilterArgs, PageArgs
 from .helper_resolver import IDs_query, annotation_query, chromosome_query, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
@@ -13,11 +13,11 @@ async def get_annotations_count():
     return resp['count']
 
 
-async def count_by_chromosome(chr: str, start: int, end: int):
+async def count_by_chromosome(chr: str, start: int, end: int, filter_args=FilterArgs):
 
     resp = await es.count(
           index = settings.ES_INDEX,
-          query = chromosome_query(chr, start, end),
+          query = chromosome_query(chr, start, end, filter_args),
     )
     return resp['count']
 

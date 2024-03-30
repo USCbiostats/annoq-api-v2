@@ -1,11 +1,16 @@
 from enum import Enum
 import strawberry
-from typing import Optional
+from typing import List, Optional
 
 @strawberry.input
 class PageArgs:
     from_: Optional[int] = 0
     size: Optional[int] = 50
+    
+@strawberry.input
+class FilterArgs:
+    exists:  Optional[List[str]] = None
+    # many more will come as needed so this will be updated as needed and flexible
 
 @strawberry.type
 class Bucket:

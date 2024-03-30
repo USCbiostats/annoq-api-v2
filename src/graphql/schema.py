@@ -2,7 +2,7 @@ from typing import List, Optional
 import strawberry
 from strawberry.types import Info
 from src.graphql.models.snp_model import Snp, SnpAggs
-from src.graphql.models.annotation_model import PageArgs, QueryType
+from src.graphql.models.annotation_model import FilterArgs, PageArgs, QueryType
 
 from src.graphql.resolvers.snp_resolver import get_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
 from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
@@ -27,9 +27,11 @@ class Query:
 
     @strawberry.field
     async def GetSNPsByChromosome(self, info: Info, chr: str, start: int, end: int,
-                                  page_args: Optional[PageArgs] = None) -> List[Snp]:
+                                  page_args: Optional[PageArgs] = None,
+                                  filter_args: Optional[FilterArgs] = None) -> List[Snp]:
+        
         fields = get_selected_fields(info)
-        return await search_by_chromosome(fields, chr, start, end, QueryType.SNPS, page_args)
+        return await search_by_chromosome(fields, chr, start, end, QueryType.SNPS, page_args, filter_args)
     
     @strawberry.field
     async def GetAggsByChromosome(self, info: Info, chr: str, start: int, end: int,
@@ -38,13 +40,13 @@ class Query:
         return await search_by_chromosome(fields, chr, start, end, QueryType.AGGS, page_args)
     
     @strawberry.field
-    async def CountSNPsByChromosome(self, chr: str, start: int, end: int) -> int:
-        return await count_by_chromosome(chr, start, end)
+    async def CountSNPsByChromosome(self, chr: str, start: int, end: int, filter_args: Optional[FilterArgs] = None) -> int:
+        return await count_by_chromosome(chr, start, end, filter_args)
     
     @strawberry.field
     async def DownloadSNPsByChromosome(self, chr: str, start: int, end: int, fields: list[str],
                                   page_args: Optional[PageArgs] = None) -> str:
-        return await search_by_chromosome(fields, chr, start, end, QueryType.DOWNLOAD, page_args)
+        return await search_by_chromosome(fields, chr, start, end, QueryType.DOWNLOAD, page_args) 
     
 
     @strawberry.field

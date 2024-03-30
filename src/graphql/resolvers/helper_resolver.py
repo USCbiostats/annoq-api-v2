@@ -73,15 +73,22 @@ def annotation_query():
     return {"match_all": {}}
 
 
-def chromosome_query(chr, start, end):
-    return {
-              "bool": {
-                    "must": [
-                      {"term": {"chr": chr}},
-                      {"range": {"pos": {"gte": start, "lte": end}}}
-                    ]
-              }
+def chromosome_query(chr, start, end, filter_args=None):
+    query = {
+        "bool": {
+            "must": [
+                {"term": {"chr": chr}},
+                {"range": {"pos": {"gte": start, "lte": end}}}
+            ]
+        }
     }
+
+    if filter_args and filter_args.exists:
+        for field in filter_args.exists:
+            query["bool"]["must"].append({"exists": {"field": field}})
+
+
+    return query
 
 
 def rsID_query(rsID):

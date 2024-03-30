@@ -130,6 +130,25 @@ query myQuery {
   }
 }
 
+queries with filters
+
+query MyQuery {
+  GetSNPsByChromosome(chr: "1", end: 100000000, start: 10, filter_args: {exists: ["chr", "ref"]}) {
+    chr
+    alt
+    VEP_ensembl_CANONICAL
+  }
+}
+
+query MyQuery {
+  CountSNPsByChromosome(
+    chr: "1"
+    end: 10000000
+    start: 10
+    filter_args: {exists: ["ref"]}
+  )
+}
+
 
 
 

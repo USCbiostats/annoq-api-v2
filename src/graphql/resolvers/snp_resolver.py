@@ -1,7 +1,7 @@
 from src.config.es import es
 from src.config.settings import settings
 from src.graphql.resolvers.download_resolver import download_annotations
-from src.graphql.models.annotation_model import PageArgs, QueryType
+from src.graphql.models.annotation_model import FilterArgs, PageArgs, QueryType
 from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, convert_aggs, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
@@ -30,7 +30,7 @@ async def get_annotations(es_fields: list[str], query_type: str):
 
 
 # Query for getting annotation by chromosome with start and end range of pos
-async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: int, query_type: str, page_args=PageArgs):
+async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: int, query_type: str, page_args=PageArgs, filter_args=FilterArgs):
     if page_args is None:
       page_args = PageArgs
 
@@ -39,7 +39,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
           source = es_fields,
           from_= page_args.from_,
           size = page_args.size,
-          query = chromosome_query(chr, start, end),
+          query = chromosome_query(chr, start, end, filter_args),
           aggs = await get_aggregation_query(es_fields)  if query_type == QueryType.AGGS else None,
           scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
