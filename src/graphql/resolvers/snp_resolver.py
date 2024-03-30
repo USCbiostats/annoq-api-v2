@@ -41,7 +41,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_,
+          from_= page_args.from_ if query_type != QueryType.DOWNLOAD else None,
           size = page_args.size,
           query = chromosome_query(chr, start, end, filter_args),
           aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
@@ -72,7 +72,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_,
+          from_= page_args.from_ if query_type != QueryType.DOWNLOAD else None,
           size = page_args.size,
           query = rsID_query(rsID, filter_args),
           aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
@@ -103,7 +103,7 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_,
+          from_= page_args.from_ if query_type != QueryType.DOWNLOAD else None,
           size = page_args.size,
           query = rsIDs_query(rsIDs, filter_args),
           aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
@@ -135,7 +135,7 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
-          from_= page_args.from_,
+          from_= page_args.from_ if query_type != QueryType.DOWNLOAD else None,
           size = page_args.size,
           query = IDs_query(ids, filter_args),
           aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
@@ -169,7 +169,7 @@ async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_a
       resp = await es.search(
               index = settings.ES_INDEX,
               source = es_fields,
-              from_= page_args.from_,
+              from_= page_args.from_ if query_type != QueryType.DOWNLOAD else None,
               size = page_args.size,
               query = query,
               aggs = await get_aggregation_query(es_fields, histogram) if query_type == QueryType.AGGS else None,
