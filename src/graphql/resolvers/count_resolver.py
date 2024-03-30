@@ -22,35 +22,35 @@ async def count_by_chromosome(chr: str, start: int, end: int, filter_args=Filter
     return resp['count']
 
 
-async def count_by_rsID(rsID:str):
+async def count_by_rsID(rsID:str, filter_args=FilterArgs):
 
     resp = await es.count(
           index = settings.ES_INDEX,
-          query = rsID_query(rsID)
+          query = rsID_query(rsID, filter_args)
     )
     return resp['count']
 
 
-async def count_by_rsIDs(rsIDs: list[str]):
+async def count_by_rsIDs(rsIDs: list[str], filter_args=FilterArgs):
 
     resp = await es.count(
           index = settings.ES_INDEX,
-          query = rsIDs_query(rsIDs)
+          query = rsIDs_query(rsIDs, filter_args)
     )
     return resp['count']
 
 
-async def count_by_IDs(ids: list[str]):
+async def count_by_IDs(ids: list[str], filter_args=FilterArgs):
 
     resp = await es.count(
           index = settings.ES_INDEX,
-          query = IDs_query(ids)
+          query = IDs_query(ids, filter_args)
     )
     return resp['count']
 
 
-async def count_by_gene(gene:str):
-      query = gene_query(gene)
+async def count_by_gene(gene:str, filter_args=FilterArgs):
+      query = gene_query(gene, filter_args)
 
       if query is not None:
         resp = await es.count(

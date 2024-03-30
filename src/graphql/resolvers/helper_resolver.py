@@ -87,22 +87,27 @@ def chromosome_query(chr, start, end, filter_args=None):
         for field in filter_args.exists:
             query["bool"]["must"].append({"exists": {"field": field}})
 
-
     return query
 
 
-def rsID_query(rsID):
-    return {
+def rsID_query(rsID, filter_args=None):
+    query = {
               "bool": {
                     "must": [
                       {"term": {"rs_dbSNP151": rsID}},
                     ]
               }
           }
+    
+    if filter_args and filter_args.exists:
+        for field in filter_args.exists:
+            query["bool"]["must"].append({"exists": {"field": field}})
+
+    return query
 
 
-def rsIDs_query(rsIDs):
-    return {
+def rsIDs_query(rsIDs, filter_args=None):
+    query = {
               "bool": {
                     "filter": [
                       {"terms": {"rs_dbSNP151": rsIDs}}
@@ -110,17 +115,30 @@ def rsIDs_query(rsIDs):
               }
           }
 
+    if filter_args and filter_args.exists:
+        for field in filter_args.exists:
+            query["bool"]["filter"].append({"exists": {"field": field}})
 
-def IDs_query(ids):
-    return {
+    return query
+
+
+def IDs_query(ids, filter_args=None):
+    query = {
               "bool": {
                  "filter": [
                     {"ids": {"values": ids}}
                  ]
               }
           }
+    
+    if filter_args and filter_args.exists:
+        for field in filter_args.exists:
+            query["bool"]["filter"].append({"exists": {"field": field}})
 
-def gene_query(gene):
+    return query
+
+
+def gene_query(gene, filter_args=None):
 
     gene_id = map_gene(gene)
     gene_pos = get_pos_from_gene_id(gene_id, chromosomal_location_dic)
@@ -130,7 +148,7 @@ def gene_query(gene):
         start = gene_pos[1]
         end = gene_pos[2]
 
-        query = chromosome_query(chr, start, end)
+        query = chromosome_query(chr, start, end, filter_args)
         return query
     
     return None

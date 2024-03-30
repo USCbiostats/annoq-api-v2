@@ -57,7 +57,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
       return results
 
 
-async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_args=PageArgs):
+async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs):
     if page_args is None:
       page_args = PageArgs
 
@@ -66,7 +66,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
           source = es_fields,
           from_= page_args.from_,
           size = page_args.size,
-          query = rsID_query(rsID),
+          query = rsID_query(rsID, filter_args),
           aggs = await get_aggregation_query(es_fields) if query_type == QueryType.AGGS else None,
           scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
@@ -84,7 +84,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
       return results
     
 
-async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: str, page_args=PageArgs):
+async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs):
     if page_args is None:
       page_args = PageArgs
 
@@ -93,7 +93,7 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
           source = es_fields,
           from_= page_args.from_,
           size = page_args.size,
-          query = rsIDs_query(rsIDs),
+          query = rsIDs_query(rsIDs, filter_args),
           aggs = await get_aggregation_query(es_fields) if query_type == QueryType.AGGS else None,
           scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
@@ -112,7 +112,7 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
 
 
 # query for VCF file
-async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, page_args=PageArgs):
+async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs):
     if page_args is None:
       page_args = PageArgs
 
@@ -121,7 +121,7 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
           source = es_fields,
           from_= page_args.from_,
           size = page_args.size,
-          query = IDs_query(ids),
+          query = IDs_query(ids, filter_args),
           aggs = await get_aggregation_query(es_fields) if query_type == QueryType.AGGS else None,
           scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
@@ -139,11 +139,11 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
         return results
 
 # query for gene product
-async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs):
+async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs):
     if page_args is None:
       page_args = PageArgs
 
-      query = gene_query(gene)
+      query = gene_query(gene, filter_args)
 
       if query is not None:
         resp = await es.search(
