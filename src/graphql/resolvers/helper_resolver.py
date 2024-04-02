@@ -1,7 +1,7 @@
 from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
 from src.graphql.models.snp_model import Snp, SnpAggs
-from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount
+from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, Histogram
 
 from src.utils import clean_field_name
 
@@ -153,7 +153,7 @@ def gene_query(gene, filter_args=None):
     
     return None
 
-async def get_aggregation_query(es_fields: list[str]):
+async def get_aggregation_query(es_fields: list[str], histogram: Histogram):
     results = dict()
     for field in es_fields:
         
@@ -194,10 +194,10 @@ async def get_aggregation_query(es_fields: list[str]):
         results[f'{field}_histogram'] = {
           "histogram": {
             "field": "pos",
-            "interval": 50000,
+            "interval": histogram.interval,
             "extended_bounds": {
-              "min": 0,
-              "max": 500000
+              "min": histogram.min,
+              "max": histogram.max
             }
           }
        }

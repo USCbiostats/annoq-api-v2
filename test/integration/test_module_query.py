@@ -24,9 +24,7 @@ async def test_GetAnnotations():
     query = """
         query myQuery {
             GetAnnotations {
-                chr {
-                value
-                }
+                chr
             }
         }
     """
@@ -49,9 +47,8 @@ async def test_GetSNPsByChromosome():
                 start: 10
                 page_args: {from_: 10, size: 10}
             ) {
-                chr {
-                    value
-                }
+                chr
+            		pos
             }
         }
     """
@@ -69,24 +66,9 @@ async def test_GetSNPsByIDs():
     query = """
         query myQuery {
             GetSNPsByIDs(ids: ["2:10662G>C", "2:10632C>A"], page_args: {from_: 0, size: 5}) {
-                chr {
-                    aggs {
-                        doc_count
-                        histogram{
-                            key
-                            doc_count
-                        }
-                    }
-                    value
-                },
-                id,
-                pos{
-                    aggs{
-                        min,
-                            max
-                    }
-                    value
-                }
+                chr
+                pos
+                id
             }
         }
     """
@@ -97,9 +79,8 @@ async def test_GetSNPsByIDs():
  
     assert result.errors is None
     assert len(result.data['GetSNPsByIDs']) == 2
-    assert result.data['GetSNPsByIDs'][0]['chr']['value'] == '2'
-    assert result.data['GetSNPsByIDs'][0]['chr']['aggs'] is None
-    assert result.data['GetSNPsByIDs'][0]['pos']['value'] == '10662'
+    assert result.data['GetSNPsByIDs'][0]['chr'] == '2'
+    assert result.data['GetSNPsByIDs'][0]['pos'] == 10662
 
 
 @pytest.mark.asyncio_cooperative
