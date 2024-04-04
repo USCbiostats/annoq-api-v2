@@ -12,7 +12,8 @@ from src.utils import get_selected_fields
 class Query:
     
     @strawberry.field
-    async def GetAnnotations(self, info: Info) -> List[Snp]: 
+    async def GetAnnotations(self, info: Info) -> List[Snp]:
+        """Get all annotations""" 
         fields = get_selected_fields(info)
         return await get_annotations(fields, QueryType.SNPS)
     

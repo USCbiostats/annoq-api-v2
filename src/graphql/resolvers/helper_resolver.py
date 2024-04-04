@@ -76,7 +76,7 @@ def annotation_query():
 def chromosome_query(chr, start, end, filter_args=None):
     query = {
         "bool": {
-            "must": [
+            "filter": [
                 {"term": {"chr": chr}},
                 {"range": {"pos": {"gte": start, "lte": end}}}
             ]
@@ -85,7 +85,7 @@ def chromosome_query(chr, start, end, filter_args=None):
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
-            query["bool"]["must"].append({"exists": {"field": field}})
+            query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
 
@@ -93,7 +93,7 @@ def chromosome_query(chr, start, end, filter_args=None):
 def rsID_query(rsID, filter_args=None):
     query = {
               "bool": {
-                    "must": [
+                    "filter": [
                       {"term": {"rs_dbSNP151": rsID}},
                     ]
               }
@@ -101,7 +101,7 @@ def rsID_query(rsID, filter_args=None):
     
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
-            query["bool"]["must"].append({"exists": {"field": field}})
+            query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
 

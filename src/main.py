@@ -1,7 +1,5 @@
-from os import abort
-from fastapi.responses import FileResponse
 import strawberry
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +35,7 @@ def read_root():
 
 @app.get("/annotations")
 def read_annotations():
+    """Annotation tree with API field names"""
 
     with open('./data/anno_tree.json') as f:
         data = json.load(f)
@@ -54,13 +53,6 @@ def read_annotations():
                 anno_tree.append(elt)
 
         return {"results": anno_tree}
-    
-
-@app.get("/download/{folder}/{name}")
-async def download_file(folder: str, name: str):
-    if folder not in settings.DOWNLOAD_DIR:
-        raise HTTPException(status_code=400, detail="Invalid folder")
-    return FileResponse(path=f"{folder}/{name}", filename=name, media_type='application/octet-stream')
 
 
 if __name__ == "__main__":
