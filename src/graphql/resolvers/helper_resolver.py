@@ -85,6 +85,8 @@ def chromosome_query(chr, start, end, filter_args=None):
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
+            if field == 'id':
+                field = '_id'
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -101,6 +103,8 @@ def rsID_query(rsID, filter_args=None):
     
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
+            if field == 'id':
+                field = '_id'
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -117,6 +121,8 @@ def rsIDs_query(rsIDs, filter_args=None):
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
+            if field == 'id':
+                field = '_id'
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -133,6 +139,8 @@ def IDs_query(ids, filter_args=None):
     
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
+            if field == 'id':
+                field = '_id'
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
