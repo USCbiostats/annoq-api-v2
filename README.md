@@ -1,3 +1,13 @@
+This is a FastAPI project which uses strawberry to query an elasticsearch database.  
+
+### Live API
+This API is live at - http://annoq.org/api-v2/
+
+## API Endpoints
+ 1. **/graphql** - Graphql endpoint of the API where all the queries can be made through strawberry graphiQL.
+ 2. **/annotations** - Returns a json with the annotation tree which has field names for strawberry queries.
+ 3. **/download/{folder}/{name}** - Downloads a text file using the download path returned in the download graphql query.  
+
 # Installations 
 Before you begin, make sure you have the following installed:
 1. Python: Install Python 3.9 or later. You can download it from [python.org](https://www.python.org/downloads/). 
