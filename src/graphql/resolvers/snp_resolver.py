@@ -76,6 +76,23 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     elif query_type == QueryType.AGGS:
       results = convert_aggs(resp['aggregations']) 
       return results
+    
+
+async def scroll_by_chromosome(es_fields: list[str], chr: str, start: int, end: int, scroll_id: str=None):
+    if scroll_id != None:
+      resp = await es.scroll(
+              scroll = '2m',
+              scroll_id = scroll_id
+        )
+    else:
+      resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              query = chromosome_query(chr, start, end),
+              scroll = '2m'
+        )
+    results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
+    return results
 
 
 async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
