@@ -2,7 +2,7 @@ from src.config.es import es
 from src.config.settings import settings
 from src.graphql.resolvers.download_resolver import download_annotations
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType
-from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, convert_aggs, convert_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
+from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, convert_aggs, convert_hits, convert_scroll_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
 # Query for getting all annotations, no filter, size 20
@@ -42,7 +42,7 @@ async def scroll_annotations(es_fields: list[str], scroll_id: str=None):
               query = annotation_query(),
               scroll = '2m'
         )
-    results = convert_hits(resp['hits']['hits'], resp['_scroll_id'])
+    results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
     return results
 
 

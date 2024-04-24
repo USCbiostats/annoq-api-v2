@@ -1,12 +1,12 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
-from src.graphql.models.snp_model import Snp, SnpAggs
+from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType
 
 from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
 from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
-from src.utils import get_selected_fields
+from src.utils import get_selected_fields, get_sub_selected_fields
 
 @strawberry.type
 class Query:
@@ -26,8 +26,8 @@ class Query:
         return await get_annotations(fields, QueryType.DOWNLOAD)
     
     @strawberry.field
-    async def ScrollAnnotations(self, info: Info, scroll_id: Optional[str] = None) -> List[Snp]: 
-        fields = get_selected_fields(info)
+    async def ScrollAnnotations(self, info: Info, scroll_id: Optional[str] = None) -> ScrollSnp: 
+        fields = get_sub_selected_fields(info)
         return await scroll_annotations(fields, scroll_id)
     
 

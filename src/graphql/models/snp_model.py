@@ -17,3 +17,9 @@ class SnpAggs:
 @strawberry.type
 class SnpList:
     snps: List[Snp]
+
+
+@strawberry.type
+class ScrollSnp:
+    snps: List[Snp]
+    scroll_id: Optional[str] = None

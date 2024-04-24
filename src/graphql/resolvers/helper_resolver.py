@@ -1,6 +1,6 @@
 from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
-from src.graphql.models.snp_model import Snp, SnpAggs
+from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
 from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, Histogram
 
 from src.utils import clean_field_name
@@ -27,6 +27,17 @@ def convert_hits(hits, scroll_id=None):
         compliant_results.append(Snp(**values))   
         
     return compliant_results
+
+
+def convert_scroll_hits(hits, scroll_id=None):
+    compliant_results = []
+    for hit in hits:
+        source = hit['_source']
+        values = {clean_field_name(key): value for key, value in source.items()} 
+        values['id']  = hit['_id']
+        compliant_results.append(Snp(**values))   
+        
+    return ScrollSnp(snps=compliant_results, scroll_id=scroll_id)
   
   
 def convert_aggs2(aggs):
