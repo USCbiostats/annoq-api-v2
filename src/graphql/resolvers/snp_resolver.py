@@ -27,6 +27,23 @@ async def get_annotations(es_fields: list[str], query_type: str, histogram=Histo
     elif query_type == QueryType.AGGS:
       results = convert_aggs(resp['aggregations'])  
       return results
+    
+
+async def scroll_annotations(es_fields: list[str], scroll_id: str=None):
+    if scroll_id != None:
+      resp = await es.scroll(
+              scroll = '2m',
+              scroll_id = scroll_id
+        )
+    else:
+      resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              query = annotation_query(),
+              scroll = '2m'
+        )
+    results = convert_hits(resp['hits']['hits'], resp['_scroll_id'])
+    return results
 
 
 # Query for getting annotation by chromosome with start and end range of pos
