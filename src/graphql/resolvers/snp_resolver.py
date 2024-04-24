@@ -126,6 +126,23 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
       return results
     
 
+async def scroll_by_rsID(es_fields: list[str], rsID:str, scroll_id: str=None):
+    if scroll_id != None:
+      resp = await es.scroll(
+              scroll = '2m',
+              scroll_id = scroll_id
+        )
+    else:
+      resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              query = rsID_query(rsID),
+              scroll = '2m'
+        )
+    results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
+    return results
+    
+
 async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
     
     if page_args is None:
