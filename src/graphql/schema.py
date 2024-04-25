@@ -4,7 +4,7 @@ from strawberry.types import Info
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType
 
-from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations, scroll_by_IDs, scroll_by_chromosome, scroll_by_rsID, scroll_by_rsIDs, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
+from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations, scroll_by_IDs, scroll_by_chromosome, scroll_by_gene, scroll_by_rsID, scroll_by_rsIDs, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
 from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
 from src.utils import get_selected_fields, get_sub_selected_fields
 
@@ -179,3 +179,8 @@ class Query:
     async def DownloadSNPsByGeneProduct(self, gene: str, fields: list[str],
                                    page_args: Optional[PageArgs] = None) -> str:
         return await search_by_gene(fields, gene, QueryType.DOWNLOAD, page_args)
+    
+    @strawberry.field
+    async def ScrollSNPsByGeneProduct(self, info:Info, gene: str, scroll_id: Optional[str] = None) -> ScrollSnp:
+        fields = get_sub_selected_fields(info)
+        return await scroll_by_gene(fields, gene, scroll_id)
