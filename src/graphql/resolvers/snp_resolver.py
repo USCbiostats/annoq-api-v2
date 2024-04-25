@@ -174,6 +174,23 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
       return results
 
 
+async def scroll_by_rsIDs(es_fields: list[str], rsIDs: list[str], scroll_id: str=None):
+    if scroll_id != None:
+      resp = await es.scroll(
+              scroll = '2m',
+              scroll_id = scroll_id
+        )
+    else:
+      resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              query = rsIDs_query(rsIDs),
+              scroll = '2m'
+        )
+    results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
+    return results
+
+
 # query for VCF file
 async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
     
