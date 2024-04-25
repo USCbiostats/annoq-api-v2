@@ -221,6 +221,24 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
     elif query_type == QueryType.AGGS:
         results = convert_aggs(resp['aggregations'])  
         return results
+    
+
+async def scroll_by_IDs(es_fields: list[str], ids: list[str], scroll_id: str=None):
+    if scroll_id != None:
+      resp = await es.scroll(
+              scroll = '2m',
+              scroll_id = scroll_id
+        )
+    else:
+      resp = await es.search(
+              index = settings.ES_INDEX,
+              source = es_fields,
+              query = IDs_query(ids),
+              scroll = '2m'
+        )
+    results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
+    return results
+
 
 # query for gene product
 async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
