@@ -7,7 +7,7 @@ import pytest
 async def test_CountAnnotations():
     query = """
         query myQuery {
-            CountAnnotations
+            count_annotations
         }
     """
  
@@ -16,14 +16,14 @@ async def test_CountAnnotations():
     )
  
     assert result.errors is None
-    assert result.data['CountAnnotations'] == 99
+    assert result.data['count_annotations'] == 449
 
 
 @pytest.mark.asyncio_cooperative
 async def test_GetAnnotations():
     query = """
         query myQuery {
-            GetAnnotations {
+            annotations {
                 chr
             }
         }
@@ -34,14 +34,14 @@ async def test_GetAnnotations():
     )
  
     assert result.errors is None
-    assert len(result.data['GetAnnotations']) == 20
+    assert len(result.data['annotations']) == 20
 
 
 @pytest.mark.asyncio_cooperative
 async def test_GetSNPsByChromosome():
     query = """
         query myQuery {
-            GetSNPsByChromosome(
+            get_SNPs_by_chromosome(
                 chr: "2"
                 end: 100000
                 start: 10
@@ -58,14 +58,14 @@ async def test_GetSNPsByChromosome():
     )
  
     assert result.errors is None
-    assert len(result.data['GetSNPsByChromosome']) == 0
+    assert len(result.data['get_SNPs_by_chromosome']) == 0
 
 
 @pytest.mark.asyncio_cooperative
 async def test_GetSNPsByIDs():
     query = """
         query myQuery {
-            GetSNPsByIDs(ids: ["2:10662G>C", "2:10632C>A"], page_args: {from_: 0, size: 5}) {
+            get_SNPs_by_IDs(ids: ["2:10662G>C", "2:10632C>A"], page_args: {from_: 0, size: 5}) {
                 chr
                 pos
                 id
@@ -78,16 +78,16 @@ async def test_GetSNPsByIDs():
     )
  
     assert result.errors is None
-    assert len(result.data['GetSNPsByIDs']) == 2
-    assert result.data['GetSNPsByIDs'][0]['chr'] == '2'
-    assert result.data['GetSNPsByIDs'][0]['pos'] == 10662
+    assert len(result.data['get_SNPs_by_IDs']) == 2
+    assert result.data['get_SNPs_by_IDs'][0]['chr'] == '2'
+    assert result.data['get_SNPs_by_IDs'][0]['pos'] == 10662
 
 
 @pytest.mark.asyncio_cooperative
 async def test_CountSNPsByIDs():
     query = """
         query myQuery {
-            CountSNPsByIDs(ids: "2:10662G>C")
+            count_SNPs_by_IDs(ids: "2:10662G>C")
         }
     """
  
@@ -96,14 +96,14 @@ async def test_CountSNPsByIDs():
     )
  
     assert result.errors is None
-    assert result.data['CountSNPsByIDs'] == 1
+    assert result.data['count_SNPs_by_IDs'] == 1
 
 
 @pytest.mark.asyncio_cooperative
 async def test_wrong_query():
     query = """
         query myQuery {
-            CountSnpsByPos(pos: "10662")
+            count_Snps_by_pos(pos: "10662")
         }
     """
  
@@ -118,7 +118,7 @@ async def test_wrong_query():
 async def test_wrong_key():
     query = """
         query myQuery {
-            GetSNPsByChromosome(
+            get_SNPs_by_chromosome(
                 chr: "2"
                 end: 100000
                 start: 10
