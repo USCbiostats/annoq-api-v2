@@ -29,7 +29,7 @@ async def get_annotations(es_fields: list[str], query_type: str, histogram=Histo
       return results
     
 
-async def scroll_annotations(es_fields: list[str], scroll_id: str=None):
+async def scroll_annotations_(es_fields: list[str], scroll_id: str=None):
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
