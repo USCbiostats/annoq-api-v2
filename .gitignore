@@ -418,3 +418,4 @@ scripts/class_generators/class_schema.json
 generated
 generated_schemas
 .downloads/
+/sample_data/downloaded_json_files
