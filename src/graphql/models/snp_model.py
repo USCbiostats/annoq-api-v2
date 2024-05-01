@@ -2,14 +2,13 @@ from typing import List
 import strawberry
 from src.graphql.models.generated.snp import SnpModel
 from src.graphql.models.generated.snp_aggs import SnpAggsModel
-from strawberry.experimental.pydantic import type as pydantic_type
+from typing import Optional
 
 @strawberry.experimental.pydantic.type(model=SnpModel, all_fields=True)
 class Snp:
     id: strawberry.ID
+    scroll_id: Optional[str] = None
     pass
-
-
 
 @strawberry.experimental.pydantic.type(model=SnpAggsModel, all_fields=True)
 class SnpAggs:
@@ -18,3 +17,9 @@ class SnpAggs:
 @strawberry.type
 class SnpList:
     snps: List[Snp]
+
+
+@strawberry.type
+class ScrollSnp:
+    snps: List[Snp]
+    scroll_id: Optional[str] = None

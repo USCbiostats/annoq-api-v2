@@ -72,6 +72,13 @@ Make sure that the above scripts has permissions, if not run
 chmod +x scripts/class_generators/generate_model.sh
 ```
 
+## Cron job setup 
+Change the cron_job.sh file change downloads in line 1 to the absolute path of the download folder in this repo after cloning and then run the following command which clears the download folder once a week at midnight.  
+```
+chmod +x cron_job.sh
+./cron_job.sh
+```
+
 # To run the project
 
 ```bash
