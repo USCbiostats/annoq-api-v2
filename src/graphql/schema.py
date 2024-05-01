@@ -76,7 +76,7 @@ class Query:
         fields = get_selected_fields(info)
         if page_args is not None:
             page_args.size = 0
-        return await search_by_rsID(fields, rsID, QueryType.AGGS, page_args, histogram)
+        return await search_by_rsID(fields, rsID, QueryType.AGGS, page_args, None, histogram)
     
     @strawberry.field
     async def count_SNPs_by_RsID(self, rsID: str, filter_args: Optional[FilterArgs] = None) -> int:
@@ -107,7 +107,7 @@ class Query:
         fields = get_selected_fields(info)
         if page_args is not None:
             page_args.size = 0
-        return await search_by_rsIDs(fields, rsIDs, QueryType.AGGS, page_args, histogram)
+        return await search_by_rsIDs(fields, rsIDs, QueryType.AGGS, page_args, None, histogram)
     
     @strawberry.field
     async def count_SNPs_by_RsIDs(self, rsIDs: list[str], filter_args: Optional[FilterArgs] = None) -> int:
