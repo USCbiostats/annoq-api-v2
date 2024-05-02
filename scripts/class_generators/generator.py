@@ -34,12 +34,24 @@ es = AsyncElasticsearch(ES_URL,
 
 
 async def get_mapping():
+    """
+    Get mappings from elasticsearch index
+
+    Returns properties of mappings
+    """
     mapping = await es.indices.get_mapping(index = ES_INDEX)
     properties =  mapping[ES_INDEX]['mappings']['properties']
     return properties
 
 
 def generate_snp_schema(mapping):
+    """
+    Generates the schema for the SnpModel from elasticsearch mappings
+
+    Params: mapping: elasticsearch mappings
+
+    Returns: SnpModel schema
+    """
     json_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "SnpModel",
@@ -57,6 +69,13 @@ def generate_snp_schema(mapping):
 
 
 def generate_snp_aggs_schema(mapping):
+    """
+    Generates the schema for the SnpAggs from elasticsearch mappings
+
+    Params: mapping: elasticsearch mappings
+
+    Returns: SnpModel schema
+    """
     json_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "SnpAggsModel",
@@ -72,6 +91,13 @@ def generate_snp_aggs_schema(mapping):
 
         
 def write_to_json(data, output_file, indent=None):
+    """
+    Writes data to a json file
+    
+    Params: data: data to write to file
+            output_file: file to write to
+            indent: indentation level
+    """
     with open(output_file, 'w', encoding='utf-8') as outfile:
         json.dump(data, outfile, ensure_ascii=False, indent=indent)
 

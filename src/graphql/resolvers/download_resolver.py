@@ -4,6 +4,14 @@ from ...config.settings import settings
 
 
 async def download_annotations(fields: list[str], resp: dict):
+    """
+    Download annotations from elasticsearch
+
+    Params: fields: List of fields to be returned in elasticsearch query
+            resp: elasticsearch response object
+
+    Returns: string for download filename
+    """
     count = 0
     filename = str(uuid.uuid4()) + '.txt'
     f = open(settings.DOWNLOAD_DIR + '/' + filename, 'w')
