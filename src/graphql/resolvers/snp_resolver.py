@@ -5,8 +5,16 @@ from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs,
 from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, convert_aggs, convert_hits, convert_scroll_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
-# Query for getting all annotations, no filter, size 20
 async def get_annotations(es_fields: list[str], query_type: str, histogram=Histogram):
+    """ 
+    Query for getting all annotations, no filter, size 20
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            query_type: Type of query to be executed
+            histogram: Histogram object for aggregation query
+
+    Returns: List of Snps
+    """
     resp = await es.search(
           index = settings.ES_INDEX,
           source = es_fields,
@@ -30,6 +38,14 @@ async def get_annotations(es_fields: list[str], query_type: str, histogram=Histo
     
 
 async def scroll_annotations_(es_fields: list[str], scroll_id: str=None):
+    """ 
+    Query for getting all annotations, no filter, with scrolling
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            scroll_id: Scroll id for scrolling
+
+    Returns: ScrollSnp object
+    """
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
@@ -46,9 +62,22 @@ async def scroll_annotations_(es_fields: list[str], scroll_id: str=None):
     return results
 
 
-# Query for getting annotation by chromosome with start and end range of pos
 async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: int, query_type: str, page_args=PageArgs, filter_args=FilterArgs,
                                histogram=Histogram):
+    """ 
+    Query for getting annotation by chromosome with start and end range of pos
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            chr: Chromosome number
+            start: Start position
+            end: End position
+            query_type: Type of query to be executed
+            page_args: PageArgs object for pagination
+            filter_args: FilterArgs object for field exists filter
+            histogram: Histogram object for aggregation query
+
+    Returns: List of Snps
+    """
     if page_args is None:
       page_args = PageArgs
 
@@ -79,6 +108,17 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     
 
 async def scroll_by_chromosome(es_fields: list[str], chr: str, start: int, end: int, scroll_id: str=None):
+    """ 
+    Query for getting annotation by chromosome with start and end range of pos with scrolling
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            chr: Chromosome number
+            start: Start position
+            end: End position
+            scroll_id: Scroll id for scrolling
+
+    Returns: ScrollSnp object
+    """
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
@@ -96,7 +136,18 @@ async def scroll_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
 
 
 async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
-    
+    """ 
+    Query for getting annotation by rsID
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            rsID: rsID of snp
+            query_type: Type of query to be executed
+            page_args: PageArgs object for pagination
+            filter_args: FilterArgs object for field exists filter
+            histogram: Histogram object for aggregation query
+
+    Returns: List of Snps
+    """
     if page_args is None:
       page_args = PageArgs
 
@@ -127,6 +178,15 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
     
 
 async def scroll_by_rsID(es_fields: list[str], rsID:str, scroll_id: str=None):
+    """ 
+    Query for getting annotation by rsID with scrolling
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            rsID: rsID of snp
+            scroll_id: Scroll id for scrolling
+
+    Returns: ScrollSnp object
+    """
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
@@ -144,7 +204,18 @@ async def scroll_by_rsID(es_fields: list[str], rsID:str, scroll_id: str=None):
     
 
 async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
-    
+    """ 
+    Query for getting annotation by list of rsIDs
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            rsIDs: List of rsIDs of snps
+            query_type: Type of query to be executed
+            page_args: PageArgs object for pagination
+            filter_args: FilterArgs object for field exists filter
+            histogram: Histogram object for aggregation query
+
+    Returns: List of Snps
+    """
     if page_args is None:
       page_args = PageArgs
 
@@ -175,6 +246,15 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
 
 
 async def scroll_by_rsIDs(es_fields: list[str], rsIDs: list[str], scroll_id: str=None):
+    """ 
+    Query for getting annotation by rsIDs with scrolling
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            rsIDs: List of rsIDs of snps
+            scroll_id: Scroll id for scrolling
+
+    Returns: ScrollSnp object
+    """
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
@@ -193,7 +273,18 @@ async def scroll_by_rsIDs(es_fields: list[str], rsIDs: list[str], scroll_id: str
 
 # query for VCF file
 async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
-    
+    """ 
+    Query for getting annotation by IDs
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            ids: List of IDs of snps
+            query_type: Type of query to be executed
+            page_args: PageArgs object for pagination
+            filter_args: FilterArgs object for field exists filter
+            histogram: Histogram object for aggregation query
+
+    Returns: List of Snps
+    """
     if page_args is None:
       page_args = PageArgs
 
@@ -224,6 +315,15 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
     
 
 async def scroll_by_IDs(es_fields: list[str], ids: list[str], scroll_id: str=None):
+    """ 
+    Query for getting annotation by IDs with scrolling
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            ids: List of IDs of snps
+            scroll_id: Scroll id for scrolling
+
+    Returns: ScrollSnp object
+    """
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
@@ -242,7 +342,18 @@ async def scroll_by_IDs(es_fields: list[str], ids: list[str], scroll_id: str=Non
 
 # query for gene product
 async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
-    
+    """ 
+    Query for getting annotation by gene product
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            gene: Gene product
+            query_type: Type of query to be executed
+            page_args: PageArgs object for pagination
+            filter_args: FilterArgs object for field exists filter
+            histogram: Histogram object for aggregation query
+
+    Returns: List of Snps
+    """
     if page_args is None:
       page_args = PageArgs
 
@@ -275,6 +386,15 @@ async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_a
         return results
       
 async def scroll_by_gene(es_fields: list[str], gene:str, scroll_id: str=None):
+    """ 
+    Query for getting annotation by gene product with scrolling
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            gene: Gene product
+            scroll_id: Scroll id for scrolling
+
+    Returns: ScrollSnp object
+    """
     if scroll_id != None:
       resp = await es.scroll(
               scroll = '2m',
