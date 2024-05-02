@@ -35,7 +35,11 @@ def read_root():
 
 @app.get("/annotations")
 def read_annotations():
-    """Annotation tree with API field names"""
+    """
+    Endpoint to get annotation tree with API field names
+
+    Returns: Annotation tree with API field names
+    """
 
     with open('./data/anno_tree.json') as f:
         data = json.load(f)
@@ -56,6 +60,11 @@ def read_annotations():
     
 @app.get("/download/{folder}/{name}")
 async def download_file(folder: str, name: str):
+    """
+    Endpoint for downloading files
+
+    Returns: Downloaded File Response
+    """
     if folder not in settings.DOWNLOAD_DIR:
         raise HTTPException(status_code=400, detail="Invalid folder")
     return FileResponse(path=f"{folder}/{name}", filename=name, media_type='application/octet-stream')
