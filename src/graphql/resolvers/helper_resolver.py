@@ -6,6 +6,14 @@ from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCoun
 from src.utils import clean_field_name
 
 def _map_aggs_value(key, value):
+        """
+        Mapping aggregation values to the correct type
+
+        Params: key: key of the aggregation
+                value: values of the aggregation
+
+        Returns: value of the aggregation for the key
+        """
         if key.endswith(('min', 'max')):
             return value.get('value')
         elif key.endswith('missing'):
@@ -16,20 +24,33 @@ def _map_aggs_value(key, value):
             return value.get('doc_count')
           
 
-def convert_hits(hits, scroll_id=None):
+def convert_hits(hits):
+    """
+    Converts hits from elasticsearch to Snp objects
+
+    Params: hits: hits from elasticsearch
+    
+    Returns: List of Snp objects
+    """
     compliant_results = []
     for hit in hits:
         source = hit['_source']
         values = {clean_field_name(key): value for key, value in source.items()} 
         values['id']  = hit['_id']
-        if scroll_id != None:
-            values['scroll_id'] = scroll_id
         compliant_results.append(Snp(**values))   
         
     return compliant_results
 
 
 def convert_scroll_hits(hits, scroll_id=None):
+    """
+    Converts hits from elasticsearch to ScrollSnp object
+
+    Params: hits: hits from elasticsearch
+            scroll_id: scroll_id from elasticsearch
+    
+    Returns: ScrollSnp object
+    """
     compliant_results = []
     for hit in hits:
         source = hit['_source']
@@ -38,28 +59,16 @@ def convert_scroll_hits(hits, scroll_id=None):
         compliant_results.append(Snp(**values))   
         
     return ScrollSnp(snps=compliant_results, scroll_id=scroll_id)
-  
-  
-def convert_aggs2(aggs):
-    compliant_aggs = {clean_field_name(key): value for key, value in aggs.items()}
-
-    data = {}
-    for key, val in compliant_aggs.items():
-        data[key] = AggregationItem(doc_count=aggs[key]['doc_count'] if key in aggs else None,
-                            min=aggs[f'{key}_min']['value'] if f'{key}_min' in aggs else None,
-                            max=aggs[f'{key}_max']['value'] if f'{key}_max' in aggs else None,
-                            histogram=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggs['histogram']['buckets']] 
-                            if 'histogram' in aggs else None,
-                            missing=DocCount(doc_count=aggs[f'{key}_missing']['doc_count']) if f'{key}_missing' in aggs else None,
-                            frequency=[Bucket(key=b['key'], doc_count=b['doc_count']) for b in aggs[f'{key}_frequency']['buckets']])
-                          
-                          
-    return SnpAggs(**data)
-  
-  
+    
   
 def convert_aggs(aggs: Dict) -> SnpAggs: 
+    """
+    Converts aggregates from elasticsearch to SnpAggs object
 
+    Params: aggs: Dictionary of aggregates from elasticsearch
+
+    Returns: SnpAggs object
+    """
     data = {}
 
     for key, val in aggs.items():
@@ -87,6 +96,16 @@ def annotation_query():
 
 
 def chromosome_query(chr, start, end, filter_args=None):
+    """
+    Query for getting annotation by chromosome with start and end range of pos
+
+    Params: chr: Chromosome number
+            start: Start position
+            end: End position
+            filter_args: FilterArgs object for field exists filter
+
+    Returns: Query for elasticsearch
+    """
     query = {
         "bool": {
             "filter": [
@@ -106,6 +125,14 @@ def chromosome_query(chr, start, end, filter_args=None):
 
 
 def rsID_query(rsID, filter_args=None):
+    """
+    Query for getting annotation by rsID
+
+    Params: rsID: rsID of snp
+            filter_args: FilterArgs object for field exists filter
+
+    Returns: Query for elasticsearch
+    """
     query = {
               "bool": {
                     "filter": [
@@ -124,6 +151,14 @@ def rsID_query(rsID, filter_args=None):
 
 
 def rsIDs_query(rsIDs, filter_args=None):
+    """
+    Query for getting annotation by rsIDs
+
+    Params: rsIDs: List of rsIDs of snps
+            filter_args: FilterArgs object for field exists filter
+
+    Returns: Query for elasticsearch
+    """
     query = {
               "bool": {
                     "filter": [
@@ -142,6 +177,14 @@ def rsIDs_query(rsIDs, filter_args=None):
 
 
 def IDs_query(ids, filter_args=None):
+    """
+    Query for getting annotation by IDs
+
+    Params: IDs: List of IDs of snps
+            filter_args: FilterArgs object for field exists filter
+
+    Returns: Query for elasticsearch
+    """
     query = {
               "bool": {
                  "filter": [
@@ -160,7 +203,14 @@ def IDs_query(ids, filter_args=None):
 
 
 def gene_query(gene, filter_args=None):
+    """
+    Query for getting annotation by gene product
 
+    Params: gene: Gene product
+            filter_args: FilterArgs object for field exists filter
+
+    Returns: Query for elasticsearch
+    """
     gene_id = map_gene(gene)
     gene_pos = get_pos_from_gene_id(gene_id, chromosomal_location_dic)
 
@@ -175,6 +225,14 @@ def gene_query(gene, filter_args=None):
     return None
 
 async def get_aggregation_query(es_fields: list[str], histogram: Histogram):
+    """
+    Query for getting aggregates of annotation
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            histogram: Histogram object for histogram aggregation
+
+    Returns: Query for elasticsearch
+    """
     results = dict()
     for field in es_fields:
         

@@ -7,7 +7,6 @@ from typing import Optional
 @strawberry.experimental.pydantic.type(model=SnpModel, all_fields=True)
 class Snp:
     id: strawberry.ID
-    scroll_id: Optional[str] = None
     pass
 
 @strawberry.experimental.pydantic.type(model=SnpAggsModel, all_fields=True)

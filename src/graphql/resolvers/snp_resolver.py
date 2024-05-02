@@ -340,7 +340,6 @@ async def scroll_by_IDs(es_fields: list[str], ids: list[str], scroll_id: str=Non
     return results
 
 
-# query for gene product
 async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
     """ 
     Query for getting annotation by gene product
