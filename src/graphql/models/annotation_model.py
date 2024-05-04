@@ -41,5 +41,10 @@ class QueryType(Enum):
     DOWNLOAD = 'DOWNLOAD'
     SNPS = 'SNPS'
     AGGS = 'AGGS'
+    SCROLL = 'SCROLL'
 
+@strawberry.enum
+class QueryTypeOption(Enum):
+    SNPS = 'SNPS'
+    SCROLL = 'SCROLL'
 
