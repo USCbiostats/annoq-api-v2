@@ -4,7 +4,7 @@ from strawberry.types import Info
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType, QueryTypeOption
 
-from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations_, scroll_by_IDs, scroll_by_gene, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
+from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations_, search_by_chromosome, search_by_gene, search_by_rsID, search_by_rsIDs, search_by_IDs
 from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
 from src.utils import get_selected_fields, get_sub_selected_fields
 
@@ -31,15 +31,15 @@ class Query:
     
 
     @strawberry.field
-    async def get_SNPs_by_chromosome(self, info: Info, chr: str, start: int, end: int, queryTypeOption: QueryTypeOption,
+    async def get_SNPs_by_chromosome(self, info: Info, chr: str, start: int, end: int, query_type_option: QueryTypeOption,
                                   page_args: Optional[PageArgs] = None,
                                   filter_args: Optional[FilterArgs] = None) -> ScrollSnp:
         fields = get_sub_selected_fields(info)
-        if queryTypeOption == QueryTypeOption.SNPS:
-            queryType = QueryType.SNPS
+        if query_type_option == QueryTypeOption.SNPS:
+            query_type = QueryType.SNPS
         else:
-            queryType = QueryType.SCROLL
-        return await search_by_chromosome(fields, chr, start, end, queryType, page_args, filter_args)
+            query_type = QueryType.SCROLL
+        return await search_by_chromosome(fields, chr, start, end, query_type, page_args, filter_args)
     
     @strawberry.field
     async def get_aggs_by_chromosome(self, info: Info, chr: str, start: int, end: int,
@@ -60,11 +60,15 @@ class Query:
     
 
     @strawberry.field
-    async def get_SNPs_by_RsID(self, info: Info, rsID: str,
+    async def get_SNPs_by_RsID(self, info: Info, rsID: str, query_type_option: QueryTypeOption,
                             page_args: Optional[PageArgs] = None,
-                            filter_args: Optional[FilterArgs] = None) -> List[Snp]:
-        fields = get_selected_fields(info)
-        return await search_by_rsID(fields, rsID, QueryType.SNPS, page_args, filter_args)
+                            filter_args: Optional[FilterArgs] = None) -> ScrollSnp:
+        fields = get_sub_selected_fields(info)
+        if query_type_option == QueryTypeOption.SNPS:
+            query_type = QueryType.SNPS
+        else:
+            query_type = QueryType.SCROLL
+        return await search_by_rsID(fields, rsID, query_type, page_args, filter_args)
     
     @strawberry.field
     async def get_aggs_by_RsID(self, info: Info, rsID: str,
@@ -83,13 +87,6 @@ class Query:
     async def download_SNPs_by_RsID(self, rsID: str, fields: list[str],
                             page_args: Optional[PageArgs] = None) -> str:
         return await search_by_rsID(fields, rsID, QueryType.DOWNLOAD, page_args)
-    
-    @strawberry.field
-    async def scroll_SNPs_by_RsID(self, info: Info, rsID: str,
-                            page_args: Optional[PageArgs] = None,
-                            filter_args: Optional[FilterArgs] = None) -> ScrollSnp:
-        fields = get_selected_fields(info)
-        return await search_by_rsID(fields, rsID, QueryType.SCROLL, page_args, filter_args)
     
 
     @strawberry.field
@@ -117,13 +114,6 @@ class Query:
                              page_args: Optional[PageArgs] = None) -> str:
         return await search_by_rsIDs(fields, rsIDs, QueryType.DOWNLOAD, page_args)
     
-    @strawberry.field
-    async def scroll_SNPs_by_RsIDs(self, info: Info, rsIDs: list[str],
-                             page_args: Optional[PageArgs] = None,
-                             filter_args: Optional[FilterArgs] = None) -> ScrollSnp:
-        fields = get_selected_fields(info)
-        return await search_by_rsIDs(fields, rsIDs, QueryType.SCROLL, page_args, filter_args)
-    
      
     @strawberry.field
     async def get_SNPs_by_IDs(self, info: Info, ids: list[str],
@@ -150,11 +140,6 @@ class Query:
                           page_args: Optional[PageArgs] = None) -> str:
         return await search_by_IDs(fields, ids, QueryType.DOWNLOAD, page_args)
     
-    @strawberry.field
-    async def scroll_SNPs_by_IDs(self, info:Info, ids: list[str], scroll_id: Optional[str] = None) -> ScrollSnp:
-        fields = get_sub_selected_fields(info)
-        return await scroll_by_IDs(fields, ids, scroll_id)
-    
     
     @strawberry.field
     async def get_SNPs_by_gene_product(self, info: Info, gene: str,
@@ -180,8 +165,3 @@ class Query:
     async def download_SNPs_by_gene_product(self, gene: str, fields: list[str],
                                    page_args: Optional[PageArgs] = None) -> str:
         return await search_by_gene(fields, gene, QueryType.DOWNLOAD, page_args)
-    
-    @strawberry.field
-    async def scroll_SNPs_by_gene_product(self, info:Info, gene: str, scroll_id: Optional[str] = None) -> ScrollSnp:
-        fields = get_sub_selected_fields(info)
-        return await scroll_by_gene(fields, gene, scroll_id)
