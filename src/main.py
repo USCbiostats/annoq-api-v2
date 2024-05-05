@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
+from strawberry.extensions import MaskErrors
 import uvicorn
 import json
 
@@ -24,7 +25,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-schema = strawberry.Schema(query=Query, config=StrawberryConfig(auto_camel_case=False))
+schema = strawberry.Schema(query=Query, config=StrawberryConfig(auto_camel_case=False), extensions=[MaskErrors()])
 graphql_app = GraphQLRouter(schema)
 app.include_router(graphql_app, prefix="/graphql")
 

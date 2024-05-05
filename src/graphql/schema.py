@@ -8,13 +8,19 @@ from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotatio
 from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_rsID, count_by_rsIDs, get_annotations_count
 from src.utils import get_selected_fields, get_sub_selected_fields
 
+class CustomError(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
 @strawberry.type
 class Query:
     
     @strawberry.field
     async def annotations(self, info: Info) -> List[Snp]:
-        fields = get_selected_fields(info)
-        return await get_annotations(fields, QueryType.SNPS)
+        try:
+            fields = get_selected_fields(info)
+            return await get_annotations(fields, QueryType.SNPS)
+        except Exception as e:
+            raise CustomError(str(e))
     
     @strawberry.field
     async def count_annotations(self) -> int: 
