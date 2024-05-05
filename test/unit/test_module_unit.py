@@ -31,7 +31,7 @@ def test_generator_attribute():
     assert hasattr(snps, 'chr')
     assert hasattr(snps, 'pos')
     assert hasattr(snps, 'ref')
-    # assert hasattr(snps, 'SnpEff_ensembl_CDS_position_CDS_len')
+    assert hasattr(snps, 'VEP_refseq_PANTHER_GO_SLIM_cellular_component_list_id')
 
 
 def test_class_schema():
