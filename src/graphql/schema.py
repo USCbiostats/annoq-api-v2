@@ -15,7 +15,7 @@ class CustomError(Exception):
 class Query:
     
     @strawberry.field
-    async def annotations(self, info: Info) -> List[Snp]:
+    async def annotations(self, info: Info) -> ScrollSnp:
         try:
             fields = get_selected_fields(info)
             return await get_annotations(fields, QueryType.SNPS)
