@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.mark.asyncio_cooperative
-async def test_CountAnnotations():
+async def test_count_annotations():
     query = """
         query myQuery {
             count_annotations
@@ -20,11 +20,13 @@ async def test_CountAnnotations():
 
 
 @pytest.mark.asyncio_cooperative
-async def test_GetAnnotations():
+async def test_get_annotations():
     query = """
         query myQuery {
             annotations {
-                chr
+                snps{
+                    chr
+                }
             }
         }
     """
@@ -34,11 +36,11 @@ async def test_GetAnnotations():
     )
  
     assert result.errors is None
-    assert len(result.data['annotations']) == 20
+    assert len(result.data['annotations']['snps']) == 20
 
 
 @pytest.mark.asyncio_cooperative
-async def test_GetSNPsByChromosome():
+async def test_get_SNPs_by_chromosome():
     query = """
         query myQuery {
             get_SNPs_by_chromosome(
@@ -65,7 +67,7 @@ async def test_GetSNPsByChromosome():
 
 
 @pytest.mark.asyncio_cooperative
-async def test_GetSNPsByIDs():
+async def test_get_SNPs_by_IDs():
     query = """
         query myQuery {
             get_SNPs_by_IDs(ids: ["2:10662G>C", "2:10632C>A"], query_type_option: SNPS, page_args: {from_: 0, size: 5}) {
@@ -89,7 +91,7 @@ async def test_GetSNPsByIDs():
 
 
 @pytest.mark.asyncio_cooperative
-async def test_CountSNPsByIDs():
+async def test_count_SNPs_by_IDs():
     query = """
         query myQuery {
             count_SNPs_by_IDs(ids: "2:10662G>C")

@@ -5,6 +5,31 @@ from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs,
 from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, convert_aggs, convert_hits, convert_scroll_hits, gene_query, get_aggregation_query, rsID_query, rsIDs_query
 
 
+async def query_return(query_type, es_fields, resp):
+  """
+  Common return function for all queries
+
+  Params: query_type: Type of query to be executed
+          es_fields: List of fields to be returned in elasticsearch query
+          resp: Response from elasticsearch query
+  """
+  if query_type == QueryType.DOWNLOAD:
+      url = await download_annotations(es_fields, resp)
+      return url
+    
+  elif query_type == QueryType.SCROLL:
+    results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
+    return results
+
+  elif query_type == QueryType.SNPS:
+    results = convert_scroll_hits(resp['hits']['hits'], None)  
+    return results
+  
+  elif query_type == QueryType.AGGS:
+    results = convert_aggs(resp['aggregations'])  
+    return results
+
+
 async def get_annotations(es_fields: list[str], query_type: str, histogram=Histogram):
     """ 
     Query for getting all annotations, no filter, size 20
@@ -24,17 +49,7 @@ async def get_annotations(es_fields: list[str], query_type: str, histogram=Histo
           scroll = '2m' if query_type == QueryType.DOWNLOAD else None
     )
 
-    if query_type == QueryType.DOWNLOAD:
-      url = await download_annotations(es_fields, resp)
-      return url
-    
-    elif query_type == QueryType.SNPS:
-      results = convert_hits(resp['hits']['hits'])  
-      return results
-    
-    elif query_type == QueryType.AGGS:
-      results = convert_aggs(resp['aggregations'])  
-      return results
+    return await query_return(query_type, es_fields, resp)
     
 
 async def scroll_annotations_(scroll_id: str):
@@ -85,21 +100,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
           scroll = '2m' if (query_type == QueryType.DOWNLOAD or query_type == QueryType.SCROLL) else None
     )
 
-    if query_type == QueryType.DOWNLOAD:
-      url = await download_annotations(es_fields, resp)
-      return url
-    
-    elif query_type == QueryType.SCROLL:
-      results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
-      return results
-
-    elif query_type == QueryType.SNPS:
-      results = convert_scroll_hits(resp['hits']['hits'], None)  
-      return results
-    
-    elif query_type == QueryType.AGGS:
-      results = convert_aggs(resp['aggregations']) 
-      return results
+    return await query_return(query_type, es_fields, resp)
 
 
 async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
@@ -131,21 +132,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, page_a
           scroll = '2m' if (query_type == QueryType.DOWNLOAD or query_type == QueryType.SCROLL) else None
     )
 
-    if query_type == QueryType.DOWNLOAD:
-      url = await download_annotations(es_fields, resp)
-      return url
-    
-    elif query_type == QueryType.SCROLL:
-      results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
-      return results
-
-    elif query_type == QueryType.SNPS:
-      results = convert_scroll_hits(resp['hits']['hits'], None)  
-      return results
-    
-    elif query_type == QueryType.AGGS:
-      results = convert_aggs(resp['aggregations'])  
-      return results
+    return await query_return(query_type, es_fields, resp)
     
 
 async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
@@ -177,21 +164,7 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
           scroll = '2m' if (query_type == QueryType.DOWNLOAD or query_type == QueryType.SCROLL) else None
     )
     
-    if query_type == QueryType.DOWNLOAD:
-      url = await download_annotations(es_fields, resp)
-      return url
-    
-    elif query_type == QueryType.SCROLL:
-      results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
-      return results
-
-    elif query_type == QueryType.SNPS:
-      results = convert_scroll_hits(resp['hits']['hits'], None)  
-      return results
-    
-    elif query_type == QueryType.AGGS:
-      results = convert_aggs(resp['aggregations'])  
-      return results
+    return await query_return(query_type, es_fields, resp)
 
 
 # query for VCF file
@@ -224,21 +197,7 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, p
           scroll = '2m' if (query_type == QueryType.DOWNLOAD or query_type == QueryType.SCROLL) else None
     )
     
-    if query_type == QueryType.DOWNLOAD:
-      url = await download_annotations(es_fields, resp)
-      return url
-    
-    elif query_type == QueryType.SCROLL:
-      results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
-      return results
-
-    elif query_type == QueryType.SNPS:
-      results = convert_scroll_hits(resp['hits']['hits'], None)  
-      return results
-    
-    elif query_type == QueryType.AGGS:
-        results = convert_aggs(resp['aggregations'])  
-        return results
+    return await query_return(query_type, es_fields, resp)
 
 
 async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram):
@@ -273,18 +232,4 @@ async def search_by_gene(es_fields: list[str], gene:str, query_type: str, page_a
               scroll = '2m' if (query_type == QueryType.DOWNLOAD or query_type == QueryType.SCROLL) else None
       )
       
-      if query_type == QueryType.DOWNLOAD:
-        url = await download_annotations(es_fields, resp)
-        return url
-      
-      elif query_type == QueryType.SCROLL:
-        results = convert_scroll_hits(resp['hits']['hits'], resp['_scroll_id'])
-        return results
-
-      elif query_type == QueryType.SNPS:
-        results = convert_scroll_hits(resp['hits']['hits'], None)  
-        return results
-  
-      elif query_type == QueryType.AGGS:
-        results = convert_aggs(resp['aggregations'])  
-        return results
+      return await query_return(query_type, es_fields, resp)
