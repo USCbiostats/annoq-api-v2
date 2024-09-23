@@ -1,5 +1,6 @@
 import inspect
 import json
+import typing
 from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
@@ -263,7 +264,7 @@ async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]],
 
         # Check the type of the field. If it is a string, then we have to add .keyword to the field name while querying missing and frequency
         # Using the pydantic model Snp, we can check the type of the field
-        is_text_field = inspect.get_annotations(Snp)[field] == str
+        is_text_field = typing.get_args(inspect.get_annotations(Snp)[field])[0] == str
         textual_suffix = '.keyword' if is_text_field else ''
              
         for subfield in subfields:
