@@ -1,7 +1,9 @@
+import inspect
+import json
 from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
-from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, Histogram
+from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, FilterArgs, Histogram
 
 from src.utils import clean_field_name
 
@@ -224,61 +226,107 @@ def gene_query(gene, filter_args=None):
     
     return None
 
-async def get_aggregation_query(es_fields: list[str], histogram: Histogram):
+def keyword_query(keyword: str):
+    """
+    Query for getting annotation by keyword
+
+    Params: keyword: Keyword for search
+
+    Returns: Query for elasticsearch
+    """
+
+    searchable_fields = []
+    with open('./data/anno_tree.json') as f:
+        data = json.load(f)
+        searchable_fields = [elt['name'] for elt in data if data.get('keyword_searchable', False)]
+
+    query = {
+              "multi_match": {
+                "query": keyword,
+                "fields": searchable_fields
+              }
+          }
+
+    return query
+
+async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]], histogram: Histogram):
     """
     Query for getting aggregates of annotation
 
-    Params: es_fields: List of fields to be returned in elasticsearch query
+    Params: aggregation_fields: List of fields for aggregation, along with their subfields
             histogram: Histogram object for histogram aggregation
 
     Returns: Query for elasticsearch
     """
     results = dict()
-    for field in es_fields:
-        
-        results[f'{field}_doc_count'] = {
-           "filter" : {
-            "exists": {
-              "field": field
-            }
-           }
-        }
+    for field, subfields in aggregation_fields:
 
-        results[f'{field}_min'] = {
-          "min": {
-            "field": "pos"
-          }
-       }
+        # Check the type of the field. If it is a string, then we have to add .keyword to the field name while querying missing and frequency
+        # Using the pydantic model Snp, we can check the type of the field
+        is_text_field = inspect.get_annotations(Snp)[field] == str
+        textual_suffix = '.keyword' if is_text_field else ''
+             
+        for subfield in subfields:
+            if subfield == 'doc_count': 
+                results[f'{field}_doc_count'] = {
+                    "filter" : {
+                        "exists": {
+                            "field": field
+                        }
+                    }
+                }
+                    
+            elif subfield == 'min':
+                results[f'{field}_min'] = {
+                    "min": {
+                        "field": field
+                    }
+                }
 
-        results[f'{field}_max'] = {
-            "max": {
-              "field": "pos"
-            }
-        }
+            elif subfield == 'max':
+                results[f'{field}_max'] = {
+                    "max": {
+                        "field": field
+                    }
+                }
+            
+            elif subfield == 'frequency':
+                results[f'{field}_frequency'] = {
+                    "terms": {
+                        "field": field + textual_suffix,
+                        "min_doc_count": 0,
+                        "size": 20
+                    }
+                }
 
-        results[f'{field}_frequency'] = {
-          "terms": {
-            "field": "pos",
-            "min_doc_count": 0,
-            "size": 20
-          }
-       }
+            elif subfield == 'missing':
+                results[f'{field}_missing'] = {
+                    "missing": {
+                        "field": field + textual_suffix
+                    }
+                }
 
-        results[f'{field}_missing'] = {
-          "missing": {
-              "field": "pos"
-            }
-       }
-
-        results[f'{field}_histogram'] = {
-          "histogram": {
-            "field": "pos",
-            "interval": histogram.interval,
-            "extended_bounds": {
-              "min": histogram.min,
-              "max": histogram.max
-            }
-          }
-       }
+            elif subfield == 'histogram':
+                results[f'{field}_histogram'] = {
+                    "histogram": {
+                        "field": field,
+                        "interval": histogram.interval,
+                        "extended_bounds": {
+                            "min": histogram.min,
+                            "max": histogram.max
+                        }
+                    }
+                }
 
     return results
+
+
+def get_default_aggregation_fields(es_fields: list[str]):
+    """
+    Get default aggregation fields for elasticsearch query
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+
+    Returns: List of fields for aggregation
+    """
+    return [(field, ['doc_count']) for field in es_fields]
