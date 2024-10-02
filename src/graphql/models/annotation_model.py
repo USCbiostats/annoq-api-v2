@@ -23,7 +23,7 @@ class DocCount:
 
 @strawberry.input
 class Histogram:
-    interval: Optional[int] = 4893.27
+    interval: Optional[float] = 4893.27
     min: Optional[int] = 10636
     max: Optional[int] = 499963
 

@@ -25,3 +25,13 @@ def clean_field_name(name):
     
     return name
 
+
+def get_aggregation_fields(info: Info) -> list[tuple[str, list[str]]]:
+    '''
+    Get aggregation fields from the query, along with the subfields
+    '''
+
+    aggregation_fields = []
+    for field in info.selected_fields[0].selections:
+        aggregation_fields.append((field.name, [subfield.name for subfield in field.selections]))
+    return aggregation_fields
