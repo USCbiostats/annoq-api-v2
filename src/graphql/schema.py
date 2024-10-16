@@ -1,7 +1,8 @@
 from typing import List, Optional
 import strawberry
 from strawberry.types import Info
-from src.graphql.models.snp_model import ScrollSnp, SnpAggs
+from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
+from src.graphql.models.snp_model import Gene, ScrollSnp, SnpAggs
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType, QueryTypeOption
 
 from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations_, search_by_chromosome, search_by_gene, search_by_keyword, search_by_rsID, search_by_rsIDs, search_by_IDs
@@ -189,6 +190,15 @@ class Query:
                                    page_args: Optional[PageArgs] = None, filter_args: Optional[FilterArgs] = None) -> str:
         return await search_by_gene(fields, gene, QueryType.DOWNLOAD, None, page_args, filter_args)
     
+    @strawberry.field
+    async def gene_info(self, gene: str) -> Gene:
+        gene_id = map_gene(gene)
+        gene_pos = get_pos_from_gene_id(gene_id, chromosomal_location_dic)
+        if gene_pos:
+            return Gene(contig=gene_pos[0], start=gene_pos[1], end=gene_pos[2], gene_id=gene_id)
+        else:
+            raise KeyError(f'Gene {gene} not found')
+                                    
     @strawberry.field
     async def get_SNPs_by_keyword(self, info: Info, keyword: str, query_type_option: QueryTypeOption,
                             page_args: Optional[PageArgs] = None) -> ScrollSnp:
