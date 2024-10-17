@@ -7468,7 +7468,8 @@
     "leaf": true,
     "name": "MetaRNN_score",
     "detail": "\"Our recurrent neural network (RNN) based ensemble prediction score, which incorporated 16 scores (SIFT, Polyphen2_HDIV, Polyphen2_HVAR, MutationAssessor, PROVEAN, VEST4, M-CAP, REVEL, MutPred, MVP, PrimateAI, DEOGEN2, CADD, fathmm-XF, Eigen and GenoCanyon), 8 conservation scores (GERP, phyloP100way_vertebrate, phyloP30way_mammalian, phyloP17way_primate, phastCons100way_vertebrate, phastCons30way_mammalian, phastCons17way_primate and SiPhy), and allele frequency information from the 1000 Genomes Project (1000GP), ExAC, and gnomAD. Larger value means the SNV is more likely to be damaging. Scores range from 0 to 1.\"",
-    "field_type": "float"
+    "field_type": "text",
+    "keyword_searchable": true
   },
   {
     "id": "1050",
@@ -7509,7 +7510,7 @@
     "leaf": true,
     "name": "BayesDel_addAF_pred",
     "detail": "\"Prediction of BayesDel_addAF score based on the authors' recommendation, \"T(olerated)\" or \"D(amaging)\". The score cutoff between \"D\" and \"T\" is 0.0692655.\"",
-    "field_type": "tet",
+    "field_type": "text",
     "keyword_searchable": true
   },
   {
@@ -7543,7 +7544,8 @@
     "leaf": true,
     "name": "LIST-S2_score",
     "detail": "\"A deleteriousness preidction score for nonsynonymous SNVs. See https://doi.org/10.1093/nar/gkaa288. for details. The range of the score in dbNSFP is from 0 to 1. The higher the score, the more likely the variant is pathogenic. The author suggested cutoff between deleterious (\"D\") and tolerated (\"T\") is 0.85.\"",
-    "field_type": "float"
+    "field_type": "text",
+    "keyword_searchable": true
   },
   {
     "id": "1059",
