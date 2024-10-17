@@ -12,6 +12,7 @@ load_dotenv()
 ES_URL:str = os.getenv("ES_URL")
 ES_INDEX:str = os.getenv("ES_INDEX")
 GENERATED_SCHEMA_DIR = './scripts/class_generators/generated_schemas'
+GENERATED_MODEL_DIR = './src/graphql/models/generated/'
 TYPE_MAPPINGS = {
     "long": {"type": "integer", "format": "int64"},
     "integer": {"type": "integer", "format": "int32"},
@@ -106,6 +107,9 @@ if __name__ == "__main__":
     
     if not os.path.exists(GENERATED_SCHEMA_DIR):
         os.makedirs(GENERATED_SCHEMA_DIR)
+        
+    if not os.path.exists(GENERATED_MODEL_DIR):
+        os.makedirs(GENERATED_MODEL_DIR)    
     
     loop = asyncio.get_event_loop()
     mapping = loop.run_until_complete(get_mapping())
