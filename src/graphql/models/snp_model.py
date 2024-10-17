@@ -22,3 +22,11 @@ class SnpList:
 class ScrollSnp:
     snps: List[Snp]
     scroll_id: Optional[str] = None
+
+
+@strawberry.type
+class Gene:
+    contig: str
+    start: int
+    end: int
+    gene_id: str

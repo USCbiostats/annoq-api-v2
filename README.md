@@ -55,7 +55,7 @@ Follow the https://github.com/USCbiostats/annoq-database repository and use the 
 
 ### Dynamic Snps class generation
 
-Annoq has 500+ attributes, so the strawberry type for it had to be generated dynamically as it would not make sense to manually write 500 fields. Since the class is already present in this repository there is no need to run the following code again, but just for knowledge: 
+Annoq has 500+ attributes, so the strawberry type for it had to be generated dynamically as it would not make sense to manually write 500 fields. This class has to be executed whenever where are any changes in the schema:
 
 First a json schema was generated which takes the mapping for the elasticsearch database and creates a schema for a pydantic Baseclass. 
 After this scripts/class_generators/class_schema.json was generated. The python file of the pydantic Baseclass - models/Snps.py is generated using datamodel-codegen.
