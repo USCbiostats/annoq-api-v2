@@ -7477,7 +7477,8 @@
     "leaf": true,
     "name": "MetaRNN_rankscore",
     "detail": "\"MetaRNN scores were ranked among all MetaRNN scores in dbNSFP. The rankscore is the ratio of the rank of the score over the total number of MetaRNN scores in dbNSFP. The scores range from 0 to 1.\"",
-    "field_type": "float"
+    "field_type": "text",
+    "keyword_searchable": true
   },
   {
     "id": "1051",
@@ -7553,7 +7554,8 @@
     "leaf": true,
     "name": "LIST-S2_rankscore",
     "detail": "\"LIST-S2 scores were ranked among all LIST-S2 scores in dbNSFP. The rankscore is the ratio of the rank of the score over the total number of LIST-S2 scores in dbNSFP.\"",
-    "field_type": "float"
+    "field_type": "text",
+    "keyword_searchable": true
   },
   {
     "id": "1060",
