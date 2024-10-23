@@ -2041,7 +2041,7 @@
     "id": "646",
     "parent_id": "208",
     "leaf": true,
-    "name": "SnpEff_ensembl_PANTHER_protein_class_list_id\t",
+    "name": "SnpEff_ensembl_PANTHER_protein_class_list_id",
     "label": "SnpEff ensembl PANTHER Protein Class",
     "detail": "The PANTHER Protein Class annotations queried through PANTHER API for IDs corresponding to SnpEff_ensembl_Gene_ID column. If there is more than one gene ID, a non-redundant list of PANTHER Protein Class terms from all genes is shown here.",
     "root_url": "https://pantherdb.org/panther/category.do?categoryAcc=",
