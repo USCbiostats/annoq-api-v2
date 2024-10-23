@@ -22,6 +22,7 @@ def clean_field_name(name):
     name = name.replace('/', '_')
     name = name.replace('-', '_')
     name = name.replace('+', '')
+    name = name.replace('=', '_equals_')    
     
     return name
 
