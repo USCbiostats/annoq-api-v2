@@ -50,7 +50,7 @@ The fastAPI application would be running on http://0.0.0.0:8000 and the elastics
 
 ## Sample Elasticsearch Data Setup
 
-Follow the https://github.com/USCbiostats/annoq-database repository and use the sample_data folder to setup the sample data for elasticsearch
+Follow the https://github.com/USCbiostats/annoq-database repository and use the sample_data folder to setup the sample data for elasticsearch.  If necessary, modify file .env to reflect URL of database. 
 
 
 ### Dynamic Snps class generation
