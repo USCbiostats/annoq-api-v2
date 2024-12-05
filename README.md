@@ -82,7 +82,7 @@ chmod +x cron_job.sh
 # To run the project
 
 ```bash
-uvicorn src.main:app --reload
+python -m src.main
 ```
 
 # Testing
