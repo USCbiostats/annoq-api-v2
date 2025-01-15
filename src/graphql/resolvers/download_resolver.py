@@ -1,6 +1,7 @@
 import uuid
 from ...config.es import es
 from ...config.settings import settings
+from src.graphql.annotations import get_name_from_api_field
 
 
 async def download_annotations(fields: list[str], resp: dict):
@@ -12,6 +13,10 @@ async def download_annotations(fields: list[str], resp: dict):
 
     Returns: string for download filename
     """
+
+    # Convert fields to their actual names
+    fields = list(map(get_name_from_api_field, fields))
+
     count = 0
     filename = str(uuid.uuid4()) + '.txt'
     f = open(settings.DOWNLOAD_DIR + '/' + filename, 'w')

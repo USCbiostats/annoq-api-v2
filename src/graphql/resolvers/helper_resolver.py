@@ -5,6 +5,7 @@ from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
 from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, FilterArgs, Histogram
+from src.graphql.annotations import get_name_from_api_field
 
 from src.utils import clean_field_name
 
@@ -266,13 +267,14 @@ async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]],
         # Using the pydantic model Snp, we can check the type of the field
         is_text_field = typing.get_args(inspect.get_annotations(Snp)[field])[0] == str
         textual_suffix = '.keyword' if is_text_field else ''
+        field_name = get_name_from_api_field(field)
              
         for subfield in subfields:
             if subfield == 'doc_count': 
                 results[f'{field}_doc_count'] = {
                     "filter" : {
                         "exists": {
-                            "field": field
+                            "field": field_name
                         }
                     }
                 }
@@ -280,21 +282,21 @@ async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]],
             elif subfield == 'min':
                 results[f'{field}_min'] = {
                     "min": {
-                        "field": field
+                        "field": field_name
                     }
                 }
 
             elif subfield == 'max':
                 results[f'{field}_max'] = {
                     "max": {
-                        "field": field
+                        "field": field_name
                     }
                 }
             
             elif subfield == 'frequency':
                 results[f'{field}_frequency'] = {
                     "terms": {
-                        "field": field + textual_suffix,
+                        "field": field_name + textual_suffix,
                         "min_doc_count": 0,
                         "size": 20
                     }
@@ -303,14 +305,14 @@ async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]],
             elif subfield == 'missing':
                 results[f'{field}_missing'] = {
                     "missing": {
-                        "field": field + textual_suffix
+                        "field": field_name + textual_suffix
                     }
                 }
 
             elif subfield == 'histogram':
                 results[f'{field}_histogram'] = {
                     "histogram": {
-                        "field": field,
+                        "field": field_name,
                         "interval": histogram.interval,
                         "extended_bounds": {
                             "min": histogram.min,

@@ -1,3 +1,4 @@
+from src.graphql.annotations import get_name_from_api_field
 from src.config.es import es
 from src.config.settings import settings
 from src.graphql.resolvers.download_resolver import download_annotations
@@ -43,7 +44,7 @@ async def get_annotations(es_fields: list[str], query_type: str, aggregation_fie
     """
     resp = await es.search(
           index = settings.ES_INDEX,
-          source = es_fields,
+          source = list(map(get_name_from_api_field, es_fields)),
           query = annotation_query(),
           aggs = await get_aggregation_query(aggregation_fields or get_default_aggregation_fields(es_fields), histogram) if query_type == QueryType.AGGS else None,
           size = 20,
@@ -94,7 +95,7 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
 
     resp = await es.search(
           index = settings.ES_INDEX,
-          source = es_fields,
+          source = list(map(get_name_from_api_field, es_fields)),
           from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
           size = page_args.size,
           query = chromosome_query(chr, start, end, filter_args),
@@ -127,7 +128,7 @@ async def search_by_rsID(es_fields: list[str], rsID:str, query_type: str, aggreg
 
     resp = await es.search(
           index = settings.ES_INDEX,
-          source = es_fields,
+          source = list(map(get_name_from_api_field, es_fields)),
           from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
           size = page_args.size,
           query = rsID_query(rsID, filter_args),
@@ -160,7 +161,7 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], query_type: st
 
     resp = await es.search(
           index = settings.ES_INDEX,
-          source = es_fields,
+          source = list(map(get_name_from_api_field, es_fields)),
           from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
           size = page_args.size,
           query = rsIDs_query(rsIDs, filter_args),
@@ -194,7 +195,7 @@ async def search_by_IDs(es_fields: list[str], ids: list[str], query_type: str, a
 
     resp = await es.search(
           index = settings.ES_INDEX,
-          source = es_fields,
+          source = list(map(get_name_from_api_field, es_fields)),
           from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
           size = page_args.size,
           query = IDs_query(ids, filter_args),
@@ -230,7 +231,7 @@ async def search_by_gene(es_fields: list[str], gene:str, query_type: str, aggreg
     if query is not None:
       resp = await es.search(
               index = settings.ES_INDEX,
-              source = es_fields,
+              source = list(map(get_name_from_api_field, es_fields)),
               from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
               size = page_args.size,
               query = query,
@@ -261,7 +262,7 @@ async def search_by_keyword(es_fields: list[str], keyword: str, query_type: str,
 
     resp = await es.search(
           index = settings.ES_INDEX,
-          source = es_fields,
+          source = list(map(get_name_from_api_field, es_fields)),
           from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
           size = page_args.size,
           query = keyword_query(keyword),
