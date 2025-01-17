@@ -17,7 +17,7 @@ def get_sub_selected_fields(info:Info):
 
 def clean_field_name(name):
     if name[0].isdigit():
-        return f"_{name}"
+        return f"field_{name}"
     name = re.sub(r'\([^)]*\)', '', name)
     name = name.replace('/', '_')
     name = name.replace('-', '_')
