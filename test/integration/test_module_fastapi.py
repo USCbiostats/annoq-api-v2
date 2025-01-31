@@ -7,7 +7,7 @@ client = TestClient(app)
 def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"Hello": "World"}
+    assert response.json() == {"Annoq API version": "V2"}
 
 
 def test_read_annotations():
