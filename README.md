@@ -1,7 +1,7 @@
 This is a FastAPI project which uses strawberry to query an elasticsearch database.  
 
 ### Live API
-This API is live at - http://annoq.org/api-v2/
+This API is live at - https://api-v2.annoq.org/.  Query via <a href="https://api-v2.annoq.org/graphql">GraphQL</a>.
 
 ## API Endpoints
  1. **/graphql** - Graphql endpoint of the API where all the queries can be made through strawberry graphiQL.

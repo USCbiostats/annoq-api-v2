@@ -31,7 +31,7 @@ app.include_router(graphql_app, prefix="/graphql")
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Annoq API version": "V2"}
 
 
 @app.get("/annotations")
