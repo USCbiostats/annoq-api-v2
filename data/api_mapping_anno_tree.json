@@ -58,7 +58,7 @@
       "link": "https://pantherdb.org",
       "pmid": "33290554",
       "sort": 5.0,
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "7",
@@ -156,7 +156,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "11",
@@ -171,7 +171,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "13",
@@ -186,7 +186,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "15",
@@ -201,7 +201,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "17",
@@ -216,7 +216,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "19",
@@ -231,7 +231,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "626",
@@ -246,7 +246,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "20",
@@ -261,7 +261,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "22",
@@ -276,7 +276,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "23",
@@ -401,7 +401,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "33",
@@ -414,7 +414,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "35",
@@ -427,7 +427,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "40",
@@ -440,7 +440,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "42",
@@ -453,7 +453,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "44",
@@ -466,7 +466,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "627",
@@ -479,7 +479,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "46",
@@ -492,7 +492,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "48",
@@ -505,7 +505,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "51",
@@ -592,7 +592,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "57",
@@ -605,7 +605,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "59",
@@ -618,7 +618,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "64",
@@ -631,7 +631,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "66",
@@ -644,7 +644,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "68",
@@ -657,7 +657,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "628",
@@ -670,7 +670,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "70",
@@ -683,7 +683,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "72",
@@ -696,7 +696,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "75",
@@ -781,7 +781,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "87",
@@ -794,7 +794,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "89",
@@ -807,7 +807,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "91",
@@ -820,7 +820,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "93",
@@ -833,7 +833,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "95",
@@ -846,7 +846,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "632",
@@ -859,7 +859,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "97",
@@ -872,7 +872,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "99",
@@ -885,7 +885,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "101",
@@ -898,7 +898,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "103",
@@ -911,7 +911,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "105",
@@ -924,7 +924,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "107",
@@ -937,7 +937,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "109",
@@ -950,7 +950,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "111",
@@ -963,7 +963,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "633",
@@ -976,7 +976,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "113",
@@ -989,7 +989,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "115",
@@ -1002,7 +1002,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "117",
@@ -1015,7 +1015,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "119",
@@ -1028,7 +1028,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "121",
@@ -1041,7 +1041,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "123",
@@ -1054,7 +1054,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "125",
@@ -1067,7 +1067,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "127",
@@ -1080,7 +1080,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "634",
@@ -1093,7 +1093,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "129",
@@ -1106,7 +1106,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "131",
@@ -1119,7 +1119,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "133",
@@ -1341,7 +1341,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "144",
@@ -1354,7 +1354,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "146",
@@ -1367,7 +1367,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "156",
@@ -1380,7 +1380,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "158",
@@ -1393,7 +1393,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "160",
@@ -1406,7 +1406,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "641",
@@ -1419,7 +1419,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "162",
@@ -1432,7 +1432,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "166",
@@ -1445,7 +1445,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "172",
@@ -1640,7 +1640,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "181",
@@ -1653,7 +1653,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "183",
@@ -1666,7 +1666,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "193",
@@ -1679,7 +1679,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "195",
@@ -1692,7 +1692,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "197",
@@ -1705,7 +1705,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "642",
@@ -1718,7 +1718,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "199",
@@ -1731,7 +1731,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "203",
@@ -1744,7 +1744,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "209",
@@ -1984,7 +1984,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "217",
@@ -1997,7 +1997,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "219",
@@ -2010,7 +2010,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "230",
@@ -2023,7 +2023,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "232",
@@ -2036,7 +2036,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "234",
@@ -2049,7 +2049,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "646",
@@ -2062,7 +2062,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "236",
@@ -2075,7 +2075,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "239",
@@ -2088,7 +2088,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "250",
@@ -2301,7 +2301,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "258",
@@ -2314,7 +2314,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "260",
@@ -2327,7 +2327,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-01-17, DOI: 10.5281/zenodo.10536401"
+      "version": "GO database released 2025-03-16, DOI: 10.5281/zenodo.15066566"
     },
     {
       "id": "271",
@@ -2340,7 +2340,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "273",
@@ -2353,7 +2353,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "275",
@@ -2366,7 +2366,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO release 2023-07-25, released 2023-08-01"
+      "version": "GO release 2024-01-17, released 2024-06-20"
     },
     {
       "id": "647",
@@ -2379,7 +2379,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "277",
@@ -2392,7 +2392,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "PANTHER UPL 18"
+      "version": "PANTHER UPL 19"
     },
     {
       "id": "280",
@@ -2405,7 +2405,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "Reactome database version 85, released 2023-05-25"
+      "version": "Reactome database version 86, released 2023-09-07"
     },
     {
       "id": "289",
