@@ -58,7 +58,7 @@ Follow the https://github.com/USCbiostats/annoq-database repository and use the 
 Annoq has 500+ attributes, so the strawberry type for it had to be generated dynamically as it would not make sense to manually write 500 fields. This class has to be executed whenever where are any changes in the schema:
 
 First json schemas were generated which takes the mapping for the elasticsearch database and creates schemas for pydantic Baseclasses. 
-After scripts/class_generators/generated_schemas/snp_schema.json and scripts/class_generators/generated_schemas/snp_aggs_schema.json were generated. The python files of the pydantic Baseclasses - src/graphql/models/generated/snp.py and src/graphql/models/generated/snp_aggs.py are generated using datamodel-codegen.
+After scripts/class_generators/generated_schemas/snp_schema.json and scripts/class_generators/generated_schemas/snp_aggs_schema.json were generated. The python files of the pydantic Baseclasses - src/graphql/models/generated/snp.py and src/graphql/models/generated/snp_aggs.py were generated using datamodel-codegen.
 
 If there are changes to the number of columns or labels, which would be reflected in data/anno_tree.json or data/api_mapping_anno_tree.json, the following script has to be executed to re-generate the model json file.   This will generate scripts/class_generators/generated_schemas/snp_schema.json and scripts/class_generators/generated_schemas/snp_aggs_schema.json
 
