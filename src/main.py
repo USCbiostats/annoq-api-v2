@@ -75,4 +75,4 @@ if __name__ == "__main__":
     print(f'Debug...{settings.DEBUG}')
     print(f'Starting server.  ..{settings.FASTAPI_PORT}')
     # uvicorn.run("main:app", host=settings.ES_HOST, port=settings.FASTAPI_PORT, reload=settings.DEBUG, log_level='info', log_config='./log.ini')
-    uvicorn.run("src.main:app", host=settings.ES_HOST, port=settings.FASTAPI_PORT, reload=settings.DEBUG)
+    uvicorn.run("src.main:app", host=settings.API_HOST, port=settings.FASTAPI_PORT, reload=settings.DEBUG)

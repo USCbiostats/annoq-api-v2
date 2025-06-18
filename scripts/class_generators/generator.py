@@ -3,14 +3,11 @@ import asyncio
 import json
 from elasticsearch import AsyncElasticsearch
 import os
-from dotenv import load_dotenv
 from src.utils import clean_field_name
+from src.config.settings import settings
 
-load_dotenv()
-
-
-ES_URL:str = os.getenv("ES_URL")
-ES_INDEX:str = os.getenv("ES_INDEX")
+ES_URL:str = settings.ES_URL
+ES_INDEX:str = settings.ES_INDEX
 GENERATED_SCHEMA_DIR = './scripts/class_generators/generated_schemas'
 GENERATED_MODEL_DIR = './src/graphql/models/generated/'
 TYPE_MAPPINGS = {
