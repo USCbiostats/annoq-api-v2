@@ -14,7 +14,7 @@ async def download_annotations(fields: list[str], resp: dict):
     """
     count = 0
     filename = str(uuid.uuid4()) + '.txt'
-    f = open(settings.DOWNLOAD_DIR + '/' + filename, 'w')
+    f = open(settings.SITE_DOWNLOAD_DIR + '/' + filename, 'w')
     f.write('\t'.join(fields) + '\n')
 
     old_scroll_id = resp['_scroll_id']
@@ -22,7 +22,7 @@ async def download_annotations(fields: list[str], resp: dict):
     while len(resp['hits']['hits']):
         for doc in resp['hits']['hits']:
             count += 1
-            if count > settings.DOWNLOAD_SIZE: 
+            if count > settings.SIZE_DOWNLOAD_SIZE: 
                 return "/downloads/" + filename
             
             li = []

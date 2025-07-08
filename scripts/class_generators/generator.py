@@ -1,5 +1,6 @@
 
 import asyncio
+import copy
 import json
 from elasticsearch import AsyncElasticsearch
 import os
@@ -23,6 +24,29 @@ TYPE_MAPPINGS = {
     "text": {"type": "string"},
     "object": {"type": "object"},
 }
+
+def init_snp_dict():
+    with open('./data/anno_tree.json') as f:
+        data = json.load(f)
+        snp_dict = {}
+        for elt in data:
+            if elt['leaf'] == True:
+                cur = {}
+                name = clean_field_name(elt['name'])
+                searchable = False
+                if 'keyword_searchable' in elt:
+                    searchable = bool (elt['keyword_searchable'])
+                cur["api_label"] =  name
+                if 'label' in elt:
+                    cur["display_label"] = elt['label']
+                if 'detail' in elt:
+                    cur["definition"] = elt['detail']
+                snp_dict[name] = cur
+        return snp_dict
+
+
+
+snp_attrib_dict = init_snp_dict()  
 
 es = AsyncElasticsearch(ES_URL,
     connections_per_node=400,
@@ -61,18 +85,24 @@ def generate_snp_schema(mapping):
     for field, details in mapping.items():
         cleaned_field = clean_field_name(field)
         es_type = details['type']
-        json_schema['properties'][cleaned_field] = TYPE_MAPPINGS.get(es_type, {"type": "string"})
-
+        cur = copy.deepcopy(TYPE_MAPPINGS.get(es_type, {"type": "string"}))
+        if cleaned_field in snp_attrib_dict:
+            other_details = snp_attrib_dict[cleaned_field] 
+            cur["description"] = other_details.get("definition", None)
+        else:
+            cur["description"] = None
+        json_schema['properties'][cleaned_field] = cur
+            
     return json_schema
 
 
 def generate_snp_aggs_schema(mapping):
     """
-    Generates the schema for the SnpAggs from elasticsearch mappings
+    Generates the schema for the SnpAggsModel from elasticsearch mappings
 
     Params: mapping: elasticsearch mappings
 
-    Returns: SnpModel schema
+    Returns: SnpAggsModel schema
     """
     json_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",

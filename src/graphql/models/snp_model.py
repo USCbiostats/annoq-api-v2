@@ -6,14 +6,16 @@ from typing import Optional
 
 @strawberry.experimental.pydantic.type(model=SnpModel, all_fields=True)
 class Snp:
-    id: strawberry.ID
+    id: strawberry.ID = strawberry.field(description="This is a unique identifier for each record in the system.  It is a concatenation of the chromosome, followed by a colon (':'), followed by the position, followed by the reference nucleotide, followed by a greater than symbol ('<') followed by alternate nucleotide")
     pass
 
 @strawberry.experimental.pydantic.type(model=SnpAggsModel, all_fields=True)
 class SnpAggs:
     pass
 
-@strawberry.type
+@strawberry.type (
+    description="This is a list of SNPs with associated attributes"
+)
 class SnpList:
     snps: List[Snp]
 
