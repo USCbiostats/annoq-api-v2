@@ -1,7 +1,8 @@
 from src.config.es import es
 from src.config.settings import settings
 from src.graphql.models.annotation_model import FilterArgs, PageArgs
-from src.graphql.resolvers.helper_resolver import IDs_query, chromosome_query, rsIDs_query, keyword_query, gene_query
+from src.graphql.resolvers.helper_resolver import IDs_query, chromosome_query, rsIDs_query, gene_query
+from src.data_access_object.keyword_search import keyword_query
 from src.graphql.resolvers.api_snp_helper_resolver import output_error_msg, convert_scroll_hits
 
 

@@ -6,7 +6,7 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.extensions import MaskErrors
-from src.data_adapter.snp_attributes import get_snp_attrib_json
+
 import uvicorn
 import multiprocessing
 
@@ -23,7 +23,7 @@ from src.routers import (
     snp)
 
 site_app = FastAPI()
-api_app = FastAPI()
+api_app = FastAPI(openapi_tags=snp.TAGS_METADATA)
 
 origins = ["*"]
 
@@ -106,9 +106,9 @@ def read_root():
     return {"Annoq API version": "V2"}
 
 
-@api_app.get("/snpAttributes")
-def read_snp_attributes():
-    return get_snp_attrib_json()
+# @api_app.get("/snpAttributes")
+# def read_snp_attributes():
+#     return get_snp_attrib_json()
 
 def run_site_app():
     print(f'Debug...{settings.DEBUG}')

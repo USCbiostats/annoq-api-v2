@@ -8,6 +8,7 @@ from src.graphql.models.annotation_model import FilterArgs, PageArgs
 from src.graphql.resolvers.api_snp_resolver import  output_error_msg, search_by_chromosome, search_by_rsIDs, search_by_IDs, search_by_keyword, search_by_gene
 from src.graphql.resolvers.api_count_resolver import count_by_chromosome, count_by_rsIDs, count_by_IDs, count_by_keyword, count_by_gene
 from src.graphql.models.return_info_model import OutputSnpInfo, OutputCountInfo
+from src.data_adapter.snp_attributes import get_snp_attrib_json
 
 # Constants
 MAX_PAGE_SIZE = 50    
@@ -61,12 +62,39 @@ class ChromosomeIdentifierType(str, Enum):
     CHR_22 = CHR_22
     CHR_X = CHR_X
     
-    
+SUMMARY = "API for accessing Annoq.org SNP data"
 
+DESCRIPTION = "API for programatic access of Annoq.org SNP data"
+
+TERMS_OF_SERVICE = "It is recommended that response from previous API request is received before sending a new request. Failure to comply with this policy may result in the IP address being blocked from accessing ANNOQ."
+
+    
+TAGS_METADATA = [
+    {
+    "name": "ATTRIBUTES",
+    "description": "Retrieves Information about SNP attributes",
+    },
+    {
+    "name": "SNP",
+    "description": "Retrieves SNP's based on search criteria.  Note, in addition to requested SNP attributes, the system will also return the unique identifier for the SNP"
+    },
+    {
+    "name": "Count",
+    "description": "Retrieves the count of SNP's that match the search criteria"
+    },
+]
         
     
     
 router = APIRouter()
+@router.post("/fastapi/snpAttributes",
+            tags=["ATTRIBUTES"],
+            description="Returns available list of SNP attributes.  Each entry has detailed information about the attribute such as the label to be used for quering the API, the name of the attribute used by Annoq.org website, a description of the attribute and if the attribute can be used for searching")
+async def get_snp_attributes():
+    return get_snp_attrib_json()
+    
+
+
 @router.post("/fastapi/snp/chr",
             tags=["SNP"],
             description="Search by chromosome id and position range.  The following have to be specified: The chromosome number (or 'X' for the X-chromosome), the chromosome start and stop region positions and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",

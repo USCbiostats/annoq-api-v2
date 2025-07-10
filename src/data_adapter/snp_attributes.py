@@ -21,8 +21,11 @@ class SnpAttributes:
                     if 'keyword_searchable' in elt:
                         searchable = bool (elt['keyword_searchable'])
                     cur["api_label"] =  name
-                    cur["name"] = elt['name']
-                    cur["keyword_searchable"] = searchable
+                    if 'label' in elt:
+                        cur["name"] = elt['label']
+                    else:
+                        cur["name"] = name    
+                    cur["searchable"] = searchable
                     if searchable == True:
                         searchable_list.append(name)
                     if 'label' in elt:
