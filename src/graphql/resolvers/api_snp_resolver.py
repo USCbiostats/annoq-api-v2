@@ -167,7 +167,7 @@ async def query_return(es_fields, resp):
     Params: es_fields: List of fields to be returned in elasticsearch query
             resp: Response from elasticsearch query
     """
-    results = convert_scroll_hits(resp['hits']['hits'])  
+    results = convert_scroll_hits(es_fields, resp['hits']['hits'])  
     return results
 
 

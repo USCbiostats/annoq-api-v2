@@ -13,6 +13,7 @@ class OperationInfo(BaseModel):
 
 class OutputSnpInfo(OperationInfo):
     details: List[SnpModel]
+    version: str
     
 class OutputCountInfo(OperationInfo):
     details: int    
