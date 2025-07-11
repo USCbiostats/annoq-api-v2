@@ -23,7 +23,7 @@ from src.routers import (
     snp)
 
 site_app = FastAPI()
-api_app = FastAPI(openapi_tags=snp.TAGS_METADATA)
+api_app = FastAPI(title = snp.TITLE, summary=snp.SUMMARY, description=snp.DESCRIPTION, version=snp.VERSION, openapi_tags=snp.TAGS_METADATA)
 
 origins = ["*"]
 

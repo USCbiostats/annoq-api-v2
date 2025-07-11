@@ -62,12 +62,38 @@ class ChromosomeIdentifierType(str, Enum):
     CHR_22 = CHR_22
     CHR_X = CHR_X
     
-SUMMARY = "API for accessing Annoq.org SNP data"
+    
+TITLE = "Annoq.org API"
 
-DESCRIPTION = "API for programatic access of Annoq.org SNP data"
+    
+SUMMARY = "API for accessing SNP data from Annoq.org"
 
-TERMS_OF_SERVICE = "It is recommended that response from previous API request is received before sending a new request. Failure to comply with this policy may result in the IP address being blocked from accessing ANNOQ."
+DESCRIPTION = """
+API for programatic access of SNP data from Annoq.org
 
+### ATTRIBUTES
+
+Retrieve information about the SNP attributes available for each SNP in the system
+
+### SNP
+
+Retrieve SNPs based on: 
+1.  Chromosome and position range
+2.  RSID list
+3.  ID List
+4.  Keyword
+5.  Gene
+
+### Count
+Retrieve number of SNP's matching following search criteria:
+1.  Chromosome and position range
+2.  RSID list
+3.  ID List
+4.  Keyword
+5.  Gene
+"""
+
+VERSION = "2.5"
     
 TAGS_METADATA = [
     {
@@ -89,7 +115,7 @@ TAGS_METADATA = [
 router = APIRouter()
 @router.post("/fastapi/snpAttributes",
             tags=["ATTRIBUTES"],
-            description="Returns available list of SNP attributes.  Each entry has detailed information about the attribute such as the label to be used for quering the API, the name of the attribute used by Annoq.org website, a description of the attribute and if the attribute can be used for searching")
+            description="Returns available list of SNP attributes.  Each entry has detailed information about the attribute such as the label to be used for quering the API, the name of the attribute used by Annoq.org website, a description of the attribute, the version of data and if the attribute can be used for searching by keyword")
 async def get_snp_attributes():
     return get_snp_attrib_json()
     
