@@ -38,16 +38,18 @@ class SnpAttributes:
                         searchable = bool (elt['keyword_searchable'])
                     cur["api_label"] =  name
                     if 'label' in elt:
-                        cur['name'] = elt['label']
+                        cur['display_label'] = elt['label']
                     else:
-                        cur['name'] = name    
+                        cur['display_label'] = name    
                     cur["searchable"] = searchable
                     if searchable == True:
                         searchable_list.append(name)
-                    if 'label' in elt:
-                        cur["display_label"] = elt['label']
+                    # if 'label' in elt:
+                    #     cur["display_label"] = elt['label']
                     if 'detail' in elt:
                         cur["definition"] = elt['detail']
+                    if 'field_type' in elt:
+                        cur["data_type"] = elt['field_type']    
                     attrib_list.append(cur)
                     if 'id' in elt:
                         leaf_name_lookup[name] = elt['id']

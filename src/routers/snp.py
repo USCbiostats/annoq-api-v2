@@ -63,7 +63,7 @@ class ChromosomeIdentifierType(str, Enum):
     CHR_X = CHR_X
     
     
-TITLE = "Annoq.org API"
+TITLE = "AnnoQ API"
 
     
 SUMMARY = "API for accessing SNP data from Annoq.org"
@@ -158,7 +158,7 @@ async def get_snps_by_chr(
 
 @router.post("/fastapi/snp/rsidList",
             tags=["SNP"],
-            description="Search for specified list of RSID's.  The following have to be specified: One or more RSIDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
+            description="Search for specified list of RSIDs.  The following have to be specified: One or more RSIDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
             response_model=OutputSnpInfo,
             response_model_exclude_none=True)
 async def get_snps_by_rsidList(
@@ -191,7 +191,7 @@ async def get_snps_by_rsidList(
 
 @router.post("/fastapi/snp/idList",
             tags=["SNP"],
-            description="Search for specified list of ID's.  The following have to be specified: One or more IDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
+            description="Search for specified list of ID's.  This is a unique identifier for each SNP in the system.  It is a concatenation of the chromosome, followed by a colon (':'), followed by the position, followed by the reference nucleotide, followed by a greater than symbol ('>') followed by alternate nucleotide.  The following have to be specified: One or more IDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
             response_model=OutputSnpInfo,
             response_model_exclude_none=True)
 async def get_snps_by_idList(
@@ -287,7 +287,7 @@ async def get_snps_by_gene(
 async def count_snps_by_chromosome(
     chromosome_identifier: ChromosomeIdentifierType = Query(
         deault=ChromosomeIdentifierType.CHR_1,
-        description="Returns a list of records where each record has requested SNP attributes.   The following have to be specified: The chromosome number (or 'X' for the X-chromosome), the chromosome start and stop region positions and the SNP attributes.  The pagination start and stop range and list of filter fields are optional."
+        description="The chromosome number (or 'X' for the X-chromosome)"
     ),
     start_position: int = Query(1, description="Start position region of search"),  
     end_position: int = Query(100000, description="End position region of search"),
