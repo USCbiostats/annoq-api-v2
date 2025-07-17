@@ -8,10 +8,12 @@ from src.graphql.models.annotation_model import FilterArgs, PageArgs
 from src.graphql.resolvers.api_snp_resolver import  output_error_msg, search_by_chromosome, search_by_rsIDs, search_by_IDs, search_by_keyword, search_by_gene
 from src.graphql.resolvers.api_count_resolver import count_by_chromosome, count_by_rsIDs, count_by_IDs, count_by_keyword, count_by_gene
 from src.graphql.models.return_info_model import OutputSnpInfo, OutputCountInfo
-from src.data_adapter.snp_attributes import get_snp_attrib_json
+from src.data_adapter.snp_attributes import get_snp_attrib_json, get_gene_search_fields
 
 # Constants
-MAX_PAGE_SIZE = 50    
+MAX_PAGE_SIZE = 1000000
+
+MAX_ATTRIB_SIZE = 20;    
 
 CHR_1 = "1"
 CHR_2 = "2"
@@ -134,7 +136,7 @@ async def get_snps_by_chr(
     start_position: int = Query(1, description="Start position region of search"),  
     end_position: int = Query(100000, description="End position region of search"),
     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),
+        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),
     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
     filter_fields: str = Query(default=None,
@@ -149,9 +151,11 @@ async def get_snps_by_chr(
     
     try:
         json_object = json.loads(fields)
-        attribs = json_object["_source"] 
+        attribs = json_object["_source"]
+        if len(attribs) > MAX_ATTRIB_SIZE:
+            return output_error_msg(message="Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE))
     except json.JSONDecodeError:
-        return output_error_msg("Unable to retrieve information")
+        return output_error_msg(message="Unable to retrieve information")
 
     return await search_by_chromosome(attribs, chromosome_identifier.value,  start_position, end_position, page_args, filter_args)
 
@@ -165,7 +169,7 @@ async def get_snps_by_rsidList(
     rsid_list: str = Query(default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311", 
         description="List of RSIDS to search.  Delimited by comma ','.  Example rs574852966,rs148600903"),
     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),    
+        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),  
     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
     filter_fields: str = Query(default=None,
@@ -181,7 +185,9 @@ async def get_snps_by_rsidList(
     rsIDs = rsid_list.split(",")    
     try:
         json_object = json.loads(fields)
-        attribs = json_object["_source"] 
+        attribs = json_object["_source"]
+        if len(attribs) > MAX_ATTRIB_SIZE:
+            return output_error_msg(message="Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE))         
     except json.JSONDecodeError:
         return output_error_msg("Unable to retrieve information")
         
@@ -189,36 +195,36 @@ async def get_snps_by_rsidList(
 
 
 
-@router.post("/fastapi/snp/idList",
-            tags=["SNP"],
-            description="Search for specified list of ID's.  This is a unique identifier for each SNP in the system.  It is a concatenation of the chromosome, followed by a colon (':'), followed by the position, followed by the reference nucleotide, followed by a greater than symbol ('>') followed by alternate nucleotide.  The following have to be specified: One or more IDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
-            response_model=OutputSnpInfo,
-            response_model_exclude_none=True)
-async def get_snps_by_idList(
-    id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A", 
-        description="List of IDS to search.  Delimited by comma ','.  Example 20:60309G>T,20:65497T>G"),
-    fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),    
-    pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
-    pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
+# @router.post("/fastapi/snp/idList",
+#             tags=["SNP"],
+#             description="Search for specified list of ID's.  This is a unique identifier for each SNP in the system.  It is a concatenation of the chromosome, followed by a colon (':'), followed by the position, followed by the reference nucleotide, followed by a greater than symbol ('>') followed by alternate nucleotide.  The following have to be specified: One or more IDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
+#             response_model=OutputSnpInfo,
+#             response_model_exclude_none=True)
+# async def get_snps_by_idList(
+#     id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A", 
+#         description="List of IDS to search.  Delimited by comma ','.  Example 20:60309G>T,20:65497T>G"),
+#     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
+#         description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),    
+#     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
+#     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
+#     filter_fields: str = Query(default=None,
+#         description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
+#     ):
 
-    page_args = PageArgs(from_=pagination_from, size=pagination_size)
-    if filter_fields is not None:
-        filter_args = FilterArgs(exists=filter_fields.split(","))
-    else:
-        filter_args = None
+#     page_args = PageArgs(from_=pagination_from, size=pagination_size)
+#     if filter_fields is not None:
+#         filter_args = FilterArgs(exists=filter_fields.split(","))
+#     else:
+#         filter_args = None
 
-    idList = id_list.split(",")    
-    try:
-        json_object = json.loads(fields)
-        attribs = json_object["_source"] 
-    except json.JSONDecodeError:
-        return output_error_msg("Unable to retrieve information")
+#     idList = id_list.split(",")    
+#     try:
+#         json_object = json.loads(fields)
+#         attribs = json_object["_source"] 
+#     except json.JSONDecodeError:
+#         return output_error_msg("Unable to retrieve information")
         
-    return await search_by_IDs(attribs, idList, page_args, filter_args)
+#     return await search_by_IDs(attribs, idList, page_args, filter_args)
 
 
 
@@ -231,7 +237,7 @@ async def get_snps_by_keyword(
     keyword: str = Query(default="Signaling by GPCR", 
         description="keyword of phrase to search"),
     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),    
+        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),
     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
     ):
@@ -241,7 +247,9 @@ async def get_snps_by_keyword(
 
     try:
         json_object = json.loads(fields)
-        attribs = json_object["_source"] 
+        attribs = json_object["_source"]
+        if len(attribs) > MAX_ATTRIB_SIZE:
+            return output_error_msg(message="Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE))         
     except json.JSONDecodeError:
         return output_error_msg("Unable to retrieve information")
         
@@ -251,33 +259,36 @@ async def get_snps_by_keyword(
 
 @router.post("/fastapi/snp/gene",
             tags=["SNP"],
-            description="Search for specified gene product.  The following have to be specified: One or more IDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
+            description="Search for specified gene product.  The following have to be specified: A gene Id and  the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
             response_model=OutputSnpInfo,
             response_model_exclude_none=True)
 async def get_snps_by_gene(
-    gene: str = Query(default="abca1", 
-        description="Gene product to search"),
+    gene: str = Query(default="ZMYND11", 
+        description="Gene id to search"),
     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),    
+        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),   
     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
+    # filter_fields: str = Query(default=None,
+    #     description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
     ):
 
     page_args = PageArgs(from_=pagination_from, size=pagination_size)
-    if filter_fields is not None:
-        filter_args = FilterArgs(exists=filter_fields.split(","))
-    else:
-        filter_args = None
-        
+    # if filter_fields is not None:
+    #     filter_args = FilterArgs(exists=filter_fields.split(","))
+    # else:
+    #     filter_args = None
+    
+    keyword_fields = get_gene_search_fields()   
     try:
         json_object = json.loads(fields)
-        attribs = json_object["_source"] 
+        attribs = json_object["_source"]
+        if len(attribs) > MAX_ATTRIB_SIZE:
+            return output_error_msg(message="Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE))         
     except json.JSONDecodeError:
         return output_error_msg("Unable to retrieve information")        
         
-    return await search_by_gene(attribs, gene, page_args, filter_args)
+    return await search_by_keyword(attribs, gene, page_args, keyword_fields)
 
 
 @router.post("/fastapi/count/chr",
@@ -319,22 +330,22 @@ async def count_snps_by_rsidList(
     return await count_by_rsIDs(rsIDs, filter_args)
     
 
-@router.post("/fastapi/count/idList",
-            tags=["Count"],
-            description="Returns the number of SNPs defined in the system that have matching ID's from the specified list of IDs.",
-            response_model=OutputCountInfo)
-async def count_snps_by_idList(
-    id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A", 
-        description="List of IDS to search.  Delimited by comma ','.  Example 20:60309G>T,20:65497T>G"),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are to be delimited by comma ','.  Example \"ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
-    idList = id_list.split(",")      
-    if filter_fields is not None:
-        filter_args = FilterArgs(exists=filter_fields.split(","))
-    else:
-        filter_args = None    
-    return await count_by_IDs(idList, filter_args)
+# @router.post("/fastapi/count/idList",
+#             tags=["Count"],
+#             description="Returns the number of SNPs defined in the system that have matching ID's from the specified list of IDs.",
+#             response_model=OutputCountInfo)
+# async def count_snps_by_idList(
+#     id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A", 
+#         description="List of IDS to search.  Delimited by comma ','.  Example 20:60309G>T,20:65497T>G"),
+#     filter_fields: str = Query(default=None,
+#         description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are to be delimited by comma ','.  Example \"ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
+#     ):
+#     idList = id_list.split(",")      
+#     if filter_fields is not None:
+#         filter_args = FilterArgs(exists=filter_fields.split(","))
+#     else:
+#         filter_args = None    
+#     return await count_by_IDs(idList, filter_args)
  
  
 @router.post("/fastapi/count/keyword",
@@ -352,7 +363,7 @@ async def count_snps_by_keyword(
 
 @router.post("/fastapi/count/gene",
             tags=["Count"],
-            description="Returns the number of SNPs defined in the system that have been associated for the specified gene product.  The following have to be specified: One or more IDs and the SNP attributes.  The filter fields are optional.",
+            description="Returns the number of SNPs defined in the system that have been associated for the specified gene product.  The following have to be specified: The gene id and the SNP attributes.  The filter fields are optional.",
             response_model=OutputCountInfo)
 async def count_snps_by_gene(
     gene: str = Query(default="abca1", 
