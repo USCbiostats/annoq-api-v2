@@ -1,6 +1,6 @@
 from src.data_adapter.snp_attributes import get_keyword_searchable_fields
 
-def keyword_query(keyword: str):
+def keyword_query(keyword: str, keyword_fields:list[str] = None):
     """
     Query for getting annotation by keyword
 
@@ -13,7 +13,10 @@ def keyword_query(keyword: str):
     # with open('./data/anno_tree.json') as f:
     #     data = json.load(f)
     #     searchable_fields = [elt['name'] for elt in data if data.get('keyword_searchable', False)]
-    searchable_fields = get_keyword_searchable_fields()
+    if keyword_fields is None:
+      searchable_fields = get_keyword_searchable_fields()
+    else:
+      searchable_fields = keyword_fields  
 
     query = {
               "multi_match": {

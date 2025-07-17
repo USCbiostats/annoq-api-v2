@@ -3,12 +3,16 @@ import copy
 from src.utils import clean_field_name
 
 
+GENE_SEARCH_COLS = ["ANNOVAR_ensembl_Closest_gene(intergenic_only)","ANNOVAR_ensembl_Gene_ID","ANNOVAR_refseq_Gene_ID","ANNOVAR_refseq_Closest_gene(intergenic_only)","SnpEff_ensembl_Gene_ID","SnpEff_refseq_Gene_ID","VEP_ensembl_Gene_ID","VEP_refseq_Gene_ID","enhancer_linked_genes"]
+
+
 class SnpAttributes:
     def __init__(self):
         self.leaf_attrib_list = None
         self.searchable_list = None
         self.detail_lookup = None
         self.leaf_name_lookup = None
+        self.gene_search_fields = None
         
         
     def initialize(self):   
@@ -18,6 +22,7 @@ class SnpAttributes:
             searchable_list = []
             detail_lookup = {}
             leaf_name_lookup = {}
+            gene_search_fields = []
             
             for elt in data:
                 if 'id' in elt:
@@ -41,7 +46,7 @@ class SnpAttributes:
                         cur['display_label'] = elt['label']
                     else:
                         cur['display_label'] = name    
-                    cur["searchable"] = searchable
+                    # cur["searchable"] = searchable
                     if searchable == True:
                         searchable_list.append(name)
                     # if 'label' in elt:
@@ -58,11 +63,20 @@ class SnpAttributes:
                             if 'version' in details:
                                 cur["version"]  = details['version']
                         
+
+
+            for gene_col in GENE_SEARCH_COLS:
+                if gene_col in searchable_list:
+                    gene_search_fields.append(gene_col)
+                else:
+                    print(f'Gene search string not found for {gene_col}')
                        
         self.attrib_list = attrib_list
         self.searchable_list = searchable_list
         self.detail_lookup = detail_lookup
-        self.leaf_name_lookup = leaf_name_lookup       
+        self.leaf_name_lookup = leaf_name_lookup
+        self.gene_search_fields = gene_search_fields         
+              
         
 
 
@@ -114,4 +128,7 @@ def get_version_info(fields):
                 details = snpAttributes.detail_lookup[id]
                 if 'version' in details:
                     rtn_lookup[field] = details['version']
-    return str(rtn_lookup)       
+    return str(rtn_lookup)
+
+def get_gene_search_fields():
+    return snpAttributes.gene_search_fields       

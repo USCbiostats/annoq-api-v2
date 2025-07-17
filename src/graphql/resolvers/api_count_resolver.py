@@ -25,7 +25,8 @@ async def count_by_chromosome(chr: str, start: int, end: int, filter_args=Filter
         )
         return OutputCountInfo(success = False, message = "OK", details =  resp['count'])
       except Exception:
-        return output_error_msg("Unable to retrieve count information for search by chromosome")
+            message = "Unable to retrieve count information for search by chromosome"
+            return output_error_msg(message)
     
 
 async def count_by_rsIDs(rsIDs: list[str], filter_args=FilterArgs):
@@ -45,7 +46,8 @@ async def count_by_rsIDs(rsIDs: list[str], filter_args=FilterArgs):
         )
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:
-        return output_error_msg("Unable to retrieve count information for search by RSID list")
+            message = "Unable to retrieve count information for search by RSID list"
+            return output_error_msg(message)
     
     
 async def count_by_IDs(ids: list[str], filter_args=FilterArgs):
@@ -65,7 +67,8 @@ async def count_by_IDs(ids: list[str], filter_args=FilterArgs):
         )   
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:
-        return output_error_msg("Unable to retrieve count information for search by ID list")    
+            message = "Unable to retrieve count information for search by ID list"
+            return output_error_msg(message)    
 
 
 async def count_by_keyword(keyword: str):
@@ -84,7 +87,8 @@ async def count_by_keyword(keyword: str):
         )
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:
-        return output_error_msg("Unable to retrieve count information for search by keyword")  
+        message = "Unable to retrieve count information for search by keyword"    
+        return output_error_msg(message)  
 
 
 async def count_by_gene(gene:str, filter_args=FilterArgs):

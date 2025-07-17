@@ -37,7 +37,8 @@ async def search_by_chromosome(es_fields: list[str], chr: str, start: int, end: 
     # except ConnectionError as e:
     #     return OutputSnpInfo(operationInfo= BaseOutput(success = False, message = e.message), details = None)
     except Exception:
-        return output_error_msg("Unable to retrieve information for search by chromosome")
+      message = "Unable to retrieve information for search by chromosome"
+      return output_error_msg(message)      
         
 
 
@@ -65,7 +66,8 @@ async def search_by_rsIDs(es_fields: list[str], rsIDs: list[str], page_args=Page
       )
       return await query_return(es_fields, resp)
     except Exception:
-        return output_error_msg("Unable to retrieve information for search by RSIDS")
+      message = "Unable to retrieve information for search by RSIDS"
+      return output_error_msg(message)       
 
   
   
@@ -96,10 +98,11 @@ async def search_by_IDs(es_fields: list[str], ids: list[str],  page_args=PageArg
       
       return await query_return(es_fields, resp)
     except Exception:
-        return output_error_msg("Unable to retrieve information for search by IDS")
+      message = "Unable to retrieve information for search by IDS"
+      return output_error_msg(message)       
   
   
-async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageArgs):
+async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageArgs, keyword_fields: list[str] = None):
     """ 
     Query for getting annotation by keyword
 
@@ -118,12 +121,13 @@ async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageAr
             source = es_fields,
             from_= page_args.from_ ,
             size = page_args.size,
-            query = keyword_query(keyword)
+            query = keyword_query(keyword, keyword_fields)
       )
     
       return await query_return(es_fields, resp)
     except Exception:
-        return output_error_msg("Unable to retrieve information for search by keyword")
+      message = "Unable to retrieve information for search by keyword"
+      return output_error_msg(message)       
   
   
 async def search_by_gene(es_fields: list[str], gene:str, page_args=PageArgs, filter_args=FilterArgs):
@@ -153,11 +157,13 @@ async def search_by_gene(es_fields: list[str], gene:str, page_args=PageArgs, fil
                 query = query
         )
       else:
-        return output_error_msg("Unable to construct query for search by gene operation")
+        message = "Unable to construct query for search by gene operation"
+        return output_error_msg(message)       
         
       return await query_return(es_fields, resp)
     except Exception:
-        return output_error_msg("Unable to retrieve information for search by gene")
+      message = "Unable to retrieve information for search by gene"
+      return output_error_msg(message)       
 
 
 async def query_return(es_fields, resp):
