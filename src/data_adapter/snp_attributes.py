@@ -9,17 +9,19 @@ GENE_SEARCH_COLS = ["ANNOVAR_ensembl_Closest_gene(intergenic_only)","ANNOVAR_ens
 class SnpAttributes:
     def __init__(self):
         self.leaf_attrib_list = None
-        self.searchable_list = None
+        self.searchable_set = None
         self.detail_lookup = None
         self.leaf_name_lookup = None
+        self.leaf_set = None
         self.gene_search_fields = None
+        
         
         
     def initialize(self):   
         with open('./data/anno_tree.json') as f:
             data = json.load(f)
-            attrib_list = []
-            searchable_list = []
+            leaf_attrib_list = []
+            searchable_set = set()
             detail_lookup = {}
             leaf_name_lookup = {}
             gene_search_fields = []
@@ -48,14 +50,14 @@ class SnpAttributes:
                         cur['display_label'] = name    
                     # cur["searchable"] = searchable
                     if searchable == True:
-                        searchable_list.append(name)
+                        searchable_set.add(name)
                     # if 'label' in elt:
                     #     cur["display_label"] = elt['label']
                     if 'detail' in elt:
                         cur["definition"] = elt['detail']
                     if 'field_type' in elt:
                         cur["data_type"] = elt['field_type']    
-                    attrib_list.append(cur)
+                    leaf_attrib_list.append(cur)
                     if 'id' in elt:
                         leaf_name_lookup[name] = elt['id']
                         if  elt['id'] in detail_lookup: 
@@ -66,15 +68,16 @@ class SnpAttributes:
 
 
             for gene_col in GENE_SEARCH_COLS:
-                if gene_col in searchable_list:
+                if gene_col in searchable_set:
                     gene_search_fields.append(gene_col)
                 else:
                     print(f'Gene search string not found for {gene_col}')
                        
-        self.attrib_list = attrib_list
-        self.searchable_list = searchable_list
+        self.leaf_attrib_list = leaf_attrib_list
+        self.searchable_set = searchable_set
         self.detail_lookup = detail_lookup
         self.leaf_name_lookup = leaf_name_lookup
+        self.leaf_set = set(leaf_name_lookup.keys())
         self.gene_search_fields = gene_search_fields         
               
         
@@ -113,10 +116,10 @@ snpAttributes.initialize()
 
 
 def get_snp_attrib_json():
-    return  {"results": snpAttributes.attrib_list}
+    return  {"results": snpAttributes.leaf_attrib_list}
 
-def get_keyword_searchable_fields():
-    return snpAttributes.searchable_list
+def get_keyword_searchable_set():
+    return snpAttributes.searchable_set
 
 
 def get_version_info(fields):
@@ -131,4 +134,11 @@ def get_version_info(fields):
     return str(rtn_lookup)
 
 def get_gene_search_fields():
-    return snpAttributes.gene_search_fields       
+    return snpAttributes.gene_search_fields
+
+def get_attrib_list():
+    return snpAttributes.leaf_set
+
+
+
+           

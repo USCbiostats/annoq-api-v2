@@ -102,7 +102,7 @@ async def search_by_IDs(es_fields: list[str], ids: list[str],  page_args=PageArg
       return output_error_msg(message)       
   
   
-async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageArgs, keyword_fields: list[str] = None):
+async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageArgs, keyword_fields: list[str] = None, filter_fields: list[str] = None):
     """ 
     Query for getting annotation by keyword
 
@@ -121,7 +121,7 @@ async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageAr
             source = es_fields,
             from_= page_args.from_ ,
             size = page_args.size,
-            query = keyword_query(keyword, keyword_fields)
+            query = keyword_query(keyword, keyword_fields, filter_fields)
       )
     
       return await query_return(es_fields, resp)

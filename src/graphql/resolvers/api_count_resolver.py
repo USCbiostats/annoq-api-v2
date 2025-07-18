@@ -71,7 +71,7 @@ async def count_by_IDs(ids: list[str], filter_args=FilterArgs):
             return output_error_msg(message)    
 
 
-async def count_by_keyword(keyword: str, keyword_fields: list[str] = None):
+async def count_by_keyword(keyword: str, keyword_fields: list[str] = None, filter_fields:list[str] = None):
       """ 
       Query for getting count of annotation by keyword
 
@@ -83,7 +83,7 @@ async def count_by_keyword(keyword: str, keyword_fields: list[str] = None):
       try:
         resp = await es.count(
                 index = settings.ES_INDEX,
-                query = keyword_query(keyword, keyword_fields)
+                query = keyword_query(keyword, keyword_fields, filter_fields)
         )
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:

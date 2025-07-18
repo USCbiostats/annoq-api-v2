@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 #import strawberry
 #from src.graphql.models.snp_model import SnpList, Snp
@@ -12,8 +12,8 @@ class OperationInfo(BaseModel):
     message: str
 
 class OutputSnpInfo(OperationInfo):
-    details: List[SnpModel]
-    version: str
+    details: Optional[List[SnpModel]] = None
+    version: Optional[str] = None
     
 class OutputCountInfo(OperationInfo):
     details: int    
