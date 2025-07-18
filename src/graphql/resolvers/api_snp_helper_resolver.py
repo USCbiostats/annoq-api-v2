@@ -6,7 +6,7 @@ from src.utils import clean_field_name
 from src.data_adapter.snp_attributes import get_version_info
 
 def output_error_msg(message: str):
-    return OutputSnpInfo(success = False, message = message, details =  [])
+    return OutputSnpInfo(success=False, message=message, details =[], version="")
 
 def convert_scroll_hits(es_fields, hits):
     """

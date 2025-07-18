@@ -71,7 +71,7 @@ async def count_by_IDs(ids: list[str], filter_args=FilterArgs):
             return output_error_msg(message)    
 
 
-async def count_by_keyword(keyword: str):
+async def count_by_keyword(keyword: str, keyword_fields: list[str] = None):
       """ 
       Query for getting count of annotation by keyword
 
@@ -83,7 +83,7 @@ async def count_by_keyword(keyword: str):
       try:
         resp = await es.count(
                 index = settings.ES_INDEX,
-                query = keyword_query(keyword)
+                query = keyword_query(keyword, keyword_fields)
         )
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:
@@ -91,30 +91,30 @@ async def count_by_keyword(keyword: str):
         return output_error_msg(message)  
 
 
-async def count_by_gene(gene:str, filter_args=FilterArgs):
-      """ 
-      Query for getting count of annotation by rsIDs
+# async def count_by_gene(gene:str, filter_args=FilterArgs):
+#       """ 
+#       Query for getting count of annotation by rsIDs
 
-      Params: es_fields: List of fields to be returned in elasticsearch query
-            gene: Gene product
-            filter_args: FilterArgs object for field exists filter
+#       Params: es_fields: List of fields to be returned in elasticsearch query
+#             gene: Gene product
+#             filter_args: FilterArgs object for field exists filter
 
-      Returns: integer for count of annotations
-      """
+#       Returns: integer for count of annotations
+#       """
       
-      try: 
-        query = gene_query(gene, filter_args)
+#       try: 
+#         query = gene_query(gene, filter_args)
 
-        if query is not None:
-            resp = await es.count(
-                    index = settings.ES_INDEX,
-                    query = query
-            )
-            return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
-        else:
-            return output_error_msg("Unable to construct query for counting by gene")      
-      except Exception:
-        return output_error_msg("Unable to retrieve count information for search by gene")  
+#         if query is not None:
+#             resp = await es.count(
+#                     index = settings.ES_INDEX,
+#                     query = query
+#             )
+#             return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
+#         else:
+#             return output_error_msg("Unable to construct query for counting by gene")      
+#       except Exception:
+#         return output_error_msg("Unable to retrieve count information for search by gene")  
   
   
   
