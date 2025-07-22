@@ -204,7 +204,7 @@ async def query_retrieve_all_res(es_fields: list[str], resp: dict, page_size: in
         for hit in resp['hits']['hits']:
           source = hit['_source']
           values = {clean_field_name(key): value for key, value in source.items()} 
-          values['id']  = hit['_id']
+          # values['id']  = hit['_id']
           compliant_results.append(SnpModel(**values))
           
         count += 1          

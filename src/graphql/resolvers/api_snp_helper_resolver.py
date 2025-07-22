@@ -20,7 +20,7 @@ def convert_scroll_hits(es_fields, hits):
     for hit in hits:
         source = hit['_source']
         values = {clean_field_name(key): value for key, value in source.items()} 
-        values['id']  = hit['_id']
+        # values['id']  = hit['_id']
         compliant_results.append(SnpModel(**values))
            
     
