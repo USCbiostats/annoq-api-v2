@@ -239,7 +239,7 @@ def keyword_query(keyword: str):
     searchable_fields = []
     with open('./data/anno_tree.json') as f:
         data = json.load(f)
-        searchable_fields = [elt['name'] for elt in data if data.get('keyword_searchable', False)]
+        searchable_fields = [elt['name'] for elt in data if elt.get('keyword_searchable', False)]
 
     query = {
               "multi_match": {
