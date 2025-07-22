@@ -11,9 +11,9 @@ from src.graphql.models.return_info_model import OutputSnpInfo, OutputCountInfo
 from src.data_adapter.snp_attributes import get_gene_search_fields, get_snp_attrib_json, get_attrib_list
 
 # Constants
-MAX_PAGE_SIZE =  50 #1000000
+MAX_PAGE_SIZE =  1000000    #50
 
-MAX_ATTRIB_SIZE = 20;    
+MAX_ATTRIB_SIZE = 20
 
 CHR_1 = "1"
 CHR_2 = "2"
