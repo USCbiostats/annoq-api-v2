@@ -36,7 +36,8 @@ def init_snp_dict():
                 searchable = False
                 if 'keyword_searchable' in elt:
                     searchable = bool (elt['keyword_searchable'])
-                cur["api_label"] =  name
+                cur["api_label"] =  elt['name']
+                cur["searchable"] = searchable
                 if 'label' in elt:
                     cur["display_label"] = elt['label']
                 if 'detail' in elt:
@@ -91,6 +92,7 @@ def generate_snp_schema(mapping):
             cur["description"] = other_details.get("definition", None)
         else:
             cur["description"] = None
+        cur["title"] = other_details.get("api_label")    
         json_schema['properties'][cleaned_field] = cur
             
     return json_schema

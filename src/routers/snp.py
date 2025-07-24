@@ -118,6 +118,8 @@ def parse_annoq_config(config_str:str):
         for attrib in attribs:
             if attrib in get_attrib_list():
                 supported_attribs.append(attrib)
+            else:
+                print(f'Unsupported attribute {attrib} requested')    
         if len(supported_attribs) > MAX_ATTRIB_SIZE:
             return "Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE)
         if len(supported_attribs) == 0:

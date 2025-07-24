@@ -3,8 +3,11 @@ import json
 import typing
 from typing import Dict
 from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
+from src.graphql.models.generated.snp import SnpModel
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
+from src.graphql.models.generated.snp_aggs import SnpAggsModel
 from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, FilterArgs, Histogram
+from src.data_adapter.snp_attributes import get_name_to_type
 
 from src.utils import clean_field_name
 
@@ -40,7 +43,8 @@ def convert_hits(hits):
         source = hit['_source']
         values = {clean_field_name(key): value for key, value in source.items()} 
         values['id']  = hit['_id']
-        compliant_results.append(Snp(**values))   
+        model_instance = SnpModel(**values)
+        compliant_results.append(Snp.from_pydantic(model_instance)) 
         
     return compliant_results
 
@@ -59,8 +63,9 @@ def convert_scroll_hits(hits, scroll_id=None):
         source = hit['_source']
         values = {clean_field_name(key): value for key, value in source.items()} 
         values['id']  = hit['_id']
-        compliant_results.append(Snp(**values))   
         
+        model_instance = SnpModel(**values)
+        compliant_results.append(Snp.from_pydantic(model_instance)) 
     return ScrollSnp(snps=compliant_results, scroll_id=scroll_id)
     
   
@@ -89,6 +94,10 @@ def convert_aggs(aggs: Dict) -> SnpAggs:
 
         if hasattr(data[prefix], suffix):
             setattr(data[prefix], suffix, _map_aggs_value(suffix, val))
+
+    
+    model_instance = SnpAggsModel(**data)
+    return SnpAggs.from_pydantic(model_instance) 
 
     return SnpAggs(**data)
   
@@ -260,12 +269,22 @@ async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]],
     Returns: Query for elasticsearch
     """
     results = dict()
+    type_lookup = get_name_to_type()
     for field, subfields in aggregation_fields:
 
         # Check the type of the field. If it is a string, then we have to add .keyword to the field name while querying missing and frequency
         # Using the pydantic model Snp, we can check the type of the field
-        is_text_field = typing.get_args(inspect.get_annotations(Snp)[field])[0] == str
-        textual_suffix = '.keyword' if is_text_field else ''
+        #annotations = getattr(Snp, '__annotations__', {})
+        #is_text_field = typing.get_args(annotations[field])[0] == str
+        #is_text_field = typing.get_args(inspect.get_annotations(Snp)[field])[0] == str
+        # DO NOT USE SNP class.  The field names do not match what is in the data store
+        textual_suffix = ''
+        if field in type_lookup:
+            field_type = type_lookup[field]
+            if field_type == 'text':
+                textual_suffix = '.keyword'
+        else:
+            print(f'Found non-existent field  {field}')    
              
         for subfield in subfields:
             if subfield == 'doc_count': 
