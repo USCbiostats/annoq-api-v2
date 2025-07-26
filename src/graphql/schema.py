@@ -5,10 +5,10 @@ from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_loc
 from src.graphql.models.snp_model import Gene, ScrollSnp, SnpAggs
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType, QueryTypeOption
 
-from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations_, search_by_chromosome, search_by_gene, search_by_keyword, search_by_rsID, search_by_rsIDs, search_by_IDs
-from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_keyword, count_by_rsID, count_by_rsIDs, get_annotations_count
+from src.graphql.resolvers.snp_resolver import get_annotations, scroll_annotations_, search_by_chromosome, search_by_gene, search_by_keyword_on_specific_fields, search_by_keyword, search_by_rsID, search_by_rsIDs, search_by_IDs
+from src.graphql.resolvers.count_resolver import count_by_IDs, count_by_chromosome, count_by_gene, count_by_keyword_on_specific_fields, count_by_keyword, count_by_rsID, count_by_rsIDs, get_annotations_count
 from src.utils import get_selected_fields, get_sub_selected_fields, get_aggregation_fields
-from src.data_adapter.snp_attributes import get_cleaned_to_actual_label_lookup
+from src.data_adapter.snp_attributes import get_cleaned_to_actual_label_lookup, get_gene_id_search_fields
 
 
 def transform_fields(fields:list[str]):
@@ -193,8 +193,7 @@ class Query:
     async def download_SNPs_by_IDs(self, ids: list[str], fields: list[str],
                           page_args: Optional[PageArgs] = None, filter_args: Optional[FilterArgs] = None) -> str:
         return await search_by_IDs(transform_fields(fields), ids, QueryType.DOWNLOAD, None, page_args, transform_filter_args(filter_args))
-    
-    
+      
     @strawberry.field
     async def get_SNPs_by_gene_product(self, info: Info, gene: str, query_type_option: QueryTypeOption,
                                    page_args: Optional[PageArgs] = None,
@@ -224,6 +223,42 @@ class Query:
     async def download_SNPs_by_gene_product(self, gene: str, fields: list[str],
                                    page_args: Optional[PageArgs] = None, filter_args: Optional[FilterArgs] = None) -> str:
         return await search_by_gene(transform_fields(fields), gene, QueryType.DOWNLOAD, None, page_args, transform_filter_args(filter_args))
+   
+    @strawberry.field
+    async def get_SNPs_by_gene_id(self, info: Info, gene: str, query_type_option: QueryTypeOption,
+                                   page_args: Optional[PageArgs] = None,
+                                   filter_args: Optional[FilterArgs] = None) -> ScrollSnp:
+        fields = get_sub_selected_fields(info)
+        if query_type_option == QueryTypeOption.SNPS:
+            query_type = QueryType.SNPS
+        else:
+            query_type = QueryType.SCROLL
+        
+        keyword_fields = get_gene_id_search_fields()       
+        return await search_by_keyword_on_specific_fields(transform_fields(fields), gene, query_type, None, page_args, transform_filter_args(filter_args), None, keyword_fields)
+    
+    @strawberry.field
+    async def get_aggs_by_gene_id(self, info: Info, gene: str, 
+                                  page_args: Optional[PageArgs] = None,
+                                  histogram: Optional[Histogram] = None, filter_args: Optional[FilterArgs] = None) -> SnpAggs:
+        fields = get_selected_fields(info)
+        aggregation_fields = get_aggregation_fields(info)
+        if page_args is not None:
+            page_args.size = 0
+        keyword_fields = get_gene_id_search_fields()            
+        return await search_by_keyword_on_specific_fields(transform_fields(fields), gene, QueryType.AGGS, transform_agg_fields(aggregation_fields), page_args, transform_filter_args(filter_args), histogram, keyword_fields)
+    
+    @strawberry.field
+    async def count_SNPs_by_gene_id(self, gene: str, filter_args: Optional[FilterArgs] = None) -> int:
+        keyword_fields = get_gene_id_search_fields()  
+        return await count_by_keyword_on_specific_fields(gene, keyword_fields, transform_filter_args(filter_args))
+    
+    @strawberry.field
+    async def download_SNPs_by_gene_id(self, gene: str, fields: list[str],
+                                   page_args: Optional[PageArgs] = None,
+                                   histogram: Optional[Histogram] = None, filter_args: Optional[FilterArgs] = None) -> str:
+        keyword_fields = get_gene_id_search_fields()  
+        return await search_by_keyword_on_specific_fields(transform_fields(fields), gene, QueryType.DOWNLOAD, None, page_args, transform_filter_args(filter_args), histogram, keyword_fields)
     
     @strawberry.field
     async def gene_info(self, gene: str) -> Gene:

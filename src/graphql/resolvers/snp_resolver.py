@@ -2,8 +2,8 @@ from src.config.es import es
 from src.config.settings import settings
 from src.graphql.resolvers.download_resolver import download_annotations
 from src.graphql.models.annotation_model import FilterArgs, Histogram, PageArgs, QueryType
-from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, convert_aggs, convert_hits, convert_scroll_hits, gene_query, get_aggregation_query, get_default_aggregation_fields, keyword_query, rsID_query, rsIDs_query
-
+from src.graphql.resolvers.helper_resolver import IDs_query, annotation_query, chromosome_query, keyword_query, convert_aggs, convert_hits, convert_scroll_hits, gene_query, get_aggregation_query, get_default_aggregation_fields, rsID_query, rsIDs_query
+from src.data_access_object.keyword_search import keyword_query_for_fields_with_filters
 
 async def query_return(query_type, es_fields, resp):
   """
@@ -239,6 +239,46 @@ async def search_by_gene(es_fields: list[str], gene:str, query_type: str, aggreg
       )
       
       return await query_return(query_type, es_fields, resp)
+    
+    
+async def search_by_keyword_on_specific_fields(es_fields: list[str], keyword:str, query_type: str, aggregation_fields: list[tuple[str, list[str]]]=None, page_args=PageArgs, filter_args=FilterArgs, histogram=Histogram, keyword_fields=list[str]):
+    """ 
+    Query for getting annotation by keyword using specified keyword columns
+
+    Params: es_fields: List of fields to be returned in elasticsearch query
+            keyword: keyword
+            query_type: Type of query to be executed
+            page_args: PageArgs object for pagination
+            aggregation_fields: List of fields for aggregation, along with their subfields
+            filter_args: FilterArgs object for field exists filter
+            histogram: Histogram object for aggregation query
+            keyword_fields: Keyword fields for searching
+
+    Returns: List of Snps
+    """
+    if page_args is None:
+      page_args = PageArgs
+
+    if histogram is None:
+      histogram = Histogram
+    
+    filter_fields = []  
+    if filter_args and filter_args.exists:
+      for field in filter_args.exists:
+        filter_fields.append(field)  
+    
+    resp = await es.search(
+          index = settings.ES_INDEX,
+          source = es_fields,
+          from_= page_args.from_ if (query_type != QueryType.DOWNLOAD and query_type != QueryType.SCROLL) else None,
+          size = page_args.size,
+          query = keyword_query_for_fields_with_filters(keyword, keyword_fields, filter_fields),
+          aggs = await get_aggregation_query(aggregation_fields or get_default_aggregation_fields(es_fields), histogram) if query_type == QueryType.AGGS else None,
+          scroll = '2m' if (query_type == QueryType.DOWNLOAD or query_type == QueryType.SCROLL) else None
+    )
+    
+    return await query_return(query_type, es_fields, resp)        
+    
 
 async def search_by_keyword(es_fields: list[str], keyword: str, query_type: str, aggregation_fields: list[tuple[str, list[str]]]=None, page_args=PageArgs, histogram=Histogram):
     """ 

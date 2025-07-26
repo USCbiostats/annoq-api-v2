@@ -2,7 +2,7 @@ from src.config.es import es
 from src.config.settings import settings
 from src.graphql.models.annotation_model import FilterArgs, PageArgs
 from src.graphql.resolvers.helper_resolver import IDs_query, chromosome_query, rsIDs_query, gene_query
-from src.data_access_object.keyword_search import keyword_query
+from src.data_access_object.keyword_search import keyword_query_for_fields_with_filters
 from src.graphql.resolvers.api_snp_helper_resolver import output_error_msg, convert_scroll_hits
 from src.graphql.models.generated.snp import SnpModel
 from src.graphql.models.return_info_model import OutputSnpInfo
@@ -130,7 +130,7 @@ async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageAr
             source = es_fields,
             from_= page_args.from_ ,
             size = STANDARD_PAGE_SIZE,
-            query = keyword_query(keyword, keyword_fields, filter_fields),
+            query = keyword_query_for_fields_with_filters(keyword, keyword_fields, filter_fields),
             scroll = '2m'
       )
     

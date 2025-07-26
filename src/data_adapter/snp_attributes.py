@@ -27,7 +27,7 @@ from src.utils import clean_field_name
 
 
 
-GENE_SEARCH_COLS = ["ANNOVAR_ensembl_Closest_gene(intergenic_only)","ANNOVAR_ensembl_Gene_ID","ANNOVAR_refseq_Gene_ID","ANNOVAR_refseq_Closest_gene(intergenic_only)","SnpEff_ensembl_Gene_ID","SnpEff_refseq_Gene_ID","VEP_ensembl_Gene_ID","VEP_refseq_Gene_ID","enhancer_linked_genes"]
+GENE_ID_SEARCH_COLS = ["ANNOVAR_ensembl_Closest_gene(intergenic_only)","ANNOVAR_ensembl_Gene_ID","ANNOVAR_refseq_Gene_ID","ANNOVAR_refseq_Closest_gene(intergenic_only)","SnpEff_ensembl_Gene_ID","SnpEff_refseq_Gene_ID","VEP_ensembl_Gene_ID","VEP_refseq_Gene_ID","enhancer_linked_genes"]
 
 
 class SnpAttributes:
@@ -37,7 +37,7 @@ class SnpAttributes:
         self.detail_lookup = None
         self.leaf_name_lookup = None
         self.leaf_set = None
-        self.gene_search_fields = None
+        self.gene_id_search_fields = None
         self.cleaned_to_actual_label_lookup = None
         self.leaf_name_to_type = None
         
@@ -51,7 +51,7 @@ class SnpAttributes:
             leaf_name_lookup = {}
             cleaned_to_actual_label_lookup = {}
             leaf_name_to_type = {}
-            gene_search_fields = []
+            gene_id_search_fields = []
             
             for elt in data:
                 if 'id' in elt:
@@ -99,9 +99,9 @@ class SnpAttributes:
                         
 
 
-            for gene_col in GENE_SEARCH_COLS:
+            for gene_col in GENE_ID_SEARCH_COLS:
                 if gene_col in searchable_set:
-                    gene_search_fields.append(gene_col)
+                    gene_id_search_fields.append(gene_col)
                 else:
                     print(f'Gene search string not found for {gene_col}')
                        
@@ -110,7 +110,7 @@ class SnpAttributes:
         self.detail_lookup = detail_lookup
         self.leaf_name_lookup = leaf_name_lookup
         self.leaf_set = set(leaf_name_lookup.keys())
-        self.gene_search_fields = gene_search_fields
+        self.gene_id_search_fields = gene_id_search_fields
         self.cleaned_to_actual_label_lookup = cleaned_to_actual_label_lookup
         self.leaf_name_to_type = leaf_name_to_type
               
@@ -167,8 +167,8 @@ def get_version_info(fields):
                     rtn_lookup[field] = details['version']
     return str(rtn_lookup)
 
-def get_gene_search_fields(): 
-    return snpAttributes.gene_search_fields
+def get_gene_id_search_fields(): 
+    return snpAttributes.gene_id_search_fields
 
 def get_attrib_list():
     return snpAttributes.leaf_set

@@ -1,6 +1,6 @@
 from src.data_adapter.snp_attributes import get_keyword_searchable_set
 
-def keyword_query(keyword: str, keyword_fields:list[str] = None, filter_fields:list[str] = None):
+def keyword_query_for_fields_with_filters(keyword: str, keyword_fields:list[str] = None, filter_fields:list[str] = None):
     """
     Query for getting annotation by keyword
 

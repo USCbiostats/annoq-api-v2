@@ -2,7 +2,7 @@ from src.config.es import es
 from src.config.settings import settings
 from src.graphql.models.annotation_model import FilterArgs, PageArgs
 from src.graphql.resolvers.helper_resolver import IDs_query, chromosome_query, rsIDs_query, gene_query
-from src.data_access_object.keyword_search import keyword_query
+from src.data_access_object.keyword_search import keyword_query_for_fields_with_filters
 from src.graphql.models.return_info_model import OutputCountInfo
 #from src.graphql.resolvers.api_snp_helper_resolver import output_error_msg, convert_scroll_hits
 
@@ -83,7 +83,7 @@ async def count_by_keyword(keyword: str, keyword_fields: list[str] = None, filte
       try:
         resp = await es.count(
                 index = settings.ES_INDEX,
-                query = keyword_query(keyword, keyword_fields, filter_fields)
+                query = keyword_query_for_fields_with_filters(keyword, keyword_fields, filter_fields)
         )
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:
