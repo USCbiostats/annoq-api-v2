@@ -12,6 +12,12 @@ import multiprocessing
 
 import json
 
+import os
+import time
+from datetime import datetime, timedelta
+import threading
+
+
 
 from src.config.settings import settings
 from src.graphql.schema import Query
@@ -106,11 +112,40 @@ def read_root():
     return {"Annoq API version": "V2"}
 
 
+
+
+def delete_old_files_periodically(directory, age_minutes, interval_seconds):
+    def cleanup():
+        while True:
+            now = datetime.now()
+            cutoff = now - timedelta(minutes=age_minutes)
+            print(f'Deleting files at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            for filename in os.listdir(directory):
+                if False == filename.endswith(".txt"):
+                    continue
+                filepath = os.path.join(directory, filename)
+                if os.path.isfile(filepath):
+                    file_modified = datetime.fromtimestamp(os.path.getmtime(filepath))
+                    if file_modified < cutoff:
+                        try:
+                            os.remove(filepath)
+                            print(f"Deleted: {filepath}")
+                        except Exception as e:
+                            print(f"Error deleting {filepath}: {e}")
+            time.sleep(interval_seconds)
+
+    thread = threading.Thread(target=cleanup, daemon=True)
+    thread.start()
+    print(f"Started cleanup thread for '{directory}' every {interval_seconds} seconds.")
+
+
+
 # @api_app.get("/snpAttributes")
 # def read_snp_attributes():
 #     return get_snp_attrib_json()
 
 def run_site_app():
+    delete_old_files_periodically(str(settings.SITE_DOWNLOAD_DIR + "/"), age_minutes=60, interval_seconds=3600)
     print(f'Debug...{settings.DEBUG}')
     print(f'Starting site server.  ..{settings.SITE_PORT}')
     # uvicorn.run("main:site_app", host=settings.ES_HOST, port=settings.SITE_PORT, reload=settings.DEBUG, log_level='info', log_config='./log.ini')
