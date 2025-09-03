@@ -140,7 +140,7 @@ async def search_by_keyword(es_fields: list[str], keyword: str, page_args=PageAr
       return output_error_msg(message)       
   
   
-async def search_by_gene(es_fields: list[str], gene:str, page_args=PageArgs, filter_args=FilterArgs):
+async def search_by_gene_product(es_fields: list[str], gene:str, page_args=PageArgs, filter_args=FilterArgs):
     """ 
     Query for getting annotation by gene product
 
@@ -168,12 +168,12 @@ async def search_by_gene(es_fields: list[str], gene:str, page_args=PageArgs, fil
                 scroll = '2m'     
         )
       else:
-        message = "Unable to construct query for search by gene operation"
+        message = "Unable to construct query for search by gene product operation"
         return output_error_msg(message)       
         
       return await query_retrieve_all_res(es_fields, resp, page_args.size, STANDARD_PAGE_SIZE)
     except Exception:
-      message = "Unable to retrieve information for search by gene"
+      message = "Unable to retrieve information for search by gene product"
       return output_error_msg(message)       
 
 

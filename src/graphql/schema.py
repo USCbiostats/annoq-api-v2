@@ -224,6 +224,7 @@ class Query:
                                    page_args: Optional[PageArgs] = None, filter_args: Optional[FilterArgs] = None) -> str:
         return await search_by_gene(transform_fields(fields), gene, QueryType.DOWNLOAD, None, page_args, transform_filter_args(filter_args))
    
+    '''
     @strawberry.field
     async def get_SNPs_by_gene_id(self, info: Info, gene: str, query_type_option: QueryTypeOption,
                                    page_args: Optional[PageArgs] = None,
@@ -259,6 +260,7 @@ class Query:
                                    histogram: Optional[Histogram] = None, filter_args: Optional[FilterArgs] = None) -> str:
         keyword_fields = get_gene_id_search_fields()  
         return await search_by_keyword_on_specific_fields(transform_fields(fields), gene, QueryType.DOWNLOAD, None, page_args, transform_filter_args(filter_args), histogram, keyword_fields)
+    '''
     
     @strawberry.field
     async def gene_info(self, gene: str) -> Gene:
