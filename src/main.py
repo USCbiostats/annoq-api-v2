@@ -8,10 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from strawberry.extensions import MaskErrors
 
 import uvicorn
-import multiprocessing
-
 import json
-
 import os
 import time
 from datetime import datetime, timedelta
@@ -28,12 +25,18 @@ from src.utils import clean_field_name
 from src.routers import (
     snp)
 
-site_app = FastAPI()
-api_app = FastAPI(title = snp.TITLE, summary=snp.SUMMARY, description=snp.DESCRIPTION, version=snp.VERSION, openapi_tags=snp.TAGS_METADATA)
+# Create a single FastAPI app
+app = FastAPI(
+    title=snp.TITLE,
+    summary=snp.SUMMARY,
+    description=snp.DESCRIPTION,
+    version=snp.VERSION,
+    openapi_tags=snp.TAGS_METADATA
+)
 
 origins = ["*"]
 
-site_app.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
@@ -41,31 +44,21 @@ site_app.add_middleware(
     allow_headers=["*"],
 )
 
-api_app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Set up GraphQL
 schema = strawberry.Schema(query=Query, config=StrawberryConfig(auto_camel_case=False), extensions=[MaskErrors()])
 graphql_router = GraphQLRouter(schema)
-site_app.include_router(graphql_router, prefix="/graphql")
+app.include_router(graphql_router, prefix="/graphql")
 
-# public_schema = strawberry.Schema(query=AnnoqApiQuery, config=StrawberryConfig(auto_camel_case=False), extensions=[MaskErrors()])
-# public_app = GraphQLRouter(public_schema, graphql_ide="apollo-sandbox")
-# app.include_router(public_app, prefix="/openApi")
+# Include REST API routes
+app.include_router(snp.router)
 
-
-
-
-@site_app.get("/")
+# Add root endpoint
+@app.get("/")
 def read_root():
-    return {"Annoq GraphQL API version": "V2"}
+    return {"Annoq API version": "V2"}
 
 
-@site_app.get("/annotations")
+@app.get("/annotations")
 def read_annotations():
     """
     Endpoint to get annotation tree with API field names
@@ -90,7 +83,7 @@ def read_annotations():
 
         return {"results": anno_tree}
     
-@site_app.get("/download/{folder}/{name}")
+@app.get("/download/{folder}/{name}")
 async def download_file(folder: str, name: str):
     """
     Endpoint for downloading files
@@ -100,16 +93,6 @@ async def download_file(folder: str, name: str):
     if folder not in settings.SITE_DOWNLOAD_DIR:
         raise HTTPException(status_code=400, detail="Invalid folder")
     return FileResponse(path=f"{folder}/{name}", filename=name, media_type='application/octet-stream')
-
-
-
-
-
-api_app.include_router(snp.router)
-
-@api_app.get("/")
-def read_root():
-    return {"Annoq API version": "V2"}
 
 
 
@@ -144,36 +127,14 @@ def delete_old_files_periodically(directory, age_minutes, interval_seconds):
 # def read_snp_attributes():
 #     return get_snp_attrib_json()
 
-def run_site_app():
+def run_app():
     delete_old_files_periodically(str(settings.SITE_DOWNLOAD_DIR + "/"), age_minutes=60, interval_seconds=3600)
     print(f'Debug...{settings.DEBUG}')
-    print(f'Starting site server.  ..{settings.SITE_PORT}')
-    # uvicorn.run("main:site_app", host=settings.ES_HOST, port=settings.SITE_PORT, reload=settings.DEBUG, log_level='info', log_config='./log.ini')
-    uvicorn.run("src.main:site_app", host=settings.SITE_HOST, port=settings.SITE_PORT, reload=True)
-    
-    
-def run_api_app():    
-    print(f'Debug...{settings.DEBUG}')
-    print(f'Starting api server.  ..{settings.API_PORT}')    
-    uvicorn.run("src.main:api_app", host=settings.API_HOST, port=settings.API_PORT, reload=True)           
+    print(f'Starting server on port {settings.SITE_PORT}')
+    uvicorn.run("src.main:app", host=settings.SITE_HOST, port=settings.SITE_PORT, reload=True)
 
 
 
 
 if __name__ == "__main__":
-    p1 = multiprocessing.Process(target=run_site_app)
-    p2 = multiprocessing.Process(target=run_api_app)
-    p1.start()
-    p2.start()
-    p1.join()
-    p2.join()
-
-
-
-# if __name__ == "__main__":
-#     print(f'Debug...{settings.DEBUG}')
-#     print(f'Starting site server.  ..{settings.SITE_PORT}')
-#     # uvicorn.run("main:site_app", host=settings.ES_HOST, port=settings.SITE_PORT, reload=settings.DEBUG, log_level='info', log_config='./log.ini')
-#     uvicorn.run("src.main:site_app", host=settings.SITE_HOST, port=settings.SITE_PORT, reload=True)
-#     print(f'Starting api server.  ..{settings.API_PORT}')    
-#     uvicorn.run("src.main:api_app", host=settings.API_HOST, port=settings.API_PORT, reload=True)    
+    run_app()

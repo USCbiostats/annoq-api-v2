@@ -15,7 +15,4 @@ class Settings(BaseSettings):
     SITE_URL: str = str(os.getenv("SITE_URL"))
     SITE_DOWNLOAD_DIR:str = os.getenv("SITE_DOWNLOAD_DIR")
     SIZE_DOWNLOAD_SIZE:int = int(os.getenv("SIZE_DOWNLOAD_SIZE"))
-    API_HOST:str = os.getenv("API_HOST")
-    API_PORT:int = int(os.getenv("API_PORT"))
-    API_URL: str = str(os.getenv("API_URL"))
 settings = Settings()
