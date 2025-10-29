@@ -119,7 +119,7 @@ async def create_streaming_response(
 
 
 @router.post(
-    "/download/chr",
+    "/snp/chr/download",
     tags=["DOWNLOAD"],
     summary="Download SNPs by chromosome range",
     description=(
@@ -163,7 +163,7 @@ async def download_snps_by_chr(
 
 
 @router.post(
-    "/download/rsidList",
+    "/snp/rsidList/download",
     tags=["DOWNLOAD"],
     summary="Download SNPs by RSID list",
     description=(
@@ -198,7 +198,7 @@ async def download_snps_by_rsidList(
 
 
 @router.post(
-    "/download/gene_product",
+    "/snp/gene_product/download",
     tags=["DOWNLOAD"],
     summary="Download SNPs by gene product",
     description=(
