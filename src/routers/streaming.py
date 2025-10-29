@@ -21,17 +21,22 @@ from typing import AsyncIterator, List, Optional
 
 class StreamingQueryParams(BaseModel):
     """
-    Query params for streaming without pagination.
+    Query params for download endpoints (no pagination, full-result streaming).
     """
 
     fields: str = Field(
         default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org. The maximum number of attributes should not exceed "
-        + str(MAX_ATTRIB_SIZE),
+        description=(
+            "JSON payload with a `_source` list of attribute labels selected from the configuration "
+            f"downloaded at annoq.org. Request at most {MAX_ATTRIB_SIZE} attributes per download call."
+        ),
     )
     filter_fields: Optional[str] = Field(
         default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved. These are delimited by comma ','. Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len",
+        description=(
+            "Comma-separated attribute labels that must be non-null in streamed records. "
+            "Only valid labels are applied; others are ignored."
+        ),
     )
 
     parsed_fields: List[str] = Field(default_factory=list, exclude=True)
@@ -76,14 +81,26 @@ MAX_DOWNLOAD_SIZE = 1_000_000_000
 @router.post(
     "/download/chr",
     tags=["DOWNLOAD"],
-    description="Stream all SNPs by chromosome id and position range in NDJson format. Returns complete result set without pagination.",
+    summary="Download SNPs by chromosome range",
+    description=(
+        "Streams every SNP in the specified chromosome interval as NDJSON without pagination.\n\n"
+        "**Best for** large exports exceeding the 10,000-record pagination limit.\n"
+        "**Constraints**\n"
+        f"- Maximum of {MAX_ATTRIB_SIZE} requested attributes.\n"
+        f"- Streaming stops after {MAX_DOWNLOAD_SIZE} records to protect the service."
+    ),
 )
 async def download_snps_by_chr(
     chromosome_identifier: ChromosomeIdentifierType = Query(
-        default=ChromosomeIdentifierType.CHR_1, description="Chromosome id to search."
+        default=ChromosomeIdentifierType.CHR_1,
+        description="Chromosome identifier (`1`–`22` or `X`).",
     ),
-    start_position: int = Query(1, description="Start position region of search"),
-    end_position: int = Query(100000, description="End position region of search"),
+    start_position: int = Query(
+        1, description="1-based inclusive start position for the download interval."
+    ),
+    end_position: int = Query(
+        100000, description="1-based inclusive end position for the download interval."
+    ),
     params: StreamingQueryParams = Depends(),
 ):
     filter_args = (
@@ -118,12 +135,16 @@ async def download_snps_by_chr(
 @router.post(
     "/download/rsidList",
     tags=["DOWNLOAD"],
-    description="Stream SNPs for specified list of RSIDs in NDJson format. Returns complete result set without pagination.",
+    summary="Download SNPs by RSID list",
+    description=(
+        "Streams all SNPs whose identifiers match the provided RSIDs as NDJSON.\n"
+        "Use this endpoint when you need the full result set in a single download."
+    ),
 )
 async def download_snps_by_rsidList(
     rsid_list: str = Query(
         default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311",
-        description="List of RSIDS to search. Delimited by comma ','. Example rs574852966,rs148600903",
+        description="Comma-separated RSIDs (e.g. `rs574852966,rs148600903`).",
     ),
     params: StreamingQueryParams = Depends(),
 ):
@@ -159,10 +180,17 @@ async def download_snps_by_rsidList(
 @router.post(
     "/download/gene_product",
     tags=["DOWNLOAD"],
-    description="Stream SNPs for specified gene product (gene id, gene symbol or UniProt id) in NDJson format. Returns complete result set without pagination.",
+    summary="Download SNPs by gene product",
+    description=(
+        "Streams every SNP associated with the specified gene product (gene ID, symbol, or UniProt ID) "
+        "as NDJSON. Ideal for complete exports beyond the paginated search limit."
+    ),
 )
 async def download_snps_by_gene_product(
-    gene: str = Query(default="ZMYND11", description="Gene product search"),
+    gene: str = Query(
+        default="ZMYND11",
+        description="Gene product identifier (gene ID, gene symbol, or UniProt ID).",
+    ),
     params: StreamingQueryParams = Depends(),
 ):
     filter_args = (

@@ -10,10 +10,11 @@ MAX_ATTRIB_SIZE = 20
 
 def parse_filter_fields(filter_fields: Optional[str]) -> List[str] | None:
     """
-    Parse a comma-separated string of filter fields into a list.
+    Parse a comma-separated string of filter fields into a list of valid attribute labels.
+    Returns None when no filters are supplied or no valid labels remain after validation.
     """
     if not filter_fields:
-        return []
+        return None
     allowed_fields = get_attrib_list() or []
     filtered_list = [
         f.strip() for f in filter_fields.split(",") if f.strip() in allowed_fields
@@ -29,8 +30,11 @@ class CommonSearchQueryParams(BaseModel):
 
     fields: str = Field(
         default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed "
-        + str(MAX_ATTRIB_SIZE),
+        description=(
+            "Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org. "
+            "JSON object containing a `_source` array with the requested attribute labels. "
+            f"Request at most {MAX_ATTRIB_SIZE} attributes per call; unknown labels are ignored."
+        ),
     )
     pagination_from: Optional[int] = Field(
         default=0, description="starting index for pagination (0-based)."
@@ -42,7 +46,10 @@ class CommonSearchQueryParams(BaseModel):
     )
     filter_fields: Optional[str] = Field(
         default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id",
+        description=(
+            "Comma-separated attribute labels that must contain data in the response (e.g. "
+            "`ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID`). Invalid labels are ignored."
+        ),
     )
 
     # The validated and cleaned list of fields will be stored here
