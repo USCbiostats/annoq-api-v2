@@ -1,11 +1,63 @@
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, PrivateAttr
 import json
 from typing import List, Optional
 from src.data_adapter.snp_attributes import get_attrib_list
+from enum import Enum
 
 # Constants
 MAX_PAGE_SIZE = 10_000
 MAX_ATTRIB_SIZE = 20
+
+
+CHR_1 = "1"
+CHR_2 = "2"
+CHR_3 = "3"
+CHR_4 = "4"
+CHR_5 = "5"
+CHR_6 = "6"
+CHR_7 = "7"
+CHR_8 = "8"
+CHR_9 = "9"
+CHR_10 = "10"
+CHR_11 = "11"
+CHR_12 = "12"
+CHR_13 = "13"
+CHR_14 = "14"
+CHR_15 = "15"
+CHR_16 = "16"
+CHR_17 = "17"
+CHR_18 = "18"
+CHR_19 = "19"
+CHR_20 = "20"
+CHR_21 = "21"
+CHR_22 = "22"
+CHR_X = "X"
+
+
+class ChromosomeIdentifierType(str, Enum):
+    CHR_1 = CHR_1
+    CHR_2 = CHR_2
+    CHR_3 = CHR_3
+    CHR_4 = CHR_4
+    CHR_5 = CHR_5
+    CHR_6 = CHR_6
+    CHR_7 = CHR_7
+    CHR_8 = CHR_8
+    CHR_9 = CHR_9
+    CHR_10 = CHR_10
+    CHR_11 = CHR_11
+    CHR_12 = CHR_12
+    CHR_13 = CHR_13
+    CHR_14 = CHR_14
+    CHR_15 = CHR_15
+    CHR_16 = CHR_16
+    CHR_17 = CHR_17
+    CHR_18 = CHR_18
+    CHR_19 = CHR_19
+    CHR_20 = CHR_20
+    CHR_21 = CHR_21
+    CHR_22 = CHR_22
+    CHR_X = CHR_X
 
 
 def parse_filter_fields(filter_fields: Optional[str]) -> List[str] | None:
@@ -53,8 +105,8 @@ class CommonSearchQueryParams(BaseModel):
     )
 
     # The validated and cleaned list of fields will be stored here
-    parsed_fields: List[str] = Field(default_factory=list, exclude=True)
-    parsed_filter_fields: Optional[List[str]] = Field(default=None, exclude=True)
+    _parsed_fields: List[str] = PrivateAttr(default_factory=list)
+    _parsed_filter_fields: Optional[List[str]] = PrivateAttr(default=None)
 
     @model_validator(mode="after")
     def validate_logic(self):
@@ -106,9 +158,72 @@ class CommonSearchQueryParams(BaseModel):
             )
 
         # Replace the string with structured data
-        self.parsed_fields = filtered_fields
+        self._parsed_fields = filtered_fields
         self.pagination_from = pagination_from
 
         # ---- Filter fields parsing ----
-        self.parsed_filter_fields = parse_filter_fields(self.filter_fields)
+        self._parsed_filter_fields = parse_filter_fields(self.filter_fields)
         return self
+
+
+class StreamingFormatType(str, Enum):
+    CSV = "csv"
+    NDJSON = "ndjson"
+
+
+class StreamingQueryParams(BaseModel):
+    """
+    Query params for download endpoints (no pagination, full-result streaming).
+    """
+
+    fields: str = Field(
+        default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
+        description=(
+            "JSON payload with a `_source` list of attribute labels selected from the configuration "
+            f"downloaded at annoq.org. Request at most {MAX_ATTRIB_SIZE} attributes per download call."
+        ),
+    )
+    filter_fields: Optional[str] = Field(
+        default=None,
+        description=(
+            "Comma-separated attribute labels that must be non-null in streamed records. "
+            "Only valid labels are applied; others are ignored."
+        ),
+    )
+    format: StreamingFormatType = Field(
+        default=StreamingFormatType.CSV,
+        description="Output format: 'csv' (default) or 'ndjson'",
+    )
+
+    _parsed_fields: List[str] = PrivateAttr(default_factory=list)
+    _parsed_filter_fields: Optional[List[str]] = PrivateAttr(default=None)
+
+    def model_post_init(self, __context):
+        """Parse and validate fields after initialization."""
+        try:
+            fields_json = json.loads(self.fields)
+        except json.JSONDecodeError:
+            raise ValueError("'fields' must be valid JSON.")
+
+        if not isinstance(fields_json, dict) or "_source" not in fields_json:
+            raise ValueError(
+                "'fields' must contain a key '_source' with a list of field names."
+            )
+
+        source_fields = fields_json["_source"]
+        if not isinstance(source_fields, list):
+            raise ValueError("'_source' must be a list of field names.")
+
+        allowed_fields = get_attrib_list() or []
+        filtered_fields = [f for f in source_fields if f in allowed_fields]
+
+        if not filtered_fields:
+            raise ValueError("Please provide at least one valid field.")
+
+        if len(filtered_fields) > MAX_ATTRIB_SIZE:
+            raise ValueError(
+                f"Number of requested attributes ({len(filtered_fields)}) exceeds maximum allowed ({MAX_ATTRIB_SIZE})."
+            )
+
+        self._parsed_fields = filtered_fields
+        self._parsed_filter_fields = parse_filter_fields(self.filter_fields)

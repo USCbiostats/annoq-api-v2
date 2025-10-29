@@ -1,6 +1,5 @@
 """snp router."""
 
-from enum import Enum
 from fastapi import APIRouter, Depends, Query
 from src.graphql.models.annotation_model import FilterArgs, PageArgs
 from src.graphql.resolvers.api_snp_resolver import (
@@ -20,62 +19,11 @@ from src.data_adapter.snp_attributes import (
 from src.routers.snp_router_helpers import (
     MAX_ATTRIB_SIZE,
     MAX_PAGE_SIZE,
+    ChromosomeIdentifierType,
     CommonSearchQueryParams,
     parse_filter_fields,
 )
 from src.routers.streaming import router as streaming_router
-
-
-CHR_1 = "1"
-CHR_2 = "2"
-CHR_3 = "3"
-CHR_4 = "4"
-CHR_5 = "5"
-CHR_6 = "6"
-CHR_7 = "7"
-CHR_8 = "8"
-CHR_9 = "9"
-CHR_10 = "10"
-CHR_11 = "11"
-CHR_12 = "12"
-CHR_13 = "13"
-CHR_14 = "14"
-CHR_15 = "15"
-CHR_16 = "16"
-CHR_17 = "17"
-CHR_18 = "18"
-CHR_19 = "19"
-CHR_20 = "20"
-CHR_21 = "21"
-CHR_22 = "22"
-CHR_X = "X"
-
-
-class ChromosomeIdentifierType(str, Enum):
-    CHR_1 = CHR_1
-    CHR_2 = CHR_2
-    CHR_3 = CHR_3
-    CHR_4 = CHR_4
-    CHR_5 = CHR_5
-    CHR_6 = CHR_6
-    CHR_7 = CHR_7
-    CHR_8 = CHR_8
-    CHR_9 = CHR_9
-    CHR_10 = CHR_10
-    CHR_11 = CHR_11
-    CHR_12 = CHR_12
-    CHR_13 = CHR_13
-    CHR_14 = CHR_14
-    CHR_15 = CHR_15
-    CHR_16 = CHR_16
-    CHR_17 = CHR_17
-    CHR_18 = CHR_18
-    CHR_19 = CHR_19
-    CHR_20 = CHR_20
-    CHR_21 = CHR_21
-    CHR_22 = CHR_22
-    CHR_X = CHR_X
-
 
 TITLE = "AnnoQ API"
 
@@ -109,6 +57,13 @@ TAGS_METADATA = [
         "description": (
             "Return the number of SNPs matching chromosome, RSID, or gene product filters with optional "
             "attribute-existence constraints."
+        ),
+    },
+    {
+        "name": "DOWNLOAD",
+        "description": (
+            "Download SNP annotations for large result sets exceeding pagination limits. Download by chromosome "
+            "range or RSID list in CSV (default) or NDJSON format."
         ),
     },
 ]
@@ -164,12 +119,12 @@ async def get_snps_by_chr(
 ):
     page_args = PageArgs(from_=params.pagination_from, size=params.pagination_size)
     filter_args = (
-        FilterArgs(exists=params.parsed_filter_fields)
-        if params.parsed_filter_fields
+        FilterArgs(exists=params._parsed_filter_fields)
+        if params._parsed_filter_fields
         else None
     )
 
-    attribs = params.parsed_fields
+    attribs = params._parsed_fields
 
     return await search_by_chromosome(
         attribs,
@@ -181,7 +136,7 @@ async def get_snps_by_chr(
     )
 
 
-@router.post(
+@router.get(
     "/snp/rsidList",
     tags=["SNP"],
     summary="Search SNPs by RSID list",
@@ -207,19 +162,19 @@ async def get_snps_by_rsidList(
 ):
     page_args = PageArgs(from_=params.pagination_from, size=params.pagination_size)
     filter_args = (
-        FilterArgs(exists=params.parsed_filter_fields)
-        if params.parsed_filter_fields
+        FilterArgs(exists=params._parsed_filter_fields)
+        if params._parsed_filter_fields
         else None
     )
 
-    attribs = params.parsed_fields
+    attribs = params._parsed_fields
 
     rsIDs = rsid_list.split(",")
 
     return await search_by_rsIDs(attribs, rsIDs, page_args, filter_args)
 
 
-@router.post(
+@router.get(
     "/snp/gene_product",
     tags=["SNP"],
     summary="Search SNPs by gene product",
@@ -243,17 +198,17 @@ async def get_SNPs_by_gene_product(
 ):
     page_args = PageArgs(from_=params.pagination_from, size=params.pagination_size)
     filter_args = (
-        FilterArgs(exists=params.parsed_filter_fields)
-        if params.parsed_filter_fields
+        FilterArgs(exists=params._parsed_filter_fields)
+        if params._parsed_filter_fields
         else None
     )
 
-    attribs = params.parsed_fields
+    attribs = params._parsed_fields
 
     return await search_by_gene_product(attribs, gene, page_args, filter_args)
 
 
-@router.post(
+@router.get(
     "/fastapi/count/chr",
     tags=["Count"],
     summary="Count SNPs by chromosome range",
@@ -293,7 +248,7 @@ async def count_snps_by_chromosome(
     )
 
 
-@router.post(
+@router.get(
     "/fastapi/count/rsidList",
     tags=["Count"],
     summary="Count SNPs by RSID list",
@@ -326,7 +281,7 @@ async def count_snps_by_rsidList(
     return await count_by_rsIDs(rsIDs, filter_args)
 
 
-@router.post(
+@router.get(
     "/fastapi/count/gene_product",
     tags=["Count"],
     summary="Count SNPs by gene product",

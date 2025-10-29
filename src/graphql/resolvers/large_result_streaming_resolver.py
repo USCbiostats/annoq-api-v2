@@ -33,7 +33,7 @@ async def _stream_search_with_pit(
         pit_response = await es.open_point_in_time(
             index=settings.ES_INDEX, keep_alive="5m"
         )
-        pit_id = pit_response["pit_id"]
+        pit_id = pit_response["id"]
 
         search_after = None
         total_fetched = 0
@@ -46,7 +46,7 @@ async def _stream_search_with_pit(
                 "size": size,
                 "query": query,
                 "pit": {"id": pit_id, "keep_alive": "1m"},
-                "sort": ["_shard_doc", {"_id": "asc"}],
+                "sort": ["_shard_doc"],
                 "_source": es_fields,
             }
             if search_after:
