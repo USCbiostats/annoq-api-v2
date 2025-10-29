@@ -53,17 +53,17 @@ TAGS_METADATA = [
         ),
     },
     {
-        "name": "Count",
-        "description": (
-            "Return the number of SNPs matching chromosome, RSID, or gene product filters with optional "
-            "attribute-existence constraints."
-        ),
-    },
-    {
         "name": "DOWNLOAD",
         "description": (
             "Download SNP annotations for large result sets exceeding pagination limits. Download by chromosome "
             "range or RSID list in CSV (default) or NDJSON format."
+        ),
+    },
+    {
+        "name": "Count",
+        "description": (
+            "Return the number of SNPs matching chromosome, RSID, or gene product filters with optional "
+            "attribute-existence constraints."
         ),
     },
 ]
