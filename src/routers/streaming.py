@@ -18,6 +18,8 @@ from src.routers.snp_router_helpers import (
 from src.data_adapter.snp_attributes import get_attrib_list
 import json
 from typing import AsyncIterator, List, Optional, Callable
+import csv
+from io import StringIO
 
 
 class StreamingQueryParams(BaseModel):
@@ -114,23 +116,31 @@ async def generate_stream(
 
     async for snp in stream_func(*args, **kwargs):
         if format_type == "csv":
-            # For CSV format, create header and tab-separated values
+            # For CSV format, create header and comma-separated values with proper escaping
             if first_record:
-                # Create header row with field names
-                header = "\t".join(parsed_fields) + "\n"
-                yield header.encode("utf-8")
+                # Create header row using csv.writer for proper escaping
+                buffer = StringIO()
+                writer = csv.writer(buffer, quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(parsed_fields)
+                yield buffer.getvalue().encode("utf-8")
                 first_record = False
 
-            # Create data row with tab-separated values
+            # Create data row with proper CSV escaping
+            buffer = StringIO()
+            writer = csv.writer(buffer, quoting=csv.QUOTE_MINIMAL)
+
             values = []
             for k in parsed_fields:
                 if k == "id":
                     values.append(str(snp["_id"]))
                 else:
-                    values.append(str(snp["_source"].get(k, ".")))
+                    # Get value, use empty string for missing fields instead of "."
+                    value = snp["_source"].get(k, "")
+                    # Convert to string, handle None values
+                    values.append(str(value) if value is not None else "")
 
-            row = "\t".join(values) + "\n"
-            yield row.encode("utf-8")
+            writer.writerow(values)
+            yield buffer.getvalue().encode("utf-8")
         else:  # ndjson format
             # jsonable_encoder -> orjson -> newline (NDJSON)
             output = convert_hits_to_output(parsed_fields, [snp])
