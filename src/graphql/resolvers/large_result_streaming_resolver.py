@@ -31,24 +31,21 @@ async def _stream_search_with_pit(
 
     Yields: Individual SNP records
     """
-    pit = None
+    pit_id: str | None = None
     try:
-        # Create Point in Time
+        # Create PIT
         pit_response = await es.open_point_in_time(
             index=settings.ES_INDEX, keep_alive="5m"
         )
-        pit_id = pit_response["id"]
-        pit = pit_id
+        pit_id = pit_response["pit_id"]
 
         search_after = None
         total_fetched = 0
 
         while total_fetched < max_results:
-            # Calculate size for this batch
             remaining = max_results - total_fetched
             size = min(batch_size, remaining)
 
-            # Build search request
             search_body = {
                 "size": size,
                 "query": query,
@@ -56,21 +53,18 @@ async def _stream_search_with_pit(
                 "sort": ["_shard_doc", {"_id": "asc"}],
                 "_source": es_fields,
             }
-
             if search_after:
                 search_body["search_after"] = search_after
 
             # Execute search
-            resp = await es.search(**search_body)
-
+            resp = await es.search(body=search_body)
             hits = resp["hits"]["hits"]
             if not hits:
                 break
 
-            # Update PIT ID (it may change between requests)
-            pit_id = resp["pit_id"]
+            # Update PIT id (ES can return a refreshed id)
+            pit_id = resp.get("pit_id", pit_id)
 
-            # Yield individual results
             output = convert_hits_to_output(es_fields, hits)
             if hasattr(output, "details") and output.details:
                 for snp in output.details:
@@ -79,19 +73,13 @@ async def _stream_search_with_pit(
                     if total_fetched >= max_results:
                         break
 
-            # Update search_after for next iteration
-            if hits:
-                search_after = hits[-1]["sort"]
-            else:
-                break
-
+            search_after = hits[-1]["sort"]
     finally:
-        # Close Point in Time
-        if pit:
+        if pit_id:
             try:
-                await es.close_point_in_time(id=pit)
+                await es.close_point_in_time(body={"id": pit_id})
             except Exception:
-                pass  # Ignore cleanup errors
+                pass
 
 
 async def stream_by_chromosome(

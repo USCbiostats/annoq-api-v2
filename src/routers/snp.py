@@ -22,6 +22,8 @@ from src.routers.snp_router_helpers import (
     CommonSearchQueryParams,
     parse_filter_fields,
 )
+from src.routers.streaming import router as streaming_router
+
 
 CHR_1 = "1"
 CHR_2 = "2"
@@ -118,6 +120,7 @@ TAGS_METADATA = [
 ]
 
 router = APIRouter()
+router.include_router(streaming_router)
 
 
 @router.get(
