@@ -173,7 +173,7 @@ async def download_snps_by_chr(
 )
 async def download_snps_by_rsidList(
     rsid_list: str = Query(
-        default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311",
+        example="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311",
         description="Comma-separated RSIDs (e.g. `rs574852966,rs148600903`).",
     ),
     params: StreamingQueryParams = Depends(),
@@ -208,7 +208,7 @@ async def download_snps_by_rsidList(
 )
 async def download_snps_by_gene_product(
     gene: str = Query(
-        default="ZMYND11",
+        example="ZMYND11",
         description="Gene product identifier (gene ID, gene symbol, or UniProt ID).",
     ),
     params: StreamingQueryParams = Depends(),
