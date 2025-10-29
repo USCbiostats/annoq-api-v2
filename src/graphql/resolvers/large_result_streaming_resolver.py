@@ -1,5 +1,4 @@
-from typing import AsyncGenerator
-from models.generated.snp import SnpModel
+from typing import Any, AsyncGenerator
 from src.config.es import es
 from src.config.settings import settings
 from src.graphql.models.annotation_model import FilterArgs
@@ -10,9 +9,6 @@ from src.graphql.resolvers.helper_resolver import (
     gene_query,
 )
 from src.data_access_object.keyword_search import keyword_query_for_fields_with_filters
-from src.graphql.resolvers.api_snp_helper_resolver import (
-    convert_hits_to_output,
-)
 
 
 async def _stream_search_with_pit(
@@ -20,7 +16,7 @@ async def _stream_search_with_pit(
     query: dict,
     max_results: int,
     batch_size: int = 10000,
-) -> AsyncGenerator[SnpModel, None]:
+) -> AsyncGenerator[Any, None]:
     """
     Generic streaming search using Point in Time API.
 
@@ -65,14 +61,11 @@ async def _stream_search_with_pit(
             # Update PIT id (ES can return a refreshed id)
             pit_id = resp.get("pit_id", pit_id)
 
-            output = convert_hits_to_output(es_fields, hits)
-            if hasattr(output, "details") and output.details:
-                for snp in output.details:
-                    yield snp
-                    total_fetched += 1
-                    if total_fetched >= max_results:
-                        break
-
+            for snp in hits:
+                yield snp
+                total_fetched += 1
+                if total_fetched >= max_results:
+                    break
             search_after = hits[-1]["sort"]
     finally:
         if pit_id:
@@ -90,7 +83,7 @@ async def stream_by_chromosome(
     max_results: int,
     filter_args: FilterArgs | None = None,
     batch_size: int = 10000,
-) -> AsyncGenerator[SnpModel, None]:
+) -> AsyncGenerator[Any, None]:
     """
     Stream annotations by chromosome with start and end range of pos.
 
@@ -115,7 +108,7 @@ async def stream_by_rsIDs(
     max_results: int,
     filter_args: FilterArgs | None = None,
     batch_size: int = 10000,
-) -> AsyncGenerator[SnpModel, None]:
+) -> AsyncGenerator[Any, None]:
     """
     Stream annotations by list of rsIDs.
 
@@ -138,7 +131,7 @@ async def stream_by_IDs(
     max_results: int,
     filter_args: FilterArgs | None = None,
     batch_size: int = 10000,
-) -> AsyncGenerator[SnpModel, None]:
+) -> AsyncGenerator[Any, None]:
     """
     Stream annotations by IDs.
 
@@ -162,7 +155,7 @@ async def stream_by_keyword(
     keyword_fields: list[str] | None = None,
     filter_fields: list[str] | None = None,
     batch_size: int = 10000,
-) -> AsyncGenerator[SnpModel, None]:
+) -> AsyncGenerator[Any, None]:
     """
     Stream annotations by keyword.
 
@@ -190,7 +183,7 @@ async def stream_by_gene_product(
     max_results: int,
     filter_args: FilterArgs | None = None,
     batch_size: int = 10000,
-) -> AsyncGenerator[SnpModel, None]:
+) -> AsyncGenerator[Any, None]:
     """
     Stream annotations by gene product.
 

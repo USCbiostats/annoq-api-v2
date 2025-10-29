@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import StreamingResponse
 import orjson
 from pydantic import BaseModel, Field
+from resolvers.api_snp_helper_resolver import convert_hits_to_output
 from src.graphql.models.annotation_model import FilterArgs
 from src.graphql.resolvers.large_result_streaming_resolver import (
     stream_by_chromosome,
@@ -112,8 +113,6 @@ async def generate_stream(
     first_record = True
 
     async for snp in stream_func(*args, **kwargs):
-        payload = jsonable_encoder(snp)
-
         if format_type == "csv":
             # For CSV format, create header and tab-separated values
             if first_record:
@@ -124,16 +123,20 @@ async def generate_stream(
 
             # Create data row with tab-separated values
             values = []
-            for field in parsed_fields:
-                # Access the field value from the SnpModel object
-                value = getattr(snp, field, ".")
-                values.append(str(value) if value is not None else ".")
+            for k in parsed_fields:
+                if k == "id":
+                    values.append(str(snp["_id"]))
+                else:
+                    values.append(str(snp["_source"].get(k, ".")))
 
             row = "\t".join(values) + "\n"
             yield row.encode("utf-8")
         else:  # ndjson format
             # jsonable_encoder -> orjson -> newline (NDJSON)
-            yield orjson.dumps(payload) + b"\n"
+            output = convert_hits_to_output(parsed_fields, [snp])
+            if hasattr(output, "details") and output.details:
+                for snp in output.details:
+                    yield orjson.dumps(jsonable_encoder(snp)) + b"\n"
 
 
 async def create_streaming_response(
