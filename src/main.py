@@ -47,13 +47,13 @@ app.add_middleware(
 # Set up GraphQL
 schema = strawberry.Schema(query=Query, config=StrawberryConfig(auto_camel_case=False), extensions=[MaskErrors()])
 graphql_router = GraphQLRouter(schema)
-app.include_router(graphql_router, prefix="/graphql")
+app.include_router(graphql_router, prefix="/graphql", include_in_schema=False)
 
 # Include REST API routes
 app.include_router(snp.router)
 
 # Add root endpoint
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def read_root():
     return {"Annoq API version": "V2"}
 
@@ -83,7 +83,7 @@ def read_annotations():
 
         return {"results": anno_tree}
     
-@app.get("/download/{folder}/{name}")
+@app.get("/download/{folder}/{name}", include_in_schema=False)
 async def download_file(folder: str, name: str):
     """
     Endpoint for downloading files
