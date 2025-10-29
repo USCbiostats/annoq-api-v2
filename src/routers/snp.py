@@ -166,7 +166,7 @@ async def get_snps_by_chr(
 
 
 @router.post(
-    "/fastapi/snp/rsidList",
+    "/snp/rsidList",
     tags=["SNP"],
     description="Search for specified list of RSIDs.  The following have to be specified: One or more RSIDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
     response_model=OutputSnpInfo,
@@ -193,7 +193,7 @@ async def get_snps_by_rsidList(
     return await search_by_rsIDs(attribs, rsIDs, page_args, filter_args)
 
 
-# @router.post("/fastapi/snp/idList",
+# @router.post("/snp/idList",
 #             tags=["SNP"],
 #             description="Search for specified list of ID's.  This is a unique identifier for each SNP in the system.  It is a concatenation of the chromosome, followed by a colon (':'), followed by the position, followed by the reference nucleotide, followed by a greater than symbol ('>') followed by alternate nucleotide.  The following have to be specified: One or more IDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
 #             response_model=OutputSnpInfo,
@@ -225,7 +225,7 @@ async def get_snps_by_rsidList(
 #     return await search_by_IDs(attribs, idList, page_args, filter_args)
 
 
-# @router.post("/fastapi/snp/keyword",
+# @router.post("/snp/keyword",
 #             tags=["SNP"],
 #             description="Search for specified keyword.  The following have to be specified: The SNP attribute information to retrieve.  The pagination start and stop range and are optional.",
 #             response_model=OutputSnpInfo,
@@ -254,7 +254,7 @@ async def get_snps_by_rsidList(
 
 
 @router.post(
-    "/fastapi/snp/gene_product",
+    "/snp/gene_product",
     tags=["SNP"],
     description="Search for specified gene product; this can be a gene id, gene symbol or UniProt id.  The following have to be specified: A gene product and  the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
     response_model=OutputSnpInfo,
@@ -277,7 +277,7 @@ async def get_SNPs_by_gene_product(
 
 
 """
-@router.post("/fastapi/snp/gene_id",
+@router.post("/snp/gene_id",
             tags=["SNP"],
             description="Search for specified gene id.  The following have to be specified: A gene Id and  the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
             response_model=OutputSnpInfo,

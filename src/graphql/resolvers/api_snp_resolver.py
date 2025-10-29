@@ -145,7 +145,9 @@ async def search_by_keyword(
     """
     page_args = page_args or PageArgs()
     query = keyword_query_for_fields_with_filters(
-        keyword, keyword_fields, filter_fields
+        keyword,
+        keyword_fields,  # type: ignore
+        filter_fields,  # type: ignore
     )
     return await _execute_search(
         es_fields,
