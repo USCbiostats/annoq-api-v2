@@ -209,7 +209,7 @@ async def get_SNPs_by_gene_product(
 
 
 @router.get(
-    "/fastapi/count/chr",
+    "/count/chr",
     tags=["Count"],
     summary="Count SNPs by chromosome range",
     description=(
@@ -249,7 +249,7 @@ async def count_snps_by_chromosome(
 
 
 @router.get(
-    "/fastapi/count/rsidList",
+    "/count/rsidList",
     tags=["Count"],
     summary="Count SNPs by RSID list",
     description=(
@@ -282,7 +282,7 @@ async def count_snps_by_rsidList(
 
 
 @router.get(
-    "/fastapi/count/gene_product",
+    "/count/gene_product",
     tags=["Count"],
     summary="Count SNPs by gene product",
     description=(
