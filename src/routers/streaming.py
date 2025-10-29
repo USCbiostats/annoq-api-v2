@@ -16,7 +16,7 @@ from src.routers.snp_router_helpers import (
 )
 from src.data_adapter.snp_attributes import get_attrib_list
 import json
-from typing import AsyncIterator, List, Optional
+from typing import AsyncIterator, List, Optional, Callable
 
 
 class StreamingQueryParams(BaseModel):
@@ -37,6 +37,11 @@ class StreamingQueryParams(BaseModel):
             "Comma-separated attribute labels that must be non-null in streamed records. "
             "Only valid labels are applied; others are ignored."
         ),
+    )
+    format: str = Field(
+        default="csv",
+        description="Output format: 'csv' (default) or 'ndjson'",
+        pattern="^(csv|ndjson)$",
     )
 
     parsed_fields: List[str] = Field(default_factory=list, exclude=True)
@@ -75,7 +80,86 @@ class StreamingQueryParams(BaseModel):
 
 router = APIRouter()
 
-MAX_DOWNLOAD_SIZE = 1_000_000_000
+MAX_DOWNLOAD_SIZE = 1_000_000
+
+
+def get_streaming_headers_and_media_type(format_type: str):
+    """
+    Returns appropriate headers and media type based on the format.
+    """
+    if format_type == "csv":
+        headers = {
+            "Content-Disposition": 'attachment; filename="export.csv"',
+            "X-Accel-Buffering": "no",
+        }
+        media_type = "text/csv"
+    else:  # ndjson
+        headers = {
+            "Content-Disposition": 'attachment; filename="export.ndjson"',
+            "X-Accel-Buffering": "no",
+        }
+        media_type = "application/x-ndjson"
+
+    return headers, media_type
+
+
+async def generate_stream(
+    stream_func: Callable, *args, format_type: str, parsed_fields: List[str], **kwargs
+) -> AsyncIterator[bytes]:
+    """
+    Generic generator function that handles both CSV and NDJSON formats.
+    """
+    first_record = True
+
+    async for snp in stream_func(*args, **kwargs):
+        payload = jsonable_encoder(snp)
+
+        if format_type == "csv":
+            # For CSV format, create header and tab-separated values
+            if first_record:
+                # Create header row with field names
+                header = "\t".join(parsed_fields) + "\n"
+                yield header.encode("utf-8")
+                first_record = False
+
+            # Create data row with tab-separated values
+            values = []
+            for field in parsed_fields:
+                # Access the field value from the SnpModel object
+                value = getattr(snp, field, ".")
+                values.append(str(value) if value is not None else ".")
+
+            row = "\t".join(values) + "\n"
+            yield row.encode("utf-8")
+        else:  # ndjson format
+            # jsonable_encoder -> orjson -> newline (NDJSON)
+            yield orjson.dumps(payload) + b"\n"
+
+
+async def create_streaming_response(
+    stream_func: Callable,
+    format_type: str,
+    parsed_fields: List[str],
+    filter_args: Optional[FilterArgs],
+    *args,
+    **kwargs,
+) -> StreamingResponse:
+    """
+    Creates a StreamingResponse with common logic for all download endpoints.
+    """
+    headers, media_type = get_streaming_headers_and_media_type(format_type)
+
+    def generator():
+        return generate_stream(
+            stream_func,
+            *args,
+            format_type=format_type,
+            parsed_fields=parsed_fields,
+            filter_args=filter_args,
+            **kwargs,
+        )
+
+    return StreamingResponse(generator(), media_type=media_type, headers=headers)
 
 
 @router.post(
@@ -83,7 +167,7 @@ MAX_DOWNLOAD_SIZE = 1_000_000_000
     tags=["DOWNLOAD"],
     summary="Download SNPs by chromosome range",
     description=(
-        "Streams every SNP in the specified chromosome interval as NDJSON without pagination.\n\n"
+        "Streams every SNP in the specified chromosome interval as CSV (default) or NDJSON without pagination.\n\n"
         "**Best for** large exports exceeding the 10,000-record pagination limit.\n"
         "**Constraints**\n"
         f"- Maximum of {MAX_ATTRIB_SIZE} requested attributes.\n"
@@ -109,26 +193,16 @@ async def download_snps_by_chr(
         else None
     )
 
-    headers = {
-        "Content-Disposition": 'attachment; filename="export.ndjson"',
-        "X-Accel-Buffering": "no",
-    }
-
-    async def generate() -> AsyncIterator[bytes]:
-        async for snp in stream_by_chromosome(
-            params.parsed_fields,
-            chromosome_identifier.value,
-            start_position,
-            end_position,
-            MAX_DOWNLOAD_SIZE,
-            filter_args,
-        ):
-            # jsonable_encoder -> orjson -> newline (NDJSON)
-            payload = jsonable_encoder(snp)
-            yield orjson.dumps(payload) + b"\n"
-
-    return StreamingResponse(
-        generate(), media_type="application/x-ndjson", headers=headers
+    return await create_streaming_response(
+        stream_by_chromosome,
+        params.format,
+        params.parsed_fields,
+        filter_args,
+        params.parsed_fields,
+        chromosome_identifier.value,
+        start_position,
+        end_position,
+        MAX_DOWNLOAD_SIZE,
     )
 
 
@@ -137,7 +211,7 @@ async def download_snps_by_chr(
     tags=["DOWNLOAD"],
     summary="Download SNPs by RSID list",
     description=(
-        "Streams all SNPs whose identifiers match the provided RSIDs as NDJSON.\n"
+        "Streams all SNPs whose identifiers match the provided RSIDs as CSV (default) or NDJSON without pagination.\n"
         "Use this endpoint when you need the full result set in a single download."
     ),
 )
@@ -156,24 +230,14 @@ async def download_snps_by_rsidList(
 
     rsIDs = rsid_list.split(",")
 
-    headers = {
-        "Content-Disposition": 'attachment; filename="export.ndjson"',
-        "X-Accel-Buffering": "no",
-    }
-
-    async def generate() -> AsyncIterator[bytes]:
-        async for snp in stream_by_rsIDs(
-            params.parsed_fields,
-            rsIDs,
-            MAX_DOWNLOAD_SIZE,
-            filter_args,
-        ):
-            # jsonable_encoder -> orjson -> newline (NDJSON)
-            payload = jsonable_encoder(snp)
-            yield orjson.dumps(payload) + b"\n"
-
-    return StreamingResponse(
-        generate(), media_type="application/x-ndjson", headers=headers
+    return await create_streaming_response(
+        stream_by_rsIDs,
+        params.format,
+        params.parsed_fields,
+        filter_args,
+        params.parsed_fields,
+        rsIDs,
+        MAX_DOWNLOAD_SIZE,
     )
 
 
@@ -183,7 +247,7 @@ async def download_snps_by_rsidList(
     summary="Download SNPs by gene product",
     description=(
         "Streams every SNP associated with the specified gene product (gene ID, symbol, or UniProt ID) "
-        "as NDJSON. Ideal for complete exports beyond the paginated search limit."
+        "as CSV (default) or NDJSON without pagination. Ideal for complete exports beyond the paginated search limit."
     ),
 )
 async def download_snps_by_gene_product(
@@ -199,22 +263,12 @@ async def download_snps_by_gene_product(
         else None
     )
 
-    headers = {
-        "Content-Disposition": 'attachment; filename="export.ndjson"',
-        "X-Accel-Buffering": "no",
-    }
-
-    async def generate() -> AsyncIterator[bytes]:
-        async for snp in stream_by_gene_product(
-            params.parsed_fields,
-            gene,
-            MAX_DOWNLOAD_SIZE,
-            filter_args,
-        ):
-            # jsonable_encoder -> orjson -> newline (NDJSON)
-            payload = jsonable_encoder(snp)
-            yield orjson.dumps(payload) + b"\n"
-
-    return StreamingResponse(
-        generate(), media_type="application/x-ndjson", headers=headers
+    return await create_streaming_response(
+        stream_by_gene_product,
+        params.format,
+        params.parsed_fields,
+        filter_args,
+        params.parsed_fields,
+        gene,
+        MAX_DOWNLOAD_SIZE,
     )
