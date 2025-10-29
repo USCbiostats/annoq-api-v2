@@ -1,19 +1,27 @@
 """snp router."""
-import logging
+
 from enum import Enum
-from typing import List
-from fastapi import APIRouter, Path, Query
-import json
+from fastapi import APIRouter, Depends, Query
 from src.graphql.models.annotation_model import FilterArgs, PageArgs
-from src.graphql.resolvers.api_snp_resolver import  output_error_msg, search_by_chromosome, search_by_rsIDs, search_by_IDs, search_by_keyword, search_by_gene_product
-from src.graphql.resolvers.api_count_resolver import count_by_chromosome, count_by_rsIDs, count_by_keyword, count_by_gene_product
+from src.graphql.resolvers.api_snp_resolver import (
+    search_by_chromosome,
+    search_by_rsIDs,
+    search_by_gene_product,
+)
+from src.graphql.resolvers.api_count_resolver import (
+    count_by_chromosome,
+    count_by_rsIDs,
+    count_by_gene_product,
+)
 from src.graphql.models.return_info_model import OutputSnpInfo, OutputCountInfo
-from src.data_adapter.snp_attributes import get_gene_id_search_fields, get_snp_attrib_json, get_attrib_list
-
-# Constants
-MAX_PAGE_SIZE =  1000000    #50
-
-MAX_ATTRIB_SIZE = 20
+from src.data_adapter.snp_attributes import (
+    get_snp_attrib_json,
+)
+from src.routers.snp_router_helpers import (
+    MAX_PAGE_SIZE,
+    CommonSearchQueryParams,
+    parse_filter_fields,
+)
 
 CHR_1 = "1"
 CHR_2 = "2"
@@ -26,7 +34,7 @@ CHR_8 = "8"
 CHR_9 = "9"
 CHR_10 = "10"
 CHR_11 = "11"
-CHR_12= "12"
+CHR_12 = "12"
 CHR_13 = "13"
 CHR_14 = "14"
 CHR_15 = "15"
@@ -39,22 +47,23 @@ CHR_21 = "21"
 CHR_22 = "22"
 CHR_X = "X"
 
+
 class ChromosomeIdentifierType(str, Enum):
     CHR_1 = CHR_1
     CHR_2 = CHR_2
     CHR_3 = CHR_3
     CHR_4 = CHR_4
-    CHR_5 = CHR_5                
+    CHR_5 = CHR_5
     CHR_6 = CHR_6
     CHR_7 = CHR_7
     CHR_8 = CHR_8
     CHR_9 = CHR_9
-    CHR_10 = CHR_10 
+    CHR_10 = CHR_10
     CHR_11 = CHR_11
     CHR_12 = CHR_12
     CHR_13 = CHR_13
     CHR_14 = CHR_14
-    CHR_15 = CHR_15                
+    CHR_15 = CHR_15
     CHR_16 = CHR_16
     CHR_17 = CHR_17
     CHR_18 = CHR_18
@@ -63,11 +72,11 @@ class ChromosomeIdentifierType(str, Enum):
     CHR_21 = CHR_21
     CHR_22 = CHR_22
     CHR_X = CHR_X
-    
-    
+
+
 TITLE = "AnnoQ API"
 
-    
+
 SUMMARY = "API for accessing SNP data from Annoq.org"
 
 DESCRIPTION = """
@@ -92,135 +101,96 @@ Retrieve number of SNP's matching following search criteria:
 """
 
 VERSION = "2.5"
-    
+
 TAGS_METADATA = [
     {
-    "name": "ATTRIBUTES",
-    "description": "Retrieves Information about SNP attributes",
+        "name": "ATTRIBUTES",
+        "description": "Retrieves Information about SNP attributes",
     },
     {
-    "name": "SNP",
-    "description": "Retrieves SNP's based on search criteria.  Note, in addition to requested SNP attributes, the system will also return the unique identifier for the SNP"
+        "name": "SNP",
+        "description": "Retrieves SNP's based on search criteria.  Note, in addition to requested SNP attributes, the system will also return the unique identifier for the SNP",
     },
     {
-    "name": "Count",
-    "description": "Retrieves the count of SNP's that match the search criteria"
+        "name": "Count",
+        "description": "Retrieves the count of SNP's that match the search criteria",
     },
 ]
 
-
-
-def parse_annoq_config(config_str:str):
-    try:
-        json_object = json.loads(config_str)
-        attribs = json_object["_source"]
-        supported_attribs = []
-        for attrib in attribs:
-            if attrib in get_attrib_list():
-                supported_attribs.append(attrib)
-            else:
-                print(f'Unsupported attribute {attrib} requested')    
-        if len(supported_attribs) > MAX_ATTRIB_SIZE:
-            return "Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE)
-        if len(supported_attribs) == 0:
-            return "No valid SNP attributes selected for output"
-        return supported_attribs
-    except json.JSONDecodeError:
-        return "Error parsing SNP attribute information"
-    
-def parse_filter_fields(filter_string:str):
-    if filter_string:
-        filter_fields = filter_string.split(",")
-        supported_fields = []
-        for field in filter_fields:
-            if field in get_attrib_list():
-                supported_fields.append(field)
-        if len(supported_fields) == 0:
-            return None
-        return supported_fields         
-    else:
-        return None        
-    
-    
 router = APIRouter()
-@router.post("/fastapi/snpAttributes",
-            tags=["ATTRIBUTES"],
-            description="Returns available list of SNP attributes.  Each entry has detailed information about the attribute such as the label to be used for quering the API, the name of the attribute used by Annoq.org website, a description of the attribute, the version of data and if the attribute can be used for searching by keyword")
+
+
+@router.get(
+    "/snpAttributes",
+    tags=["ATTRIBUTES"],
+    description="Returns available list of SNP attributes.  Each entry has detailed information about the attribute such as the label to be used for quering the API, the name of the attribute used by Annoq.org website, a description of the attribute, the version of data and if the attribute can be used for searching by keyword",
+)
 async def get_snp_attributes():
     return get_snp_attrib_json()
-    
 
 
-@router.post("/fastapi/snp/chr",
-            tags=["SNP"],
-            description="Search by chromosome id and position range.  The following have to be specified: The chromosome number (or 'X' for the X-chromosome), the chromosome start and stop region positions and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
-            response_model=OutputSnpInfo,
-            response_model_exclude_none=True)
+@router.get(
+    "/snp/chr",
+    tags=["SNP"],
+    description="Search by chromosome id and position range. The following have to be specified: The chromosome number (or 'X' for the X-chromosome), the chromosome start and stop region positions and the SNP attributes.  The pagination start and stop range and list of filter fields are optional. By default, the system will return the first 50 SNPs that match the search criteria. You can modify this by specifying the pagination_from and pagination_size parameters. NOTE: pagination_from + pagination_size should not exceed "
+    + str(MAX_PAGE_SIZE)
+    + " . This API is for simple pagination based retrieval of SNPs. For downloading large number of SNPs, please use the Download APIs.",
+    response_model=OutputSnpInfo,
+    response_model_exclude_none=True,
+)
 async def get_snps_by_chr(
     chromosome_identifier: ChromosomeIdentifierType = Query(
-        deault=ChromosomeIdentifierType.CHR_1,
-        description="Chromosome id to search."
+        deault=ChromosomeIdentifierType.CHR_1, description="Chromosome id to search."
     ),
-    start_position: int = Query(1, description="Start position region of search"),  
+    start_position: int = Query(1, description="Start position region of search"),
     end_position: int = Query(100000, description="End position region of search"),
-    fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),
-    pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
-    pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
-    
-    page_args = PageArgs(from_=pagination_from, size=pagination_size)
-    if filter_fields is not None:
-        filter_list = parse_filter_fields(filter_fields)
-        if filter_list is not None:
-            filter_args = FilterArgs(exists=filter_list)
-        else:
-         filter_args = None   
-    else:
-        filter_args = None
-    
-    attribs = parse_annoq_config(fields)
-    if type(attribs) is str:
-        return output_error_msg(message=attribs)
+    params: CommonSearchQueryParams = Depends(),
+):
+    page_args = PageArgs(from_=params.pagination_from, size=params.pagination_size)
+    filter_args = (
+        FilterArgs(exists=params.parsed_filter_fields)
+        if params.parsed_filter_fields
+        else None
+    )
 
-    return await search_by_chromosome(attribs, chromosome_identifier.value,  start_position, end_position, page_args, filter_args)
+    attribs = params.parsed_fields
+
+    return await search_by_chromosome(
+        attribs,
+        chromosome_identifier.value,
+        start_position,
+        end_position,
+        page_args,
+        filter_args,
+    )
 
 
-@router.post("/fastapi/snp/rsidList",
-            tags=["SNP"],
-            description="Search for specified list of RSIDs.  The following have to be specified: One or more RSIDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
-            response_model=OutputSnpInfo,
-            response_model_exclude_none=True)
+@router.post(
+    "/fastapi/snp/rsidList",
+    tags=["SNP"],
+    description="Search for specified list of RSIDs.  The following have to be specified: One or more RSIDs and the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
+    response_model=OutputSnpInfo,
+    response_model_exclude_none=True,
+)
 async def get_snps_by_rsidList(
-    rsid_list: str = Query(default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311", 
-        description="List of RSIDS to search.  Delimited by comma ','.  Example rs574852966,rs148600903"),
-    fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),  
-    pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
-    pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
+    rsid_list: str = Query(
+        default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311",
+        description="List of RSIDS to search.  Delimited by comma ','.  Example rs574852966,rs148600903",
+    ),
+    params: CommonSearchQueryParams = Depends(),
+):
+    page_args = PageArgs(from_=params.pagination_from, size=params.pagination_size)
+    filter_args = (
+        FilterArgs(exists=params.parsed_filter_fields)
+        if params.parsed_filter_fields
+        else None
+    )
 
-    page_args = PageArgs(from_=pagination_from, size=pagination_size)
-    if filter_fields is not None:
-        filter_list = parse_filter_fields(filter_fields)
-        if filter_list is not None:
-            filter_args = FilterArgs(exists=filter_list)
-        else:
-         filter_args = None   
-    else:
-        filter_args = None
+    attribs = params.parsed_fields
 
-    rsIDs = rsid_list.split(",")    
-    attribs = parse_annoq_config(fields)
-    if type(attribs) is str:
-        return output_error_msg(message=attribs)
-        
+    rsIDs = rsid_list.split(",")
+
     return await search_by_rsIDs(attribs, rsIDs, page_args, filter_args)
-
 
 
 # @router.post("/fastapi/snp/idList",
@@ -229,10 +199,10 @@ async def get_snps_by_rsidList(
 #             response_model=OutputSnpInfo,
 #             response_model_exclude_none=True)
 # async def get_snps_by_idList(
-#     id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A", 
+#     id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A",
 #         description="List of IDS to search.  Delimited by comma ','.  Example 20:60309G>T,20:65497T>G"),
-#     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-#         description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),    
+#     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
+#         description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org"),
 #     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
 #     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
 #     filter_fields: str = Query(default=None,
@@ -245,15 +215,14 @@ async def get_snps_by_rsidList(
 #     else:
 #         filter_args = None
 
-#     idList = id_list.split(",")    
+#     idList = id_list.split(",")
 #     try:
 #         json_object = json.loads(fields)
-#         attribs = json_object["_source"] 
+#         attribs = json_object["_source"]
 #     except json.JSONDecodeError:
 #         return output_error_msg("Unable to retrieve information")
-        
-#     return await search_by_IDs(attribs, idList, page_args, filter_args)
 
+#     return await search_by_IDs(attribs, idList, page_args, filter_args)
 
 
 # @router.post("/fastapi/snp/keyword",
@@ -262,9 +231,9 @@ async def get_snps_by_rsidList(
 #             response_model=OutputSnpInfo,
 #             response_model_exclude_none=True)
 # async def get_snps_by_keyword(
-#     keyword: str = Query(default="Signaling by GPCR", 
+#     keyword: str = Query(default="Signaling by GPCR",
 #         description="keyword of phrase to search"),
-#     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
+#     fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
 #         description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),
 #     pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
 #     pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
@@ -277,40 +246,37 @@ async def get_snps_by_rsidList(
 #         json_object = json.loads(fields)
 #         attribs = json_object["_source"]
 #         if len(attribs) > MAX_ATTRIB_SIZE:
-#             return output_error_msg(message="Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE))         
+#             return output_error_msg(message="Maximum number of requested 'fields' should not exceed " + str(MAX_ATTRIB_SIZE))
 #     except json.JSONDecodeError:
 #         return output_error_msg("Unable to retrieve information")
-        
+
 #     return await search_by_keyword(attribs, keyword, page_args)
 
-@router.post("/fastapi/snp/gene_product",
-            tags=["SNP"],
-            description="Search for specified gene product; this can be a gene id, gene symbol or UniProt id.  The following have to be specified: A gene product and  the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
-            response_model=OutputSnpInfo,
-            response_model_exclude_none=True)
 
+@router.post(
+    "/fastapi/snp/gene_product",
+    tags=["SNP"],
+    description="Search for specified gene product; this can be a gene id, gene symbol or UniProt id.  The following have to be specified: A gene product and  the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
+    response_model=OutputSnpInfo,
+    response_model_exclude_none=True,
+)
 async def get_SNPs_by_gene_product(
-    gene: str = Query(default="ZMYND11", 
-        description="Gene product search"),
-    fields: str = Query(default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}', 
-        description="Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org.  The maximum number of attributes should not exceed " + str(MAX_ATTRIB_SIZE)),   
-    pagination_from: int = Query(default=None, example=0, description="starting index for pagination"),
-    pagination_size: int = Query(default = None, example=50, description="Number of results per page.  Maximum is " + str(MAX_PAGE_SIZE), le = MAX_PAGE_SIZE),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
-    page_args = PageArgs(from_= pagination_from, size=pagination_size)
-    filter_list = parse_filter_fields(filter_fields)
-    
-    attribs = parse_annoq_config(fields)
-    if type(attribs) is str:
-        return output_error_msg(message=attribs)      
-        
-    return await search_by_gene_product(fields, gene, page_args, filter_list)
+    gene: str = Query(default="ZMYND11", description="Gene product search"),
+    params: CommonSearchQueryParams = Depends(),
+):
+    page_args = PageArgs(from_=params.pagination_from, size=params.pagination_size)
+    filter_args = (
+        FilterArgs(exists=params.parsed_filter_fields)
+        if params.parsed_filter_fields
+        else None
+    )
+
+    attribs = params.parsed_fields
+
+    return await search_by_gene_product(attribs, gene, page_args, filter_args)
 
 
-
-'''
+"""
 @router.post("/fastapi/snp/gene_id",
             tags=["SNP"],
             description="Search for specified gene id.  The following have to be specified: A gene Id and  the SNP attributes.  The pagination start and stop range and list of filter fields are optional.",
@@ -336,97 +302,111 @@ async def get_snps_by_gene_id(
         return output_error_msg(message=attribs)      
         
     return await search_by_keyword(attribs, gene, page_args, keyword_fields, filter_list)
-'''
+"""
 
-@router.post("/fastapi/count/chr",
-            tags=["Count"],
-            description="Returns number of SNP records based on specified chromosome, start position, end position and filter arguments",
-            response_model=OutputCountInfo)
+
+@router.post(
+    "/fastapi/count/chr",
+    tags=["Count"],
+    description="Returns number of SNP records based on specified chromosome, start position, end position and filter arguments",
+    response_model=OutputCountInfo,
+)
 async def count_snps_by_chromosome(
     chromosome_identifier: ChromosomeIdentifierType = Query(
         deault=ChromosomeIdentifierType.CHR_1,
-        description="The chromosome number (or 'X' for the X-chromosome)"
+        description="The chromosome number (or 'X' for the X-chromosome)",
     ),
-    start_position: int = Query(1, description="Start position region of search"),  
+    start_position: int = Query(1, description="Start position region of search"),
     end_position: int = Query(100000, description="End position region of search"),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
-    if filter_fields is not None:
-        filter_list = parse_filter_fields(filter_fields)
-        if filter_list is not None:
-            filter_args = FilterArgs(exists=filter_list)
-        else:
-         filter_args = None   
+    filter_fields: str = Query(
+        default=None,
+        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id",
+    ),
+):
+    parsed_filter_fields = parse_filter_fields(filter_fields)
+    if parsed_filter_fields is not None:
+        filter_args = FilterArgs(exists=parsed_filter_fields)
     else:
-        filter_args = None  
-    return await count_by_chromosome(chromosome_identifier.value,  start_position, end_position, filter_args)
+        filter_args = None
+    return await count_by_chromosome(
+        chromosome_identifier.value, start_position, end_position, filter_args
+    )
 
 
-@router.post("/fastapi/count/rsidList",
-            tags=["Count"],
-            description="Returns the number of SNPs defined in the system that have matching RSID's from the specified list of RSIDs.",
-            response_model=OutputCountInfo)
+@router.post(
+    "/fastapi/count/rsidList",
+    tags=["Count"],
+    description="Returns the number of SNPs defined in the system that have matching RSID's from the specified list of RSIDs.",
+    response_model=OutputCountInfo,
+)
 async def count_snps_by_rsidList(
-    rsid_list: str = Query(default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311", 
-        description="List of RSIDS to search.  Delimited by comma ','.  Example rs574852966,rs148600903"),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
-    rsIDs = rsid_list.split(",")      
-    if filter_fields is not None:
-        filter_list = parse_filter_fields(filter_fields)
-        if filter_list is not None:
-            filter_args = FilterArgs(exists=filter_list)
-        else:
-         filter_args = None   
+    rsid_list: str = Query(
+        default="rs1219648,rs2912774,rs2981582,rs1101006,rs1224211,rs1076148,rs2116830,rs1801516,rs2250417,rs1436109,rs1227926,rs1047964,rs900145,rs4757144,rs6486122,rs4627050,rs6578985,rs2074238,rs179429,rs231362,rs231906,rs108961,rs7481311",
+        description="List of RSIDS to search.  Delimited by comma ','.  Example rs574852966,rs148600903",
+    ),
+    filter_fields: str = Query(
+        default=None,
+        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id",
+    ),
+):
+    rsIDs = rsid_list.split(",")
+    parsed_filter_fields = parse_filter_fields(filter_fields)
+    if parsed_filter_fields is not None:
+        filter_args = FilterArgs(exists=parsed_filter_fields)
     else:
-        filter_args = None   
+        filter_args = None
     return await count_by_rsIDs(rsIDs, filter_args)
-    
+
 
 # @router.post("/fastapi/count/idList",
 #             tags=["Count"],
 #             description="Returns the number of SNPs defined in the system that have matching ID's from the specified list of IDs.",
 #             response_model=OutputCountInfo)
 # async def count_snps_by_idList(
-#     id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A", 
+#     id_list: str = Query(default="1:115921355T>C,1:12046063G>T,12:13641706C>A",
 #         description="List of IDS to search.  Delimited by comma ','.  Example 20:60309G>T,20:65497T>G"),
 #     filter_fields: str = Query(default=None,
 #         description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are to be delimited by comma ','.  Example \"ANNOVAR_ensembl_Closest_gene(intergenic_only),SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
 #     ):
-#     idList = id_list.split(",")      
+#     idList = id_list.split(",")
 #     if filter_fields is not None:
 #         filter_args = FilterArgs(exists=filter_fields.split(","))
 #     else:
-#         filter_args = None    
+#         filter_args = None
 #     return await count_by_IDs(idList, filter_args)
- 
- 
+
+
 # @router.post("/fastapi/count/keyword",
 #             tags=["Count"],
 #             description="Returns the number of SNPs defined in the system that have been associated with the keyword",
 #             response_model=OutputCountInfo)
 # async def count_snps_by_keyword(
-#     keyword: str = Query(default="Signaling by GPCR", 
+#     keyword: str = Query(default="Signaling by GPCR",
 #         description="keyword of phrase to search")
 #     ):
- 
+
 #     return await count_by_keyword(keyword)
 
 
-@router.post("/fastapi/count/gene_product",
-            tags=["Count"],
-            description="Returns the number of SNPs defined in the system that have been associated for the specified gene product which can be a gene id, gene symbol or UniProt id. The following have to be specified: The gene product and the SNP attributes.  The filter fields are optional.",
-            response_model=OutputCountInfo)
+@router.post(
+    "/fastapi/count/gene_product",
+    tags=["Count"],
+    description="Returns the number of SNPs defined in the system that have been associated for the specified gene product which can be a gene id, gene symbol or UniProt id. The following have to be specified: The gene product and the SNP attributes.  The filter fields are optional.",
+    response_model=OutputCountInfo,
+)
 async def count_snps_by_gene_product(
-    gene: str = Query(default="ZMYND11", 
-        description="Gene product to search."),
-    filter_fields: str = Query(default=None,
-        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
-    ):
-    filter_list = parse_filter_fields(filter_fields)
-    return await count_by_gene_product(gene, filter_list)    
+    gene: str = Query(default="ZMYND11", description="Gene product to search."),
+    filter_fields: str = Query(
+        default=None,
+        description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id",
+    ),
+):
+    parsed_filter_fields = parse_filter_fields(filter_fields)
+    if parsed_filter_fields is not None:
+        filter_args = FilterArgs(exists=parsed_filter_fields)
+    else:
+        filter_args = None
+    return await count_by_gene_product(gene, filter_args)
 
 
 # @router.post("/fastapi/count/gene_id",
@@ -434,14 +414,13 @@ async def count_snps_by_gene_product(
 #             description="Returns the number of SNPs defined in the system that have been associated for the specified gene id.  The following have to be specified: The gene id and the SNP attributes.  The filter fields are optional.",
 #             response_model=OutputCountInfo)
 # async def count_snps_by_gene_id(
-#     gene: str = Query(default="ENSG00000263305", 
+#     gene: str = Query(default="ENSG00000263305",
 #         description="Gene id to search"),
 #     filter_fields: str = Query(default=None,
 #         description="SNP attribute labels (columns) that should not be empty for the record to be retrieved.  These are delimited by comma ','.  Example ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID,SnpEff_ensembl_CDS_position_CDS_len,flanking_0_GO_biological_process_complete_list_id,flanking_0_GO_cellular_component_complete_list_id")
 #     ):
 
 #     filter_list = parse_filter_fields(filter_fields)
-        
-#     keyword_fields = get_gene_id_search_fields()         
+
+#     keyword_fields = get_gene_id_search_fields()
 #     return await count_by_keyword(gene, keyword_fields, filter_list)
-        

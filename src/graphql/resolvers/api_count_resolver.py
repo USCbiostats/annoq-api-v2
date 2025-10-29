@@ -6,7 +6,7 @@ from src.data_access_object.keyword_search import keyword_query_for_fields_with_
 from src.graphql.models.return_info_model import OutputCountInfo
 #from src.graphql.resolvers.api_snp_helper_resolver import output_error_msg, convert_scroll_hits
 
-async def count_by_chromosome(chr: str, start: int, end: int, filter_args=FilterArgs):
+async def count_by_chromosome(chr: str, start: int, end: int, filter_args: FilterArgs | None = None):
       """ 
       Query for getting count of annotation by chromosome with start and end range of pos
 
@@ -29,7 +29,7 @@ async def count_by_chromosome(chr: str, start: int, end: int, filter_args=Filter
             return output_error_msg(message)
     
 
-async def count_by_rsIDs(rsIDs: list[str], filter_args=FilterArgs):
+async def count_by_rsIDs(rsIDs: list[str], filter_args: FilterArgs | None = None):
       """ 
       Query for getting count of annotation by rsIDs
 
@@ -48,9 +48,9 @@ async def count_by_rsIDs(rsIDs: list[str], filter_args=FilterArgs):
       except Exception:
             message = "Unable to retrieve count information for search by RSID list"
             return output_error_msg(message)
-    
-    
-async def count_by_IDs(ids: list[str], filter_args=FilterArgs):
+
+
+async def count_by_IDs(ids: list[str], filter_args: FilterArgs | None = None):
       """ 
       Query for getting count of annotation by IDs
 
@@ -91,7 +91,7 @@ async def count_by_keyword(keyword: str, keyword_fields: list[str] = None, filte
         return output_error_msg(message)  
 
 
-async def count_by_gene_product(gene:str, filter_args=FilterArgs):
+async def count_by_gene_product(gene:str, filter_args: FilterArgs | None = None):
       """ 
       Query for getting count of annotation by rsIDs
 
