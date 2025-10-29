@@ -89,7 +89,7 @@ async def generate_stream(
             output = convert_hits_to_output(parsed_fields, [snp])
             if hasattr(output, "details") and output.details:
                 for snp in output.details:
-                    yield orjson.dumps(jsonable_encoder(snp)) + b"\n"
+                    yield orjson.dumps(jsonable_encoder(snp, exclude_none=True)) + b"\n"
 
 
 async def create_streaming_response(
