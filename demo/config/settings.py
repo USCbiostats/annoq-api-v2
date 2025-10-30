@@ -5,6 +5,6 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path='.env')
 
 class Settings(BaseSettings):
-    API_URL:str = os.getenv("API_URL")
+    SITE_API_URL:str = os.getenv("SITE_URL")
 
 settings = Settings()

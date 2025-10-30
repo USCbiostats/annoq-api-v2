@@ -2,6 +2,7 @@ from ...config.es import es
 from ...config.settings import settings
 from src.graphql.models.annotation_model import FilterArgs
 from .helper_resolver import IDs_query, annotation_query, chromosome_query, gene_query, keyword_query, rsID_query, rsIDs_query
+from src.data_access_object.keyword_search import keyword_query_for_fields_with_filters
 
 
 async def get_annotations_count():
@@ -107,6 +108,28 @@ async def count_by_gene(gene:str, filter_args=FilterArgs):
         return resp['count']
       
       return 0
+
+async def count_by_keyword_on_specific_fields(keyword: str, keyword_fields: list[str] = None, filter_args:FilterArgs = None):
+      """ 
+      Query for getting count of annotation by keyword
+
+      Params: es_fields: List of fields to be returned in elasticsearch query
+      keyword: keyword to search
+      keyword_fields: list of columns to search
+      filter_args: FilterArgs object for field exists filter
+
+      Returns: integer for count of annotations
+      """      
+      filter_fields = []  
+      if filter_args and filter_args.exists:
+            for field in filter_args.exists:
+                  filter_fields.append(field)  
+                  
+      resp = await es.count(
+            index = settings.ES_INDEX,
+            query = keyword_query_for_fields_with_filters(keyword, keyword_fields, filter_fields)
+      )
+      return resp['count']              
 
 async def count_by_keyword(keyword: str):
       """ 
