@@ -58,7 +58,7 @@ def read_root():
     return {"Annoq API version": "V2"}
 
 
-@app.get("/annotations")
+@app.get("/annotations",include_in_schema=False)
 def read_annotations():
     """
     Endpoint to get annotation tree with API field names

@@ -94,7 +94,7 @@ async def get_snp_attributes():
         "Paginated search of SNPs within a chromosome interval.\n\n"
         "**Use when**\n"
         f"- Exploring result sets of up to {MAX_PAGE_SIZE} records.\n"
-        "- Needing precise pagination controls (use `/download/chr` for bulk exports).\n\n"
+        "- Needing precise pagination controls (use `/snp/chr/download` for bulk exports).\n\n"
         "**Key limits**\n"
         f"- `pagination_from + pagination_size` must be ≤ {MAX_PAGE_SIZE}.\n"
         f"- Request at most {MAX_ATTRIB_SIZE} attributes per call.\n"
@@ -144,7 +144,7 @@ async def get_snps_by_chr(
         "Retrieves SNPs whose identifiers match the provided RSIDs.\n\n"
         "**Tips**\n"
         "- Supply RSIDs as a comma-separated list (whitespace is ignored).\n"
-        "- Use pagination settings to browse results; switch to `/download/rsidList` for complete exports.\n"
+        "- Use pagination settings to browse results; switch to `/snp/rsidList/download` for complete exports.\n"
         "**Key limits**\n"
         f"- `pagination_from + pagination_size` must be ≤ {MAX_PAGE_SIZE}.\n"
         f"- Attribute selection is limited to {MAX_ATTRIB_SIZE} fields per call."
@@ -181,7 +181,7 @@ async def get_snps_by_rsidList(
     description=(
         "Returns SNPs linked to the supplied gene product (gene ID, symbol, or UniProt ID).\n\n"
         "**Use when** you need paginated SNP annotations tied to a single gene product. "
-        f"Switch to `/download/gene_product` for large exports. Attribute requests remain capped at {MAX_ATTRIB_SIZE} fields.\n"
+        f"Switch to `/snp/gene_product/download` for large exports. Attribute requests remain capped at {MAX_ATTRIB_SIZE} fields.\n"
         "**Key limits**\n"
         f"- `pagination_from + pagination_size` must be ≤ {MAX_PAGE_SIZE}.\n"
     ),
