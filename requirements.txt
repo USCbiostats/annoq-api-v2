@@ -10,6 +10,7 @@ fastapi==0.109.2
 graphql-core==3.2.3
 pydantic==2.6.1
 strawberry-graphql==0.219.2
+orjson >= 3.10,<4
 python-dotenv
 datamodel-code-generator
 requests
