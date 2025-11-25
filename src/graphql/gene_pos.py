@@ -1,6 +1,6 @@
 import requests
 
-host = 'http://pantherdb.org'
+host = 'https://pantherdb.org'
 gene_mapping_api = '/services/oai/pantherdb/geneinfo'
 params = {"geneInputList":"ABCA1", "organism":9606}
 
@@ -14,10 +14,11 @@ def load_chromosomal_location(dfile='./data/others/Homo_sapiens.chromosome_locat
 def map_gene(k):
     params["geneInputList"] = k
     try:
-        r = requests.get(url = host + gene_mapping_api, params = params, timeout=5)
+        r = requests.post(url = host + gene_mapping_api, data = params, timeout=5)
         data = r.json()
         return data['search']['mapped_genes']['gene']["accession"]
-    except:
+    except Exception as e:
+        print(f"An error occurred: {e}")
         print('gene mapping error:', k)
         return ''
 

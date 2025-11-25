@@ -2,12 +2,16 @@ from enum import Enum
 import strawberry
 from typing import List, Optional
 
-@strawberry.input
+@strawberry.input (
+        description="Specifies the record number to start from and the maximum number of records to output"
+)
 class PageArgs:
     from_: Optional[int] = 0
-    size: Optional[int] = 50
+    size: Optional[int] = 50 
     
-@strawberry.input
+@strawberry.input(
+        description="specifies list of attributes that should not be null for a record to be returned"
+)
 class FilterArgs:
     exists:  Optional[List[str]] = None
     # many more will come as needed so this will be updated as needed and flexible
@@ -19,7 +23,7 @@ class Bucket:
 
 @strawberry.type
 class DocCount:
-    doc_count: int
+    doc_count: int = strawberry.field(description ="The number of records from the operation")
 
 @strawberry.input
 class Histogram:
