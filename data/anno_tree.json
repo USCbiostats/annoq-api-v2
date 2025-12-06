@@ -281,7 +281,9 @@
     "label": "PEREGRINE enhancer linked assay",
     "detail": "When the variant is located in an enhancer region, the assay data used to infer its link to the target genes by the PEREGRINE project are listed here. For example, single tissue eQTL, interactive TAD, ChIA-PET. These assays are usually tissue-specific. The tissue data is in the 'PEREGRINE_enhancer_linked_tissue' annotation.",
     "link": "https://www.peregrineproj.org/",
-    "pmid": "33320871"
+    "pmid": "33320871",
+    "field_type": "text",
+    "keyword_searchable": true
   },
   {
     "id": "24",
@@ -314,7 +316,7 @@
     "parent_id": "26",
     "leaf": true,
     "name": "ANNOVAR_ensembl_Closest_gene(intergenic_only)",
-    "detail": "\"cloest genes if the variant is intergenic. Format: gene ID1:transcript ID1(dist=distance),gene ID2:transcript ID2(dist=distance)\"",
+    "detail": "\"closest genes if the variant is intergenic. Format: gene ID1:transcript ID1(dist=distance),gene ID2:transcript ID2(dist=distance)\"",
     "root_url": "http://uswest.ensembl.org/Homo_sapiens/Gene/Summary?g=",
     "sample_url": "http://uswest.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000158270",
     "field_type": "text",
@@ -507,7 +509,7 @@
     "parent_id": "26",
     "leaf": true,
     "name": "ANNOVAR_refseq_Closest_gene(intergenic_only)",
-    "detail": "\"cloest genes if the variant is intergenic. Format: gene ID1:transcript ID1(dist=distance),gene ID2:transcript ID2(dist=distance)\"",
+    "detail": "\"closest genes if the variant is intergenic. Format: gene ID1:transcript ID1(dist=distance),gene ID2:transcript ID2(dist=distance)\"",
     "field_type": "text",
     "keyword_searchable": true
   },
@@ -698,7 +700,7 @@
     "parent_id": "26",
     "leaf": true,
     "name": "ANNOVAR_ucsc_Closest_gene(intergenic_only)",
-    "detail": "\"cloest genes if the variant is intergenic. Format: gene ID1:transcript ID1(dist=distance),gene ID2:transcript ID2(dist=distance)\"",
+    "detail": "\"closest genes if the variant is intergenic. Format: gene ID1:transcript ID1(dist=distance),gene ID2:transcript ID2(dist=distance)\"",
     "field_type": "text",
     "keyword_searchable": true
   },
