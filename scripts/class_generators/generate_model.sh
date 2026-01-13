@@ -5,9 +5,9 @@ datamodel-codegen --input scripts/class_generators/generated_schemas/snp_aggs_sc
 
 FILE="src/graphql/models/generated/snp_aggs.py"
 SNP_FILE="src/graphql/models/generated/snp.py"
-LINE="from typing import Any, Optional"
-REMOVE_TEXT="Any, "
-sed -i "/$LINE/s/$REMOVE_TEXT//g" $FILE
+LINE="from typing import Any"
+#REMOVE_TEXT="Any, "
+sed -i "s/$LINE//g" $FILE
 
 EXISTING_LINE="from pydantic import Field"
 NEW_LINE="from src.graphql.models.annotation_model import AggregationItem"
