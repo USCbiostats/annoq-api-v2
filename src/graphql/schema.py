@@ -49,13 +49,7 @@ def transform_fields(fields: list[str]) -> list[str]:
     """
     transformed = []
     for field in fields:
-        original = get_original_field_name_or_self(field)
-        if original != field:
-            transformed.append(original)
-        else:
-            # Field not found in mapping - might be a special field like 'id'
-            print(f" field {field} not transformed")
-            transformed.append(field)
+        transformed.append(get_original_field_name_or_self(field))
     return transformed
 
 
@@ -68,12 +62,7 @@ def transform_agg_fields(
     """
     transformed = []
     for field, subfields in aggregation_fields:
-        original = get_original_field_name_or_self(field)
-        if original != field:
-            transformed.append((original, subfields))
-        else:
-            print(f" aggregate field {field} not transformed")
-            transformed.append((field, subfields))
+        transformed.append((get_original_field_name_or_self(field), subfields))
     return transformed
 
 
