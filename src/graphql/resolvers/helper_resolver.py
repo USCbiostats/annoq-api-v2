@@ -1,51 +1,61 @@
-import inspect
 import json
-import typing
 from typing import Dict
-from src.graphql.gene_pos import get_pos_from_gene_id, map_gene, chromosomal_location_dic
+from src.graphql.gene_pos import (
+    get_pos_from_gene_id,
+    map_gene,
+    chromosomal_location_dic,
+)
 from src.graphql.models.generated.snp import SnpModel
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
 from src.graphql.models.generated.snp_aggs import SnpAggsModel
-from src.graphql.models.annotation_model import AggregationItem, Bucket, DocCount, FilterArgs, Histogram
+from src.graphql.models.annotation_model import (
+    AggregationItem,
+    Bucket,
+    DocCount,
+    Histogram,
+)
 from src.data_adapter.snp_attributes import get_name_to_type
 
 from src.utils import clean_field_name
 
+
 def _map_aggs_value(key, value):
-        """
-        Mapping aggregation values to the correct type
+    """
+    Mapping aggregation values to the correct type
 
-        Params: key: key of the aggregation
-                value: values of the aggregation
+    Params: key: key of the aggregation
+            value: values of the aggregation
 
-        Returns: value of the aggregation for the key
-        """
-        if key.endswith(('min', 'max')):
-            return value.get('value')
-        elif key.endswith('missing'):
-            return DocCount(doc_count=value['doc_count'])
-        elif key in ('histogram', 'frequency'):
-            return [Bucket(key=b['key'], doc_count=b['doc_count']) for b in value['buckets']]
-        else:
-            return value.get('doc_count')
-          
+    Returns: value of the aggregation for the key
+    """
+    if key.endswith(("min", "max")):
+        return value.get("value")
+    elif key.endswith("missing"):
+        return DocCount(doc_count=value["doc_count"])
+    elif key in ("histogram", "frequency"):
+        return [
+            Bucket(key=b["key"], doc_count=b["doc_count"]) for b in value["buckets"]
+        ]
+    else:
+        return value.get("doc_count")
+
 
 def convert_hits(hits):
     """
     Converts hits from elasticsearch to Snp objects
 
     Params: hits: hits from elasticsearch
-    
+
     Returns: List of Snp objects
     """
     compliant_results = []
     for hit in hits:
-        source = hit['_source']
-        values = {clean_field_name(key): value for key, value in source.items()} 
-        values['id']  = hit['_id']
+        source = hit["_source"]
+        values = {clean_field_name(key): value for key, value in source.items()}
+        values["id"] = hit["_id"]
         model_instance = SnpModel(**values)
-        compliant_results.append(Snp.from_pydantic(model_instance)) 
-        
+        compliant_results.append(Snp.from_pydantic(model_instance))
+
     return compliant_results
 
 
@@ -55,23 +65,29 @@ def convert_scroll_hits(hits, scroll_id=None):
 
     Params: hits: hits from elasticsearch
             scroll_id: scroll_id from elasticsearch
-    
+
     Returns: ScrollSnp object
     """
     compliant_results = []
     for hit in hits:
-        source = hit['_source']
-        values = {clean_field_name(key): value for key, value in source.items()} 
-        values['id']  = hit['_id']
-        
+        source = hit["_source"]
+        values = {clean_field_name(key): value for key, value in source.items()}
+        values["id"] = hit["_id"]
+
         model_instance = SnpModel(**values)
-        compliant_results.append(Snp.from_pydantic(model_instance)) 
+        compliant_results.append(Snp.from_pydantic(model_instance))
     return ScrollSnp(snps=compliant_results, scroll_id=scroll_id)
-    
-  
-def convert_aggs(aggs: Dict) -> SnpAggs: 
+
+
+def convert_aggs(aggs: Dict) -> SnpAggs:
     """
-    Converts aggregates from elasticsearch to SnpAggs object
+    Converts aggregates from elasticsearch to SnpAggs object.
+
+    The ES response contains keys like "1000Gp3_AC_doc_count" but the SnpAggsModel
+    expects cleaned field names like "_1000Gp3_AC". We need to:
+    1. Extract the original field name prefix from the ES response key
+    2. Convert it to the cleaned API field name
+    3. Build the SnpAggsModel with cleaned field names
 
     Params: aggs: Dictionary of aggregates from elasticsearch
 
@@ -80,28 +96,52 @@ def convert_aggs(aggs: Dict) -> SnpAggs:
     data = {}
 
     for key, val in aggs.items():
-        key_split = key.split('_')
-        prefix = '_'.join(key_split[:-1])
-        suffix = key_split[-1]
+        # Keys are like: "1000Gp3_AC_doc_count", "chr_frequency", "pos_min", etc.
+        # We need to extract the field name and suffix
 
-        if suffix == 'count':
-            suffix = 'doc_count'
-            prefix_split = prefix.split('_')
-            prefix = '_'.join(prefix_split[:-1])
+        # Handle _doc_count suffix (note: this is actually "field_doc_count")
+        if key.endswith("_doc_count"):
+            original_field = key[:-10]  # Remove '_doc_count'
+            suffix = "doc_count"
+        elif key.endswith("_min"):
+            original_field = key[:-4]  # Remove '_min'
+            suffix = "min"
+        elif key.endswith("_max"):
+            original_field = key[:-4]  # Remove '_max'
+            suffix = "max"
+        elif key.endswith("_frequency"):
+            original_field = key[:-10]  # Remove '_frequency'
+            suffix = "frequency"
+        elif key.endswith("_missing"):
+            original_field = key[:-8]  # Remove '_missing'
+            suffix = "missing"
+        elif key.endswith("_histogram"):
+            original_field = key[:-10]  # Remove '_histogram'
+            suffix = "histogram"
+        else:
+            # Unknown suffix, try to parse it
+            key_split = key.split("_")
+            original_field = "_".join(key_split[:-1])
+            suffix = key_split[-1]
+            if suffix == "count":
+                suffix = "doc_count"
+                prefix_split = original_field.split("_")
+                original_field = "_".join(prefix_split[:-1])
 
-        if prefix not in data:
-            data[prefix] = AggregationItem(doc_count=None)
+        # Convert original ES field name to cleaned API field name
+        cleaned_field = clean_field_name(original_field)
 
-        if hasattr(data[prefix], suffix):
-            setattr(data[prefix], suffix, _map_aggs_value(suffix, val))
+        if cleaned_field not in data:
+            data[cleaned_field] = AggregationItem(doc_count=None)
 
-    
+        if hasattr(data[cleaned_field], suffix):
+            setattr(data[cleaned_field], suffix, _map_aggs_value(suffix, val))
+
     model_instance = SnpAggsModel(**data)
-    return SnpAggs.from_pydantic(model_instance) 
+    return SnpAggs.from_pydantic(model_instance)
 
     return SnpAggs(**data)
-  
-  
+
 
 def annotation_query():
     return {"match_all": {}}
@@ -122,15 +162,15 @@ def chromosome_query(chr, start, end, filter_args=None):
         "bool": {
             "filter": [
                 {"term": {"chr": chr}},
-                {"range": {"pos": {"gte": start, "lte": end}}}
+                {"range": {"pos": {"gte": start, "lte": end}}},
             ]
         }
     }
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
-            if field == 'id':
-                field = '_id'
+            if field == "id":
+                field = "_id"
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -146,17 +186,17 @@ def rsID_query(rsID, filter_args=None):
     Returns: Query for elasticsearch
     """
     query = {
-              "bool": {
-                    "filter": [
-                      {"term": {"rs_dbSNP151": rsID}},
-                    ]
-              }
-          }
-    
+        "bool": {
+            "filter": [
+                {"term": {"rs_dbSNP151": rsID}},
+            ]
+        }
+    }
+
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
-            if field == 'id':
-                field = '_id'
+            if field == "id":
+                field = "_id"
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -171,18 +211,12 @@ def rsIDs_query(rsIDs, filter_args=None):
 
     Returns: Query for elasticsearch
     """
-    query = {
-              "bool": {
-                    "filter": [
-                      {"terms": {"rs_dbSNP151": rsIDs}}
-                    ]
-              }
-          }
+    query = {"bool": {"filter": [{"terms": {"rs_dbSNP151": rsIDs}}]}}
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
-            if field == 'id':
-                field = '_id'
+            if field == "id":
+                field = "_id"
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -197,18 +231,12 @@ def IDs_query(ids, filter_args=None):
 
     Returns: Query for elasticsearch
     """
-    query = {
-              "bool": {
-                 "filter": [
-                    {"ids": {"values": ids}}
-                 ]
-              }
-          }
-    
+    query = {"bool": {"filter": [{"ids": {"values": ids}}]}}
+
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
-            if field == 'id':
-                field = '_id'
+            if field == "id":
+                field = "_id"
             query["bool"]["filter"].append({"exists": {"field": field}})
 
     return query
@@ -233,8 +261,9 @@ def gene_query(gene, filter_args=None):
 
         query = chromosome_query(chr, start, end, filter_args)
         return query
-    
+
     return None
+
 
 def keyword_query(keyword: str):
     """
@@ -246,20 +275,20 @@ def keyword_query(keyword: str):
     """
 
     searchable_fields = []
-    with open('./data/anno_tree.json') as f:
+    with open("./data/anno_tree.json") as f:
         data = json.load(f)
-        searchable_fields = [elt['name'] for elt in data if elt.get('keyword_searchable', False)]
+        searchable_fields = [
+            elt["name"] for elt in data if elt.get("keyword_searchable", False)
+        ]
 
-    query = {
-              "multi_match": {
-                "query": keyword,
-                "fields": searchable_fields
-              }
-          }
+    query = {"multi_match": {"query": keyword, "fields": searchable_fields}}
 
     return query
 
-async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]], histogram: Histogram):
+
+async def get_aggregation_query(
+    aggregation_fields: list[tuple[str, list[str]]], histogram: Histogram
+):
     """
     Query for getting aggregates of annotation
 
@@ -271,70 +300,50 @@ async def get_aggregation_query(aggregation_fields: list[tuple[str, list[str]]],
     results = dict()
     type_lookup = get_name_to_type()
     for field, subfields in aggregation_fields:
-
         # Check the type of the field. If it is a string, then we have to add .keyword to the field name while querying missing and frequency
         # Using the pydantic model Snp, we can check the type of the field
-        #annotations = getattr(Snp, '__annotations__', {})
-        #is_text_field = typing.get_args(annotations[field])[0] == str
-        #is_text_field = typing.get_args(inspect.get_annotations(Snp)[field])[0] == str
+        # annotations = getattr(Snp, '__annotations__', {})
+        # is_text_field = typing.get_args(annotations[field])[0] == str
+        # is_text_field = typing.get_args(inspect.get_annotations(Snp)[field])[0] == str
         # DO NOT USE SNP class.  The field names do not match what is in the data store
-        textual_suffix = ''
+        textual_suffix = ""
         if field in type_lookup:
             field_type = type_lookup[field]
-            if field_type == 'text':
-                textual_suffix = '.keyword'
+            if field_type == "text":
+                textual_suffix = ".keyword"
         else:
-            print(f'Found non-existent field  {field}')    
-             
-        for subfield in subfields:
-            if subfield == 'doc_count': 
-                results[f'{field}_doc_count'] = {
-                    "filter" : {
-                        "exists": {
-                            "field": field
-                        }
-                    }
-                }
-                    
-            elif subfield == 'min':
-                results[f'{field}_min'] = {
-                    "min": {
-                        "field": field
-                    }
-                }
+            print(f"Found non-existent field  {field}")
 
-            elif subfield == 'max':
-                results[f'{field}_max'] = {
-                    "max": {
-                        "field": field
-                    }
-                }
-            
-            elif subfield == 'frequency':
-                results[f'{field}_frequency'] = {
+        for subfield in subfields:
+            if subfield == "doc_count":
+                results[f"{field}_doc_count"] = {"filter": {"exists": {"field": field}}}
+
+            elif subfield == "min":
+                results[f"{field}_min"] = {"min": {"field": field}}
+
+            elif subfield == "max":
+                results[f"{field}_max"] = {"max": {"field": field}}
+
+            elif subfield == "frequency":
+                results[f"{field}_frequency"] = {
                     "terms": {
                         "field": field + textual_suffix,
                         "min_doc_count": 0,
-                        "size": 20
+                        "size": 20,
                     }
                 }
 
-            elif subfield == 'missing':
-                results[f'{field}_missing'] = {
-                    "missing": {
-                        "field": field + textual_suffix
-                    }
+            elif subfield == "missing":
+                results[f"{field}_missing"] = {
+                    "missing": {"field": field + textual_suffix}
                 }
 
-            elif subfield == 'histogram':
-                results[f'{field}_histogram'] = {
+            elif subfield == "histogram":
+                results[f"{field}_histogram"] = {
                     "histogram": {
                         "field": field,
                         "interval": histogram.interval,
-                        "extended_bounds": {
-                            "min": histogram.min,
-                            "max": histogram.max
-                        }
+                        "extended_bounds": {"min": histogram.min, "max": histogram.max},
                     }
                 }
 
@@ -349,4 +358,4 @@ def get_default_aggregation_fields(es_fields: list[str]):
 
     Returns: List of fields for aggregation
     """
-    return [(field, ['doc_count']) for field in es_fields]
+    return [(field, ["doc_count"]) for field in es_fields]
