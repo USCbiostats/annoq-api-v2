@@ -138,6 +138,8 @@ def delete_old_files_periodically(directory, age_minutes, interval_seconds):
 
 
 def run_app():
+    if not os.path.exists(settings.SITE_DOWNLOAD_DIR):
+        os.makedirs(settings.SITE_DOWNLOAD_DIR)
     delete_old_files_periodically(
         str(settings.SITE_DOWNLOAD_DIR + "/"), age_minutes=60, interval_seconds=3600
     )
