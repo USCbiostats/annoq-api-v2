@@ -140,7 +140,8 @@ if __name__ == "__main__":
     if not os.path.exists(GENERATED_MODEL_DIR):
         os.makedirs(GENERATED_MODEL_DIR)    
     
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     mapping = loop.run_until_complete(get_mapping())
 
     snp_schema = generate_snp_schema(mapping)
