@@ -44,6 +44,7 @@ class FieldNameMapper:
         cleaned = cleaned.replace("/", "_")
         cleaned = cleaned.replace("-", "_")
         cleaned = cleaned.replace("+", "")
+        cleaned = cleaned.replace('=', '_equals_')
         return cleaned
 
     def register_field(self, original_name: str) -> str:
