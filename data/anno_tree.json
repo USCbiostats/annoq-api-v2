@@ -5042,6 +5042,7 @@
     "parent_id": "1",
     "leaf": true,
     "name": "rs_dbSNP",
+    "label": "rs ID",
     "detail": "\"rs number from dbSNP\"",
     "field_type": "text",
     "keyword_searchable": true
