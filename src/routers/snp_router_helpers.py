@@ -2,12 +2,14 @@ from pydantic import BaseModel, Field, model_validator, PrivateAttr
 import json
 from typing import List, Optional
 from src.data_adapter.snp_attributes import get_attrib_list
+from src.config.settings import settings
 from enum import Enum
 
 # Constants
 MAX_PAGE_SIZE = 10_000
 MAX_ATTRIB_SIZE = 20
 
+DEFAULT_SEARCH_PARAM = '{"_source":["Basic Info","chr","pos","ref","alt","' + settings.DATA_RSID + '"]}'
 
 CHR_1 = "1"
 CHR_2 = "2"
@@ -81,7 +83,8 @@ class CommonSearchQueryParams(BaseModel):
     """
 
     fields: str = Field(
-        default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
+        #default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
+        detault=DEFAULT_SEARCH_PARAM,
         description=(
             "Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org. "
             "JSON object containing a `_source` array with the requested attribute labels. "
@@ -177,7 +180,8 @@ class StreamingQueryParams(BaseModel):
     """
 
     fields: str = Field(
-        default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
+        #default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
+        default=DEFAULT_SEARCH_PARAM,
         description=(
             "JSON payload with a `_source` list of attribute labels selected from the configuration "
             f"downloaded at annoq.org. Request at most {MAX_ATTRIB_SIZE} attributes per download call."

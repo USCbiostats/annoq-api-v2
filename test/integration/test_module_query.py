@@ -1,4 +1,5 @@
 from graphql import GraphQLError
+from src.config.settings import settings
 from src.main import schema
 import pytest
 
@@ -172,9 +173,10 @@ async def test_get_aggs_by_RsIDs():
  
     assert result.errors is None
     assert result.data['get_aggs_by_RsIDs']['chr']['doc_count'] == 1
-    assert result.data['get_aggs_by_RsIDs']['rs_dbSNP151']['min'] == 10632
-    assert result.data['get_aggs_by_RsIDs']['rs_dbSNP151']['max'] == 10632
-
+    #assert result.data['get_aggs_by_RsIDs']['rs_dbSNP151']['min'] == 10632
+    #assert result.data['get_aggs_by_RsIDs']['rs_dbSNP151']['max'] == 10632
+    assert result.data['get_aggs_by_RsIDs'][settings.DATA_RSID]['min'] == 10632
+    assert result.data['get_aggs_by_RsIDs'][settings.DATA_RSID]['max'] == 10632
 
 @pytest.mark.asyncio_cooperative
 async def test_get_SNPs_by_chromosome():

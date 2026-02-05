@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     ES_PORT:int = int(os.getenv("ES_PORT"))
     ES_INDEX:str = os.getenv("ES_INDEX")
     ES_URL:str = os.getenv("ES_URL")
+    DATA_RSID:str = os.getenv("DATA_RSID_COL")
     SITE_HOST:str = os.getenv("SITE_HOST")
     SITE_PORT:int = int(os.getenv("SITE_PORT"))
     SITE_URL: str = str(os.getenv("SITE_URL"))

@@ -1,5 +1,6 @@
 import json
 from typing import Dict
+from src.config.settings import settings
 from src.graphql.gene_pos import (
     get_pos_from_gene_id,
     map_gene,
@@ -188,7 +189,7 @@ def rsID_query(rsID, filter_args=None):
     query = {
         "bool": {
             "filter": [
-                {"term": {"rs_dbSNP151": rsID}},
+                {"term": {settings.DATA_RSID: rsID}},
             ]
         }
     }
@@ -211,7 +212,7 @@ def rsIDs_query(rsIDs, filter_args=None):
 
     Returns: Query for elasticsearch
     """
-    query = {"bool": {"filter": [{"terms": {"rs_dbSNP151": rsIDs}}]}}
+    query = {"bool": {"filter": [{"terms": {settings.DATA_RSID: rsIDs}}]}}
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
