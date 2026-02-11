@@ -285,7 +285,9 @@
     "label": "PEREGRINE enhancer linked assay",
     "detail": "When the variant is located in an enhancer region, the assay data used to infer its link to the target genes by the PEREGRINE project are listed here. For example, single tissue eQTL, interactive TAD, ChIA-PET. These assays are usually tissue-specific. The tissue data is in the 'PEREGRINE_enhancer_linked_tissue' annotation.",
     "link": "https://www.peregrineproj.org/",
-    "pmid": "33320871"
+    "pmid": "33320871",
+    "field_type": "text",
+    "keyword_searchable": true
   },
   {
     "id": "24",
