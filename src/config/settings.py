@@ -15,4 +15,6 @@ class Settings(BaseSettings):
     SITE_URL: str = str(os.getenv("SITE_URL"))
     SITE_DOWNLOAD_DIR:str = os.getenv("SITE_DOWNLOAD_DIR")
     SIZE_DOWNLOAD_SIZE:int = int(os.getenv("SIZE_DOWNLOAD_SIZE"))
+    GA_MEASUREMENT_ID:str = os.getenv("GA_MEASUREMENT_ID", "")
+    GA_API_SECRET:str = os.getenv("GA_API_SECRET", "")
 settings = Settings()

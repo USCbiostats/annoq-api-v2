@@ -6,7 +6,10 @@ from strawberry.fastapi import GraphQLRouter
 from strawberry.schema.config import StrawberryConfig
 from fastapi.middleware.cors import CORSMiddleware
 from strawberry.extensions import MaskErrors
+from starlette.requests import Request
+from starlette.responses import Response
 from src.utils import field_name_mapper
+from src.analytics.ga4 import track_request
 
 import uvicorn
 import json
@@ -44,6 +47,29 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def ga4_tracking_middleware(request: Request, call_next):
+    body = b""
+    if request.url.path.startswith("/graphql") and request.method == "POST":
+        body = await request.body()
+
+    response: Response = await call_next(request)
+
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "")
+
+    await track_request(
+        path=request.url.path,
+        method=request.method,
+        client_ip=client_ip,
+        user_agent=user_agent,
+        body=body,
+    )
+
+    return response
+
 
 # Set up GraphQL
 schema = strawberry.Schema(
