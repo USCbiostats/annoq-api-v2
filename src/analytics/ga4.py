@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 GA4_ENDPOINT = "https://www.google-analytics.com/mp/collect"
 
-TRACKED_PREFIXES = ("/graphql", "/docs", "/snp")
+TRACKED_PREFIXES = ("/graphql", "/docs", "/snp", "/count", "/snpAttributes", "/annotations")
 
 
 def _is_tracked_path(path: str) -> bool:
