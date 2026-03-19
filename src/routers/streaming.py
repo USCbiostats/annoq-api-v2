@@ -155,7 +155,7 @@ async def download_snps_by_chr(
         params._parsed_fields,
         filter_args,
         params._parsed_fields,
-        chromosome_identifier.value,
+        chromosome_identifier.value.lower(),
         start_position,
         end_position,
         MAX_DOWNLOAD_SIZE,
