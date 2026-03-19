@@ -84,7 +84,7 @@ class CommonSearchQueryParams(BaseModel):
 
     fields: str = Field(
         #default='{"_source":["Basic Info","chr","pos","ref","alt","rs_dbSNP151"]}',
-        detault=DEFAULT_SEARCH_PARAM,
+        default=DEFAULT_SEARCH_PARAM,
         description=(
             "Contents of SNP configuration file generated from selected SNP attributes and downloaded from annoq.org. "
             "JSON object containing a `_source` array with the requested attribute labels. "

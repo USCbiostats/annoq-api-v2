@@ -128,7 +128,7 @@ async def get_snps_by_chr(
 
     return await search_by_chromosome(
         attribs,
-        chromosome_identifier.value,
+        chromosome_identifier.value.lower(),
         start_position,
         end_position,
         page_args,
@@ -244,7 +244,7 @@ async def count_snps_by_chromosome(
     else:
         filter_args = None
     return await count_by_chromosome(
-        chromosome_identifier.value, start_position, end_position, filter_args
+        chromosome_identifier.value.lower(), start_position, end_position, filter_args
     )
 
 
