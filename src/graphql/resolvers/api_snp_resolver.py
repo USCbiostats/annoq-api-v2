@@ -50,6 +50,7 @@ async def search_by_chromosome(
     end: int,
     page_args: PageArgs,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
 ):
     """
     Query for getting annotation by chromosome with start and end range of pos
@@ -60,11 +61,12 @@ async def search_by_chromosome(
             end: End position
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, restrict to the HRC subset using hg19 fields
 
     Returns: OutputSnpInfo with list of Snps
     """
     page_args = page_args or PageArgs()
-    query = chromosome_query(chr, start, end, filter_args)
+    query = chromosome_query(chr, start, end, filter_args, search_hrc)
     return await _execute_search(
         es_fields,
         query,
@@ -78,6 +80,7 @@ async def search_by_rsIDs(
     rsIDs: list[str],
     page_args: PageArgs,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
 ):
     """
     Query for getting annotation by list of rsIDs
@@ -86,11 +89,12 @@ async def search_by_rsIDs(
             rsIDs: List of rsIDs of snps
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
 
     Returns: OutputSnpInfo with list of Snps
     """
     page_args = page_args or PageArgs()
-    query = rsIDs_query(rsIDs, filter_args)
+    query = rsIDs_query(rsIDs, filter_args, search_hrc)
     return await _execute_search(
         es_fields,
         query,
@@ -162,6 +166,7 @@ async def search_by_gene_product(
     gene: str,
     page_args: PageArgs,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
 ):
     """
     Query for getting annotation by gene product
@@ -170,11 +175,12 @@ async def search_by_gene_product(
             gene: Gene product
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, resolve hg19 coordinates and restrict to the HRC subset
 
     Returns: OutputSnpInfo with list of Snps
     """
     page_args = page_args or PageArgs()
-    query = gene_query(gene, filter_args)
+    query = gene_query(gene, filter_args, search_hrc)
 
     if query is None:
         return output_error_msg(

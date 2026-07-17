@@ -133,6 +133,7 @@ async def get_snps_by_chr(
         end_position,
         page_args,
         filter_args,
+        params.search_hrc,
     )
 
 
@@ -171,7 +172,7 @@ async def get_snps_by_rsidList(
 
     rsIDs = rsid_list.split(",")
 
-    return await search_by_rsIDs(attribs, rsIDs, page_args, filter_args)
+    return await search_by_rsIDs(attribs, rsIDs, page_args, filter_args, params.search_hrc)
 
 
 @router.get(
@@ -205,7 +206,7 @@ async def get_SNPs_by_gene_product(
 
     attribs = params._parsed_fields
 
-    return await search_by_gene_product(attribs, gene, page_args, filter_args)
+    return await search_by_gene_product(attribs, gene, page_args, filter_args, params.search_hrc)
 
 
 @router.get(
@@ -237,6 +238,13 @@ async def count_snps_by_chromosome(
             "Only valid attribute labels are applied."
         ),
     ),
+    search_hrc: bool = Query(
+        default=False,
+        description=(
+            "When true, count only the HRC subset (`Mapped_in_HRC = Y`) using hg19 coordinates. "
+            "Defaults to false (full dataset)."
+        ),
+    ),
 ):
     parsed_filter_fields = parse_filter_fields(filter_fields)
     if parsed_filter_fields is not None:
@@ -244,7 +252,7 @@ async def count_snps_by_chromosome(
     else:
         filter_args = None
     return await count_by_chromosome(
-        chromosome_identifier.value.lower(), start_position, end_position, filter_args
+        chromosome_identifier.value.lower(), start_position, end_position, filter_args, search_hrc
     )
 
 
@@ -271,6 +279,13 @@ async def count_snps_by_rsidList(
             "Unsupported labels are ignored."
         ),
     ),
+    search_hrc: bool = Query(
+        default=False,
+        description=(
+            "When true, count only the HRC subset (`Mapped_in_HRC = Y`) matching the HRC rsID "
+            "(`HRC_rs_dbSNP151`). Defaults to false (full dataset)."
+        ),
+    ),
 ):
     rsIDs = rsid_list.split(",")
     parsed_filter_fields = parse_filter_fields(filter_fields)
@@ -278,7 +293,7 @@ async def count_snps_by_rsidList(
         filter_args = FilterArgs(exists=parsed_filter_fields)
     else:
         filter_args = None
-    return await count_by_rsIDs(rsIDs, filter_args)
+    return await count_by_rsIDs(rsIDs, filter_args, search_hrc)
 
 
 @router.get(
@@ -304,10 +319,17 @@ async def count_snps_by_gene_product(
             "Only valid labels are applied."
         ),
     ),
+    search_hrc: bool = Query(
+        default=False,
+        description=(
+            "When true, count only the HRC subset (`Mapped_in_HRC = Y`) using hg19 coordinates. "
+            "Defaults to false (full dataset)."
+        ),
+    ),
 ):
     parsed_filter_fields = parse_filter_fields(filter_fields)
     if parsed_filter_fields is not None:
         filter_args = FilterArgs(exists=parsed_filter_fields)
     else:
         filter_args = None
-    return await count_by_gene_product(gene, filter_args)
+    return await count_by_gene_product(gene, filter_args, search_hrc)

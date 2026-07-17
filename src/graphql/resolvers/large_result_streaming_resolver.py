@@ -82,6 +82,7 @@ async def stream_by_chromosome(
     end: int,
     max_results: int,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
     batch_size: int = 10000,
 ) -> AsyncGenerator[Any, None]:
     """
@@ -93,11 +94,12 @@ async def stream_by_chromosome(
             end: End position
             max_results: Maximum number of results to stream
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, restrict to the HRC subset using hg19 fields
             batch_size: Number of results per batch
 
     Yields: Individual SNP records
     """
-    query = chromosome_query(chr, start, end, filter_args)
+    query = chromosome_query(chr, start, end, filter_args, search_hrc)
     async for snp in _stream_search_with_pit(es_fields, query, max_results, batch_size):
         yield snp
 
@@ -107,6 +109,7 @@ async def stream_by_rsIDs(
     rsIDs: list[str],
     max_results: int,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
     batch_size: int = 10000,
 ) -> AsyncGenerator[Any, None]:
     """
@@ -116,11 +119,12 @@ async def stream_by_rsIDs(
             rsIDs: List of rsIDs of snps
             max_results: Maximum number of results to stream
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
             batch_size: Number of results per batch
 
     Yields: Individual SNP records
     """
-    query = rsIDs_query(rsIDs, filter_args)
+    query = rsIDs_query(rsIDs, filter_args, search_hrc)
     async for snp in _stream_search_with_pit(es_fields, query, max_results, batch_size):
         yield snp
 
@@ -130,6 +134,7 @@ async def stream_by_IDs(
     ids: list[str],
     max_results: int,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
     batch_size: int = 10000,
 ) -> AsyncGenerator[Any, None]:
     """
@@ -139,11 +144,12 @@ async def stream_by_IDs(
             ids: List of IDs of snps
             max_results: Maximum number of results to stream
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match each variant on hg19 fields and restrict to HRC subset
             batch_size: Number of results per batch
 
     Yields: Individual SNP records
     """
-    query = IDs_query(ids, filter_args)
+    query = IDs_query(ids, filter_args, search_hrc)
     async for snp in _stream_search_with_pit(es_fields, query, max_results, batch_size):
         yield snp
 
@@ -182,6 +188,7 @@ async def stream_by_gene_product(
     gene: str,
     max_results: int,
     filter_args: FilterArgs | None = None,
+    search_hrc=None,
     batch_size: int = 10000,
 ) -> AsyncGenerator[Any, None]:
     """
@@ -191,11 +198,12 @@ async def stream_by_gene_product(
             gene: Gene product
             max_results: Maximum number of results to stream
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, resolve hg19 coordinates and restrict to the HRC subset
             batch_size: Number of results per batch
 
     Yields: Individual SNP records
     """
-    query = gene_query(gene, filter_args)
+    query = gene_query(gene, filter_args, search_hrc)
 
     if query is None:
         return

@@ -5,6 +5,7 @@ from src.graphql.gene_pos import (
     get_pos_from_gene_id,
     map_gene,
     chromosomal_location_dic,
+    chromosomal_location_dic_hg19,
 )
 from src.graphql.models.generated.snp import SnpModel
 from src.graphql.models.snp_model import ScrollSnp, Snp, SnpAggs
@@ -16,6 +17,7 @@ from src.graphql.models.annotation_model import (
     Histogram,
 )
 from src.data_adapter.snp_attributes import get_name_to_type
+from src.graphql.resolvers import hrc
 
 from src.utils import clean_field_name
 
@@ -148,7 +150,7 @@ def annotation_query():
     return {"match_all": {}}
 
 
-def chromosome_query(chr, start, end, filter_args=None):
+def chromosome_query(chr, start, end, filter_args=None, search_hrc=None):
     """
     Query for getting annotation by chromosome with start and end range of pos
 
@@ -156,17 +158,30 @@ def chromosome_query(chr, start, end, filter_args=None):
             start: Start position
             end: End position
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, restrict to the HRC subset (Mapped_in_HRC=Y) and
+                        match the hg19 position fields instead of hg38
 
     Returns: Query for elasticsearch
     """
-    query = {
-        "bool": {
-            "filter": [
-                {"term": {"chr": chr}},
-                {"range": {"pos": {"gte": start, "lte": end}}},
-            ]
+    if search_hrc:
+        query = {
+            "bool": {
+                "filter": [
+                    {"term": {f"{hrc.HG19_CHR_FIELD}.keyword": chr}},
+                    {"range": {hrc.HG19_POS_FIELD: {"gte": start, "lte": end}}},
+                    hrc.mapped_in_hrc_clause(),
+                ]
+            }
         }
-    }
+    else:
+        query = {
+            "bool": {
+                "filter": [
+                    {"term": {"chr": chr}},
+                    {"range": {"pos": {"gte": start, "lte": end}}},
+                ]
+            }
+        }
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
@@ -177,22 +192,34 @@ def chromosome_query(chr, start, end, filter_args=None):
     return query
 
 
-def rsID_query(rsID, filter_args=None):
+def rsID_query(rsID, filter_args=None, search_hrc=None):
     """
     Query for getting annotation by rsID
 
     Params: rsID: rsID of snp
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match the HRC rsID field (HRC_rs_dbSNP151) and
+                        restrict to the HRC subset (Mapped_in_HRC=Y)
 
     Returns: Query for elasticsearch
     """
-    query = {
-        "bool": {
-            "filter": [
-                {"term": {settings.DATA_RSID: rsID}},
-            ]
+    if search_hrc:
+        query = {
+            "bool": {
+                "filter": [
+                    {"term": {f"{hrc.HRC_RSID_FIELD}.keyword": rsID}},
+                    hrc.mapped_in_hrc_clause(),
+                ]
+            }
         }
-    }
+    else:
+        query = {
+            "bool": {
+                "filter": [
+                    {"term": {settings.DATA_RSID: rsID}},
+                ]
+            }
+        }
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
@@ -203,16 +230,28 @@ def rsID_query(rsID, filter_args=None):
     return query
 
 
-def rsIDs_query(rsIDs, filter_args=None):
+def rsIDs_query(rsIDs, filter_args=None, search_hrc=None):
     """
     Query for getting annotation by rsIDs
 
     Params: rsIDs: List of rsIDs of snps
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match the HRC rsID field (HRC_rs_dbSNP151) and
+                        restrict to the HRC subset (Mapped_in_HRC=Y)
 
     Returns: Query for elasticsearch
     """
-    query = {"bool": {"filter": [{"terms": {settings.DATA_RSID: rsIDs}}]}}
+    if search_hrc:
+        query = {
+            "bool": {
+                "filter": [
+                    {"terms": {f"{hrc.HRC_RSID_FIELD}.keyword": rsIDs}},
+                    hrc.mapped_in_hrc_clause(),
+                ]
+            }
+        }
+    else:
+        query = {"bool": {"filter": [{"terms": {settings.DATA_RSID: rsIDs}}]}}
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
@@ -223,16 +262,34 @@ def rsIDs_query(rsIDs, filter_args=None):
     return query
 
 
-def IDs_query(ids, filter_args=None):
+def IDs_query(ids, filter_args=None, search_hrc=None):
     """
     Query for getting annotation by IDs
 
     Params: IDs: List of IDs of snps
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match each variant positionally on the hg19 fields
+                        (Option B) instead of the document _id, and restrict to the
+                        HRC subset (Mapped_in_HRC=Y)
 
     Returns: Query for elasticsearch
     """
-    query = {"bool": {"filter": [{"ids": {"values": ids}}]}}
+    if search_hrc:
+        variant_clauses = [
+            clause
+            for clause in (hrc.hrc_variant_clause(variant_id) for variant_id in ids)
+            if clause is not None
+        ]
+        query = {
+            "bool": {
+                "filter": [
+                    {"bool": {"should": variant_clauses, "minimum_should_match": 1}},
+                    hrc.mapped_in_hrc_clause(),
+                ]
+            }
+        }
+    else:
+        query = {"bool": {"filter": [{"ids": {"values": ids}}]}}
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
@@ -243,24 +300,29 @@ def IDs_query(ids, filter_args=None):
     return query
 
 
-def gene_query(gene, filter_args=None):
+def gene_query(gene, filter_args=None, search_hrc=None):
     """
     Query for getting annotation by gene product
 
     Params: gene: Gene product
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, resolve coordinates from the hg19 location file and
+                        build an HRC-subset chromosome query (hg19 fields + Mapped_in_HRC=Y)
 
     Returns: Query for elasticsearch
     """
     gene_id = map_gene(gene)
-    gene_pos = get_pos_from_gene_id(gene_id, chromosomal_location_dic)
+    location_dic = (
+        chromosomal_location_dic_hg19 if search_hrc else chromosomal_location_dic
+    )
+    gene_pos = get_pos_from_gene_id(gene_id, location_dic)
 
     if gene_pos:
         chr = gene_pos[0]
         start = gene_pos[1]
         end = gene_pos[2]
 
-        query = chromosome_query(chr, start, end, filter_args)
+        query = chromosome_query(chr, start, end, filter_args, search_hrc)
         return query
 
     return None

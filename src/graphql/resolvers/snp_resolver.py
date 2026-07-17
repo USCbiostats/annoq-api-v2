@@ -100,6 +100,7 @@ async def search_by_chromosome(
     page_args=PageArgs(),
     filter_args=FilterArgs(),
     histogram=Histogram(),
+    search_hrc=None,
 ):
     """
     Query for getting annotation by chromosome with start and end range of pos
@@ -113,6 +114,7 @@ async def search_by_chromosome(
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
+            search_hrc: When set, restrict to the HRC subset using hg19 fields
 
     Returns: List of Snps
     """
@@ -124,7 +126,7 @@ async def search_by_chromosome(
 
     if query_type == QueryType.DOWNLOAD:
         stream = large_result_streaming_resolver.stream_by_chromosome(
-            es_fields, chr, start, end, settings.SIZE_DOWNLOAD_SIZE, filter_args
+            es_fields, chr, start, end, settings.SIZE_DOWNLOAD_SIZE, filter_args, search_hrc
         )
         return await download_annotations_from_stream(es_fields, stream)
 
@@ -133,7 +135,7 @@ async def search_by_chromosome(
         source=es_fields,  # type: ignore
         from_=page_args.from_ if query_type != QueryType.SCROLL else None,
         size=page_args.size,
-        query=chromosome_query(chr, start, end, filter_args),
+        query=chromosome_query(chr, start, end, filter_args, search_hrc),
         aggs=await get_aggregation_query(
             aggregation_fields or get_default_aggregation_fields(es_fields), histogram
         )
@@ -153,6 +155,7 @@ async def search_by_rsID(
     page_args=PageArgs(),
     filter_args=FilterArgs(),
     histogram=Histogram(),
+    search_hrc=None,
 ):
     """
     Query for getting annotation by rsID
@@ -164,6 +167,7 @@ async def search_by_rsID(
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
+            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
 
     Returns: List of Snps
     """
@@ -175,7 +179,7 @@ async def search_by_rsID(
 
     if query_type == QueryType.DOWNLOAD:
         stream = large_result_streaming_resolver.stream_by_rsIDs(
-            es_fields, [rsID], settings.SIZE_DOWNLOAD_SIZE, filter_args
+            es_fields, [rsID], settings.SIZE_DOWNLOAD_SIZE, filter_args, search_hrc
         )
         return await download_annotations_from_stream(es_fields, stream)
 
@@ -184,7 +188,7 @@ async def search_by_rsID(
         source=es_fields,  # type: ignore
         from_=page_args.from_ if query_type != QueryType.SCROLL else None,
         size=page_args.size,
-        query=rsID_query(rsID, filter_args),
+        query=rsID_query(rsID, filter_args, search_hrc),
         aggs=await get_aggregation_query(
             aggregation_fields or get_default_aggregation_fields(es_fields), histogram
         )
@@ -204,6 +208,7 @@ async def search_by_rsIDs(
     page_args=PageArgs(),
     filter_args=FilterArgs(),
     histogram=Histogram(),
+    search_hrc=None,
 ):
     """
     Query for getting annotation by list of rsIDs
@@ -215,6 +220,7 @@ async def search_by_rsIDs(
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
+            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
 
     Returns: List of Snps
     """
@@ -226,7 +232,7 @@ async def search_by_rsIDs(
 
     if query_type == QueryType.DOWNLOAD:
         stream = large_result_streaming_resolver.stream_by_rsIDs(
-            es_fields, rsIDs, settings.SIZE_DOWNLOAD_SIZE, filter_args
+            es_fields, rsIDs, settings.SIZE_DOWNLOAD_SIZE, filter_args, search_hrc
         )
         return await download_annotations_from_stream(es_fields, stream)
 
@@ -235,7 +241,7 @@ async def search_by_rsIDs(
         source=es_fields,  # type: ignore
         from_=page_args.from_ if query_type != QueryType.SCROLL else None,
         size=page_args.size,
-        query=rsIDs_query(rsIDs, filter_args),
+        query=rsIDs_query(rsIDs, filter_args, search_hrc),
         aggs=await get_aggregation_query(
             aggregation_fields or get_default_aggregation_fields(es_fields), histogram
         )
@@ -256,6 +262,7 @@ async def search_by_IDs(
     page_args=PageArgs(),
     filter_args=FilterArgs(),
     histogram=Histogram(),
+    search_hrc=None,
 ):
     """
     Query for getting annotation by IDs
@@ -267,6 +274,8 @@ async def search_by_IDs(
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
+            search_hrc: When set, match each variant on hg19 fields (Option B) and
+                        restrict to the HRC subset
 
     Returns: List of Snps
     """
@@ -278,7 +287,7 @@ async def search_by_IDs(
 
     if query_type == QueryType.DOWNLOAD:
         stream = large_result_streaming_resolver.stream_by_IDs(
-            es_fields, ids, settings.SIZE_DOWNLOAD_SIZE, filter_args
+            es_fields, ids, settings.SIZE_DOWNLOAD_SIZE, filter_args, search_hrc
         )
         return await download_annotations_from_stream(es_fields, stream)
 
@@ -287,7 +296,7 @@ async def search_by_IDs(
         source=es_fields,  # type: ignore
         from_=page_args.from_ if query_type != QueryType.SCROLL else None,
         size=page_args.size,
-        query=IDs_query(ids, filter_args),
+        query=IDs_query(ids, filter_args, search_hrc),
         aggs=await get_aggregation_query(
             aggregation_fields or get_default_aggregation_fields(es_fields), histogram
         )
@@ -307,6 +316,7 @@ async def search_by_gene(
     page_args=PageArgs(),
     filter_args=FilterArgs(),
     histogram=Histogram(),
+    search_hrc=None,
 ):
     """
     Query for getting annotation by gene product
@@ -318,6 +328,7 @@ async def search_by_gene(
             aggregation_fields: List of fields for aggregation, along with their subfields
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
+            search_hrc: When set, resolve hg19 coordinates and restrict to the HRC subset
 
     Returns: List of Snps
     """
@@ -329,11 +340,11 @@ async def search_by_gene(
 
     if query_type == QueryType.DOWNLOAD:
         stream = large_result_streaming_resolver.stream_by_gene_product(
-            es_fields, gene, settings.SIZE_DOWNLOAD_SIZE, filter_args
+            es_fields, gene, settings.SIZE_DOWNLOAD_SIZE, filter_args, search_hrc
         )
         return await download_annotations_from_stream(es_fields, stream)
 
-    query = gene_query(gene, filter_args)
+    query = gene_query(gene, filter_args, search_hrc)
 
     if query is not None:
         resp = await es.search(

@@ -6,8 +6,8 @@ from src.data_access_object.keyword_search import keyword_query_for_fields_with_
 from src.graphql.models.return_info_model import OutputCountInfo
 #from src.graphql.resolvers.api_snp_helper_resolver import output_error_msg, convert_scroll_hits
 
-async def count_by_chromosome(chr: str, start: int, end: int, filter_args: FilterArgs | None = None):
-      """ 
+async def count_by_chromosome(chr: str, start: int, end: int, filter_args: FilterArgs | None = None, search_hrc=None):
+      """
       Query for getting count of annotation by chromosome with start and end range of pos
 
       Params: es_fields: List of fields to be returned in elasticsearch query
@@ -15,13 +15,14 @@ async def count_by_chromosome(chr: str, start: int, end: int, filter_args: Filte
             start: Start position
             end: End position
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, restrict to the HRC subset using hg19 fields
 
       Returns: integer for count of annotations
       """
       try:
         resp = await es.count(
                 index = settings.ES_INDEX,
-                query = chromosome_query(chr, start, end, filter_args),
+                query = chromosome_query(chr, start, end, filter_args, search_hrc),
         )
         return OutputCountInfo(success = False, message = "OK", details =  resp['count'])
       except Exception:
@@ -29,20 +30,21 @@ async def count_by_chromosome(chr: str, start: int, end: int, filter_args: Filte
             return output_error_msg(message)
     
 
-async def count_by_rsIDs(rsIDs: list[str], filter_args: FilterArgs | None = None):
-      """ 
+async def count_by_rsIDs(rsIDs: list[str], filter_args: FilterArgs | None = None, search_hrc=None):
+      """
       Query for getting count of annotation by rsIDs
 
       Params: es_fields: List of fields to be returned in elasticsearch query
             rsIDs: List of rsIDs of snps
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
 
       Returns: integer for count of annotations
       """
       try:
         resp = await es.count(
                 index = settings.ES_INDEX,
-                query = rsIDs_query(rsIDs, filter_args)
+                query = rsIDs_query(rsIDs, filter_args, search_hrc)
         )
         return OutputCountInfo(success = True, message = "OK", details =  resp['count'])
       except Exception:
@@ -91,19 +93,20 @@ async def count_by_keyword(keyword: str, keyword_fields: list[str] = None, filte
         return output_error_msg(message)  
 
 
-async def count_by_gene_product(gene:str, filter_args: FilterArgs | None = None):
-      """ 
+async def count_by_gene_product(gene:str, filter_args: FilterArgs | None = None, search_hrc=None):
+      """
       Query for getting count of annotation by rsIDs
 
       Params: es_fields: List of fields to be returned in elasticsearch query
             gene: Gene product
             filter_args: FilterArgs object for field exists filter
+            search_hrc: When set, resolve hg19 coordinates and restrict to the HRC subset
 
       Returns: integer for count of annotations
       """
-      
-      try: 
-        query = gene_query(gene, filter_args)
+
+      try:
+        query = gene_query(gene, filter_args, search_hrc)
 
         if query is not None:
             resp = await es.count(

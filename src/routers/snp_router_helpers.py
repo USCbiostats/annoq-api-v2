@@ -106,6 +106,15 @@ class CommonSearchQueryParams(BaseModel):
             "`ANNOVAR_ucsc_Transcript_ID,VEP_ensembl_Gene_ID`). Invalid labels are ignored."
         ),
     )
+    search_hrc: bool = Field(
+        default=False,
+        description=(
+            "When true, restrict results to the HRC subset (variants mapped to HRC r1.1, "
+            "`Mapped_in_HRC = Y`). Chromosome and gene-product searches then match hg19 "
+            "coordinates; RSID searches match the HRC rsID (`HRC_rs_dbSNP151`). Defaults to "
+            "false (search the full dataset, unchanged behaviour)."
+        ),
+    )
 
     # The validated and cleaned list of fields will be stored here
     _parsed_fields: List[str] = PrivateAttr(default_factory=list)
@@ -197,6 +206,15 @@ class StreamingQueryParams(BaseModel):
     format: StreamingFormatType = Field(
         default=StreamingFormatType.CSV,
         description="Output format: 'csv' (default) or 'ndjson'",
+    )
+    search_hrc: bool = Field(
+        default=False,
+        description=(
+            "When true, restrict the download to the HRC subset (variants mapped to HRC r1.1, "
+            "`Mapped_in_HRC = Y`). Chromosome and gene-product searches then match hg19 "
+            "coordinates; RSID searches match the HRC rsID (`HRC_rs_dbSNP151`). Defaults to "
+            "false (full dataset, unchanged behaviour)."
+        ),
     )
 
     _parsed_fields: List[str] = PrivateAttr(default_factory=list)

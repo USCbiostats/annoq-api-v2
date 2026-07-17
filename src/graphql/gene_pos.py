@@ -26,5 +26,6 @@ def get_pos_from_gene_id(gid, chromosomal_location_dic):
     return chromosomal_location_dic.get(gid ,None)
 
 chromosomal_location_dic = load_chromosomal_location('./data/others/Homo_sapiens.chromosomal_location_hg_38')
+chromosomal_location_dic_hg19 = load_chromosomal_location('./data/others/Homo_sapiens.chromosome_location_hg19')
 
 

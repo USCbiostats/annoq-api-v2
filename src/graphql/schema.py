@@ -5,6 +5,7 @@ from src.graphql.gene_pos import (
     get_pos_from_gene_id,
     map_gene,
     chromosomal_location_dic,
+    chromosomal_location_dic_hg19,
 )
 from src.graphql.models.snp_model import Gene, ScrollSnp, SnpAggs
 from src.graphql.models.annotation_model import (
@@ -119,6 +120,7 @@ class Query:
         query_type_option: QueryTypeOption,
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> ScrollSnp:
         fields = get_sub_selected_fields(info)
         if query_type_option == QueryTypeOption.SNPS:
@@ -134,6 +136,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -146,6 +149,7 @@ class Query:
         page_args: Optional[PageArgs] = None,
         histogram: Optional[Histogram] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> SnpAggs:
         fields = get_selected_fields(info)
         aggregation_fields = get_aggregation_fields(info)
@@ -161,14 +165,20 @@ class Query:
             page_args,
             transform_filter_args(filter_args),
             histogram,
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
     async def count_SNPs_by_chromosome(
-        self, chr: str, start: int, end: int, filter_args: Optional[FilterArgs] = None
+        self,
+        chr: str,
+        start: int,
+        end: int,
+        filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> int:
         return await count_by_chromosome(
-            chr, start, end, transform_filter_args(filter_args)
+            chr, start, end, transform_filter_args(filter_args), search_hrc
         )
 
     @strawberry.field
@@ -180,6 +190,7 @@ class Query:
         fields: list[str],
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> str:
         return await search_by_chromosome(
             transform_fields(fields),
@@ -190,6 +201,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -200,6 +212,7 @@ class Query:
         query_type_option: QueryTypeOption,
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> ScrollSnp:
         fields = get_sub_selected_fields(info)
         if query_type_option == QueryTypeOption.SNPS:
@@ -213,6 +226,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -223,6 +237,7 @@ class Query:
         page_args: Optional[PageArgs] = None,
         histogram: Optional[Histogram] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> SnpAggs:
         fields = get_selected_fields(info)
         aggregation_fields = get_aggregation_fields(info)
@@ -236,13 +251,17 @@ class Query:
             page_args,
             transform_filter_args(filter_args),
             histogram,
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
     async def count_SNPs_by_RsID(
-        self, rsID: str, filter_args: Optional[FilterArgs] = None
+        self,
+        rsID: str,
+        filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> int:
-        return await count_by_rsID(rsID, transform_filter_args(filter_args))
+        return await count_by_rsID(rsID, transform_filter_args(filter_args), search_hrc)
 
     @strawberry.field
     async def download_SNPs_by_RsID(
@@ -251,6 +270,7 @@ class Query:
         fields: list[str],
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> str:
         return await search_by_rsID(
             transform_fields(fields),
@@ -259,6 +279,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -269,6 +290,7 @@ class Query:
         query_type_option: QueryTypeOption,
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> ScrollSnp:
         fields = get_sub_selected_fields(info)
         if query_type_option == QueryTypeOption.SNPS:
@@ -282,6 +304,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -292,6 +315,7 @@ class Query:
         page_args: Optional[PageArgs] = None,
         histogram: Optional[Histogram] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> SnpAggs:
         fields = get_selected_fields(info)
         aggregation_fields = get_aggregation_fields(info)
@@ -305,13 +329,17 @@ class Query:
             page_args,
             transform_filter_args(filter_args),
             histogram,
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
     async def count_SNPs_by_RsIDs(
-        self, rsIDs: list[str], filter_args: Optional[FilterArgs] = None
+        self,
+        rsIDs: list[str],
+        filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> int:
-        return await count_by_rsIDs(rsIDs, transform_filter_args(filter_args))
+        return await count_by_rsIDs(rsIDs, transform_filter_args(filter_args), search_hrc)
 
     @strawberry.field
     async def download_SNPs_by_RsIDs(
@@ -320,6 +348,7 @@ class Query:
         fields: list[str],
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> str:
         return await search_by_rsIDs(
             transform_fields(fields),
@@ -328,6 +357,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -338,6 +368,7 @@ class Query:
         query_type_option: QueryTypeOption,
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> ScrollSnp:
         fields = get_sub_selected_fields(info)
         if query_type_option == QueryTypeOption.SNPS:
@@ -351,6 +382,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -361,6 +393,7 @@ class Query:
         page_args: Optional[PageArgs] = None,
         histogram: Optional[Histogram] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> SnpAggs:
         fields = get_selected_fields(info)
         aggregation_fields = get_aggregation_fields(info)
@@ -374,13 +407,17 @@ class Query:
             page_args,
             transform_filter_args(filter_args),
             histogram,
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
     async def count_SNPs_by_IDs(
-        self, ids: list[str], filter_args: Optional[FilterArgs] = None
+        self,
+        ids: list[str],
+        filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> int:
-        return await count_by_IDs(ids, transform_filter_args(filter_args))
+        return await count_by_IDs(ids, transform_filter_args(filter_args), search_hrc)
 
     @strawberry.field
     async def download_SNPs_by_IDs(
@@ -389,6 +426,7 @@ class Query:
         fields: list[str],
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> str:
         return await search_by_IDs(
             transform_fields(fields),
@@ -397,6 +435,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -407,6 +446,7 @@ class Query:
         query_type_option: QueryTypeOption,
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> ScrollSnp:
         fields = get_sub_selected_fields(info)
         if query_type_option == QueryTypeOption.SNPS:
@@ -420,6 +460,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
@@ -430,6 +471,7 @@ class Query:
         page_args: Optional[PageArgs] = None,
         histogram: Optional[Histogram] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> SnpAggs:
         fields = get_selected_fields(info)
         aggregation_fields = get_aggregation_fields(info)
@@ -443,13 +485,17 @@ class Query:
             page_args,
             transform_filter_args(filter_args),
             histogram,
+            search_hrc=search_hrc,
         )
 
     @strawberry.field
     async def count_SNPs_by_gene_product(
-        self, gene: str, filter_args: Optional[FilterArgs] = None
+        self,
+        gene: str,
+        filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> int:
-        return await count_by_gene(gene, transform_filter_args(filter_args))
+        return await count_by_gene(gene, transform_filter_args(filter_args), search_hrc)
 
     @strawberry.field
     async def download_SNPs_by_gene_product(
@@ -458,6 +504,7 @@ class Query:
         fields: list[str],
         page_args: Optional[PageArgs] = None,
         filter_args: Optional[FilterArgs] = None,
+        search_hrc: Optional[bool] = None,
     ) -> str:
         return await search_by_gene(
             transform_fields(fields),
@@ -466,6 +513,7 @@ class Query:
             None,
             page_args,
             transform_filter_args(filter_args),
+            search_hrc=search_hrc,
         )
 
     """
@@ -507,9 +555,14 @@ class Query:
     """
 
     @strawberry.field
-    async def gene_info(self, gene: str) -> Gene:
+    async def gene_info(
+        self, gene: str, search_hrc: Optional[bool] = None
+    ) -> Gene:
         gene_id = map_gene(gene)
-        gene_pos = get_pos_from_gene_id(gene_id, chromosomal_location_dic)
+        location_dic = (
+            chromosomal_location_dic_hg19 if search_hrc else chromosomal_location_dic
+        )
+        gene_pos = get_pos_from_gene_id(gene_id, location_dic)
         if gene_pos:
             return Gene(
                 contig=gene_pos[0], start=gene_pos[1], end=gene_pos[2], gene_id=gene_id

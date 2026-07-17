@@ -98,6 +98,7 @@ async def create_streaming_response(
     parsed_fields: List[str],
     filter_args: Optional[FilterArgs],
     *args,
+    search_hrc: bool = False,
     **kwargs,
 ) -> StreamingResponse:
     """
@@ -112,6 +113,7 @@ async def create_streaming_response(
             format_type=format_type,
             parsed_fields=parsed_fields,
             filter_args=filter_args,
+            search_hrc=search_hrc,
             **kwargs,
         )
 
@@ -159,6 +161,7 @@ async def download_snps_by_chr(
         start_position,
         end_position,
         MAX_DOWNLOAD_SIZE,
+        search_hrc=params.search_hrc,
     )
 
 
@@ -194,6 +197,7 @@ async def download_snps_by_rsidList(
         params._parsed_fields,
         rsIDs,
         MAX_DOWNLOAD_SIZE,
+        search_hrc=params.search_hrc,
     )
 
 
@@ -227,4 +231,5 @@ async def download_snps_by_gene_product(
         params._parsed_fields,
         gene,
         MAX_DOWNLOAD_SIZE,
+        search_hrc=params.search_hrc,
     )
