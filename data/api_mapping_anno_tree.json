@@ -35,7 +35,7 @@
       "link": "http://pcingola.github.io/SnpEff/",
       "pmid": "22728672",
       "sort": 3.0,
-      "version": "snpeff-4.3.1t-5"
+      "version": " SnpEff 4.3"
     },
     {
       "id": "132",
@@ -46,7 +46,7 @@
       "link": "https://uswest.ensembl.org/info/docs/tools/vep/index.html",
       "pmid": "27268795",
       "sort": 4.0,
-      "version": "ensembl-vep-release-112"
+      "version": "ensembl-vep-release-100"
     },
     {
       "id": "83",
@@ -140,6 +140,15 @@
       "version": "TOPMed: Freeze 8"
     },
     {
+      "id": "1204",
+      "parent_id": "1",
+      "leaf": true,
+      "name": "chr_pos",
+      "detail": "chr:pos (hg38) of the variant.",
+      "field_type": "text",
+      "keyword_searchable": true
+    },
+    {
       "id": "9",
       "parent_id": "7",
       "leaf": true,
@@ -152,7 +161,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "11",
@@ -167,7 +176,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "13",
@@ -182,7 +191,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "15",
@@ -399,7 +408,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "33",
@@ -412,7 +421,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "35",
@@ -425,7 +434,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "40",
@@ -590,7 +599,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "57",
@@ -603,7 +612,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "59",
@@ -616,7 +625,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "64",
@@ -779,7 +788,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "87",
@@ -792,7 +801,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "89",
@@ -805,7 +814,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "91",
@@ -896,7 +905,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "103",
@@ -909,7 +918,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "105",
@@ -922,7 +931,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "107",
@@ -1013,7 +1022,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "119",
@@ -1026,7 +1035,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "121",
@@ -1039,7 +1048,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "123",
@@ -1339,7 +1348,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "144",
@@ -1352,7 +1361,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "146",
@@ -1365,7 +1374,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "156",
@@ -1629,7 +1638,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "181",
@@ -1642,7 +1651,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "183",
@@ -1655,7 +1664,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "193",
@@ -1973,7 +1982,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "217",
@@ -1986,7 +1995,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "219",
@@ -1999,7 +2008,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "230",
@@ -2290,7 +2299,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "258",
@@ -2303,7 +2312,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "260",
@@ -2316,7 +2325,7 @@
       "field_type": "text",
       "keyword_searchable": true,
       "value_type": "term_id",
-      "version": "GO database released 2024-06-17, DOI: 10.5281/zenodo.12173881"
+      "version": "GO database released 2026-04-28"
     },
     {
       "id": "271",
@@ -3623,7 +3632,7 @@
       "detail": "Catalogue Of Somatic Mutations In Cancer--Somatic coding variants discovered in cancer",
       "link": "https://cancer.sanger.ac.uk/cosmic/",
       "pmid": "30371878",
-      "version": "v90"
+      "version": "v96"
     },
     {
       "id": "483",
@@ -4419,14 +4428,6 @@
       "leaf": true,
       "name": "MutationAssessor_pred",
       "detail": "\"MutationAssessor's functional impact of a variant - predicted functional, i.e. high (\"H\") or medium (\"M\"), or predicted non-functional, i.e. low (\"L\") or neutral (\"N\"). The MAori score cutoffs between \"H\" and \"M\", \"M\" and \"L\", and \"L\" and \"N\", are 3.5, 1.935 and 0.8, respectively. The rankscore cutoffs between \"H\" and \"M\", \"M\" and \"L\", and \"L\" and \"N\", are 0.9307, 0.52043 and 0.19675, respectively.\"",
-      "field_type": "text",
-      "keyword_searchable": true
-    },
-    {
-      "id": "565",
-      "parent_id": "495",
-      "leaf": true,
-      "name": "MutationAssessor_rankscore",
       "field_type": "text",
       "keyword_searchable": true
     },
@@ -7583,10 +7584,21 @@
       "id": "1202",
       "parent_id": "700",
       "leaf": true,
-      "name": "HRC_rs_dbSNP151",
-      "detail": "HRC rs_dbSNP151 value, if Mapped_in_HRC = 'Y'.  Else ''",
+      "name": "HRC_chr_pos",
+      "detail": "hg19 chr:pos (chr_hg19:pos_hg19) if Mapped_in_HRC = 'Y'.  Else ''.",
       "field_type": "text",
-      "keyword_searchable": true
+      "keyword_searchable": true,
+      "version": " HRC.r1-1"
+    },
+    {
+      "id": "1203",
+      "parent_id": "700",
+      "leaf": true,
+      "name": "HRC_chr_pos_ref_alt",
+      "detail": "hg19 chr:pos ref>alt (e.g. 18:10005A>T, A=ref T=alt) if Mapped_in_HRC = 'Y'.  Else ''.",
+      "field_type": "text",
+      "keyword_searchable": true,
+      "version": " HRC.r1-1"
     }
   ]
 }

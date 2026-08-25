@@ -198,8 +198,9 @@ def rsID_query(rsID, filter_args=None, search_hrc=None):
 
     Params: rsID: rsID of snp
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match the HRC rsID field (HRC_rs_dbSNP151) and
-                        restrict to the HRC subset (Mapped_in_HRC=Y)
+            search_hrc: When set, match the normal rsID field (rs_dbSNP) and restrict
+                        to the HRC subset (Mapped_in_HRC=Y). The raw HRC rsID is not
+                        carried, so rs_dbSNP is used for HRC rsID search.
 
     Returns: Query for elasticsearch
     """
@@ -207,7 +208,7 @@ def rsID_query(rsID, filter_args=None, search_hrc=None):
         query = {
             "bool": {
                 "filter": [
-                    {"term": {f"{hrc.HRC_RSID_FIELD}.keyword": rsID}},
+                    {"term": {settings.DATA_RSID: rsID}},
                     hrc.mapped_in_hrc_clause(),
                 ]
             }
@@ -236,8 +237,9 @@ def rsIDs_query(rsIDs, filter_args=None, search_hrc=None):
 
     Params: rsIDs: List of rsIDs of snps
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match the HRC rsID field (HRC_rs_dbSNP151) and
-                        restrict to the HRC subset (Mapped_in_HRC=Y)
+            search_hrc: When set, match the normal rsID field (rs_dbSNP) and restrict
+                        to the HRC subset (Mapped_in_HRC=Y). The raw HRC rsID is not
+                        carried, so rs_dbSNP is used for HRC rsID search.
 
     Returns: Query for elasticsearch
     """
@@ -245,7 +247,7 @@ def rsIDs_query(rsIDs, filter_args=None, search_hrc=None):
         query = {
             "bool": {
                 "filter": [
-                    {"terms": {f"{hrc.HRC_RSID_FIELD}.keyword": rsIDs}},
+                    {"terms": {settings.DATA_RSID: rsIDs}},
                     hrc.mapped_in_hrc_clause(),
                 ]
             }
@@ -268,22 +270,17 @@ def IDs_query(ids, filter_args=None, search_hrc=None):
 
     Params: IDs: List of IDs of snps
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match each variant positionally on the hg19 fields
-                        (Option B) instead of the document _id, and restrict to the
-                        HRC subset (Mapped_in_HRC=Y)
+            search_hrc: When set, match the hg19 variant-id field HRC_chr_pos_ref_alt
+                        (e.g. "18:10005A>T") instead of the document _id, and restrict
+                        to the HRC subset (Mapped_in_HRC=Y)
 
     Returns: Query for elasticsearch
     """
     if search_hrc:
-        variant_clauses = [
-            clause
-            for clause in (hrc.hrc_variant_clause(variant_id) for variant_id in ids)
-            if clause is not None
-        ]
         query = {
             "bool": {
                 "filter": [
-                    {"bool": {"should": variant_clauses, "minimum_should_match": 1}},
+                    {"terms": {f"{hrc.HRC_ID_FIELD}.keyword": ids}},
                     hrc.mapped_in_hrc_clause(),
                 ]
             }

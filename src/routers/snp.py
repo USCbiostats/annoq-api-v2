@@ -282,8 +282,8 @@ async def count_snps_by_rsidList(
     search_hrc: bool = Query(
         default=False,
         description=(
-            "When true, count only the HRC subset (`Mapped_in_HRC = Y`) matching the HRC rsID "
-            "(`HRC_rs_dbSNP151`). Defaults to false (full dataset)."
+            "When true, count only the HRC subset (`Mapped_in_HRC = Y`); RSID searches match "
+            "`rs_dbSNP`, VCF-id searches match `HRC_chr_pos_ref_alt` (hg19). Defaults to false (full dataset)."
         ),
     ),
 ):

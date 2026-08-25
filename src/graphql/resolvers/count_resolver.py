@@ -45,7 +45,7 @@ async def count_by_rsID(rsID:str, filter_args=FilterArgs, search_hrc=None):
       Params: es_fields: List of fields to be returned in elasticsearch query
             rsID: rsID of snp
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
+            search_hrc: When set, restrict results to the HRC-mapped subset (Mapped_in_HRC=Y), in hg19 space
 
       Returns: integer for count of annotations
       """
@@ -63,7 +63,7 @@ async def count_by_rsIDs(rsIDs: list[str], filter_args=FilterArgs, search_hrc=No
       Params: es_fields: List of fields to be returned in elasticsearch query
             rsIDs: List of rsIDs of snps
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
+            search_hrc: When set, restrict results to the HRC-mapped subset (Mapped_in_HRC=Y), in hg19 space
 
       Returns: integer for count of annotations
       """

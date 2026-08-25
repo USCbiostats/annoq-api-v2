@@ -119,7 +119,7 @@ async def stream_by_rsIDs(
             rsIDs: List of rsIDs of snps
             max_results: Maximum number of results to stream
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
+            search_hrc: When set, restrict results to the HRC-mapped subset (Mapped_in_HRC=Y), in hg19 space
             batch_size: Number of results per batch
 
     Yields: Individual SNP records

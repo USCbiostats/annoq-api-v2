@@ -1,93 +1,86 @@
-# Issue #78 — HRC-mapping search (api-v2 handoff)
+# Issue #78 — HRC-mapping search (api-v2, as built)
 
-Handoff notes carried over from the data/build work done in the sibling repos (owning issue:
-[annoq-site#78](https://github.com/USCbiostats/annoq-site/issues/78)). This documents what api-v2
-needs to do; the data side (data-builder → database load) is already validated on the local stack.
+Owning issue: [annoq-site#78](https://github.com/USCbiostats/annoq-site/issues/78). This documents
+the **implemented** HRC-search contract in api-v2 (branch `annoq-site-78-add-hrc-mapping-info`).
+The data side (data-builder → index) produces the HRC columns; api-v2 exposes a `search_hrc` flag
+that restricts results to the HRC-mapped subset in hg19 coordinate space.
 
-## Goal
+## HRC columns in the index
 
-Let the search restrict results to TOPMed SNPs that are **mapped to HRC r1.1**, and return **hg19**
-coordinates for HRC-mapped records in gene search. This is a **TOPMed-stack** feature, gated on
-coverage (deemed "good enough for now"). Docs/SNPWay/annoq-py/AnnoQR are a later step.
+Produced by `annoq-data-builder/wgsa_add/merge_hrc_topmed.py` (TOPMed-only, SNPs only) and
+registered in `annoq-site/metadata/annotation_tree.csv`:
 
-## The two HRC fields (already in the ES index)
+- **`Mapped_in_HRC`** — `Y` (hg19-equivalent SNP found in HRC r1.1) / `N` (not found) /
+  `.` (`ref_hg19 != ref_hg38`).
+- **`HRC_chr_pos`** — hg19 `chr:pos` when `Mapped_in_HRC=Y`, else empty.
+- **`HRC_chr_pos_ref_alt`** — hg19 `chr:posREF>ALT` (e.g. `18:10005A>T`) when `Y`, else empty.
+- **`chr_pos`** — hg38 `chr:pos`, always populated (basic info).
 
-Produced by `annoq-data-builder/wgsa_add/merge_hrc_topmed.py` (TOPMed-only), registered in
-`annoq-site/metadata/annotation_tree.csv` under **HG19 Info**, and present in the ES mapping.
-Exact field names (uppercase — match these exactly):
+The HRC rsID is **not** carried — the raw HRC ID column never provides an rsID that TOPMed's own
+`rs_dbSNP` lacks (verified on chr18), so HRC-by-RSID search uses `rs_dbSNP` (there is no
+`HRC_rs_dbSNP151` field).
 
-- **`Mapped_in_HRC`** — `Y` (hg19-equivalent variant found in HRC r1.1) / `N` (not found) /
-  `.` (no hg19 mapping, i.e. `ref_hg19 != ref_hg38`).
-- **`HRC_rs_dbSNP151`** — the HRC `rs_dbSNP151` id when `Mapped_in_HRC = Y`, else empty string.
+## The GraphQL argument
 
-Field-name note: the ES field name is the raw column name; api-v2's `_clean_name` (`src/utils.py`)
-transforms names for the GraphQL layer (`=`→`_equals_`, strips `()`, etc.). The **ES query builder
-uses raw ES field names**; the generated GraphQL model uses the cleaned name.
+api-v2 runs Strawberry with `auto_camel_case=False` (`src/main.py`), so names are used verbatim.
 
-## Live local dev target
+- **`search_hrc: Boolean`** (Python `Optional[bool] = None`), **default off**. A standalone
+  top-level argument on each query field — **not** a field on `filter_args`/`page_args`.
+- **Accepted by:** the chromosome, RsID, RsIDs, IDs, and gene_product families — each of
+  `get_SNPs_by_*`, `get_aggs_by_*`, `count_SNPs_by_*`, `download_SNPs_by_*` — plus `gene_info`.
+  **Not** the `*_by_keyword` family or `annotations`.
 
-A single-chromosome test index is loaded on the local Docker ES:
+## Behavior when `search_hrc: true`
 
-- ES: `http://localhost:9200` — index **`annoq-annotations-tm-hrc-test-20260709`**
-- 4999 chr18 docs; **109 are `Mapped_in_HRC=Y`** (all 109 also have a non-empty `HRC_rs_dbSNP151`;
-  the two sets are identical in this subset). It's a telomeric slice (chr18 pos 10005–45335), so the
-  2.18% rate is an unrepresentative floor, not the real coverage.
+All HRC-mode queries append the subset clause `{"term": {"Mapped_in_HRC.keyword": "Y"}}`
+(`hrc.mapped_in_hrc_clause()`), and the coordinate basis flips to **hg19**:
 
-To develop against it: set `ES_INDEX=annoq-annotations-tm-hrc-test-20260709` and the ES host/URL to
-localhost in `.env`, then regenerate models (below) so the two HRC fields appear in the schema.
+| Search | HRC-mode match |
+|--------|----------------|
+| Chromosome | range on `chr_hg19` / `pos_hg19` |
+| Gene product | PANTHER → **hg19** location dict → chromosome range on `chr_hg19`/`pos_hg19` |
+| rsID / rsIDs | `rs_dbSNP` (same as normal) + `Mapped_in_HRC=Y` |
+| IDs (VCF file) | `terms` on `HRC_chr_pos_ref_alt.keyword` (hg19 `chr:posREF>ALT`) + `Mapped_in_HRC=Y` |
 
-## Changes to make in api-v2
+Response shape is unchanged — the flag only changes *which documents match*. To display hg19/HRC
+data, explicitly select the (already-existing) SNP fields: `Mapped_in_HRC`, `HRC_chr_pos`,
+`HRC_chr_pos_ref_alt`, `chr_pos`, `chr_hg19`, `pos_hg19`, `ref_hg19`, `alt_hg19`.
 
-1. **Accept the parameter.** Add `search_hrc: Optional[bool] = None` to `FilterArgs`
-   (`src/graphql/models/annotation_model.py`). `FilterArgs` already flows through every search path,
-   so this avoids touching ~20 resolver signatures. Extend `transform_filter_args`
-   (`src/graphql/schema.py`) — currently only copies `exists` — to carry the flag.
+## Where it lives (implemented)
 
-2. **Add the ES filter clause.** In `src/graphql/resolvers/helper_resolver.py`, the query builders
-   (`chromosome_query`, `rsID_query`, `rsIDs_query`, `IDs_query`; `gene_query` reuses
-   `chromosome_query`) each build `query["bool"]["filter"]`. When `filter_args.search_hrc` is set,
-   append an OR clause — "mapped by hg19 position OR has an HRC rsID":
+- **`src/graphql/resolvers/hrc.py`** — field-name constants (`MAPPED_IN_HRC_FIELD`,
+  `HRC_ID_FIELD = "HRC_chr_pos_ref_alt"`, `HG19_CHR_FIELD`, `HG19_POS_FIELD`) and
+  `mapped_in_hrc_clause()`.
+- **`src/graphql/resolvers/helper_resolver.py`** — `chromosome_query`, `rsID_query`, `rsIDs_query`,
+  `IDs_query` branch on `search_hrc`; `gene_query` picks the hg19 location dict.
+- **`src/graphql/gene_pos.py`** — `chromosomal_location_dic_hg19` loaded from
+  `data/others/Homo_sapiens.chromosome_location_hg19`.
+- **REST parity:** `?search_hrc=true` on `/snp/chr`, `/snp/rsidList`, `/snp/gene_product` and their
+  `/count/*` and `/download` variants (`src/routers/snp.py`, `snp_router_helpers.py`, `streaming.py`).
+  No REST IDs/keyword endpoint.
+- **Tests:** `test/unit/test_hrc.py`, `test_query_builders_hrc.py`, `test_gene_hrc.py`,
+  `test_api_rest_hrc.py` (all passing).
 
-   ```python
-   if filter_args and getattr(filter_args, "search_hrc", None):
-       query["bool"]["filter"].append({
-           "bool": {"should": [
-               {"term":   {"Mapped_in_HRC.keyword": "Y"}},
-               {"bool": {"must": [{"exists": {"field": "HRC_rs_dbSNP151"}}],
-                         "must_not": [{"term": {"HRC_rs_dbSNP151.keyword": ""}}]}},
-           ], "minimum_should_match": 1}
-       })
-   ```
-   (Factor into a small helper and call from each builder.) In the chr18 subset the two conditions
-   coincide, but genome-wide a `Y` record can have a blank rsID — the OR is what still catches it.
+## Example GraphQL (chromosome search, HRC on)
 
-3. **Gene search → hg19 coordinates.** Gene→coords uses the PantherDB API in
-   `src/graphql/gene_pos.py` (`map_gene` → `get_pos_from_gene_id`), and coords come from
-   `chromosomal_location_dic`, loaded from `data/others/Homo_sapiens.chromosomal_location_hg_38`.
-   Add a second module-level dict loaded from **`data/others/Homo_sapiens.chromosome_location_hg19`**
-   (same 5-col TSV format: `gene_accession_key, chr, start, end, strand`; loader reads cols 0–3), and
-   select it in `gene_query` (and `schema.py:gene_info`) when the HRC flag is set. `gene_query` is the
-   single choke point where `(chr, start, end)` is produced. (The last hg38 commit,
-   `Updated for hg38 gene to chromosome location lookup`, introduced exactly this pattern for hg38.)
+```graphql
+query ChrHRC($chr: String!, $start: Int!, $end: Int!, $hrc: Boolean) {
+  get_SNPs_by_chromosome(
+    chr: $chr, start: $start, end: $end,
+    query_type_option: SNPS,
+    page_args: { from: 0, size: 50 },
+    search_hrc: $hrc
+  ) {
+    snps { id chr pos chr_hg19 pos_hg19 Mapped_in_HRC HRC_chr_pos HRC_chr_pos_ref_alt }
+  }
+}
+```
+Variables: `{ "chr": "18", "start": 100, "end": 200, "hrc": true }`.
 
-4. **Regenerate models.** After the index has the two fields, run
-   `python3 -m scripts.class_generators.generator` (or `scripts/class_generators/generate_model.sh`)
-   → writes `scripts/class_generators/generated_schemas/*.json`, then `datamodel-codegen` builds
-   `src/graphql/models/generated/{snp.py,snp_aggs.py}`. Strawberry types wrap them in
-   `src/graphql/models/snp_model.py`. Field labels come from `data/anno_tree.json`.
+## Still needed after a data rebuild
 
-5. **Tests.** Add `pytest` coverage: `search_hrc=true` returns only HRC-mapped records; gene search
-   with the flag returns hg19 coords. Verify a real query in the GraphQL playground against the local
-   test index.
-
-## Downstream that depends on this
-
-annoq-site regenerates its GraphQL types by introspecting the **live TOPMed api-v2**
-(`https://api-v2.topmed.annoq.org/graphql`), so the site's checkbox work needs this deployed there
-first (or point the site's codegen at a local api-v2). The site change: remove the `GRCh38/hg38`
-label, add a "Search HRC data" checkbox that passes the flag.
-
-## Branch
-
-`annoq-site-78-add-hrc-mapping-info` (this repo). Owning issue is annoq-site#78, so commit messages
-here reference it as `For #USCbiostats/annoq-site/issues/78` per the hub's naming convention.
+The generated GraphQL models (`src/graphql/models/generated/snp.py`, `snp_aggs.py`) are built from
+the live ES schema. After re-indexing with the new columns, **regenerate them**
+(`scripts/class_generators/generator.py`) so `HRC_rs_dbSNP151` drops out and `HRC_chr_pos` /
+`HRC_chr_pos_ref_alt` / `chr_pos` appear. Also refresh `data/anno_tree.json` +
+`data/api_mapping_anno_tree.json` from the updated `annotation_tree.csv`.

@@ -89,7 +89,7 @@ async def search_by_rsIDs(
             rsIDs: List of rsIDs of snps
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
-            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
+            search_hrc: When set, restrict results to the HRC-mapped subset (Mapped_in_HRC=Y), in hg19 space
 
     Returns: OutputSnpInfo with list of Snps
     """

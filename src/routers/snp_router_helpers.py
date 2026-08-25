@@ -111,7 +111,7 @@ class CommonSearchQueryParams(BaseModel):
         description=(
             "When true, restrict results to the HRC subset (variants mapped to HRC r1.1, "
             "`Mapped_in_HRC = Y`). Chromosome and gene-product searches then match hg19 "
-            "coordinates; RSID searches match the HRC rsID (`HRC_rs_dbSNP151`). Defaults to "
+            "coordinates; RSID searches match `rs_dbSNP` and VCF-id searches match `HRC_chr_pos_ref_alt` (hg19). Defaults to"
             "false (search the full dataset, unchanged behaviour)."
         ),
     )
@@ -212,7 +212,7 @@ class StreamingQueryParams(BaseModel):
         description=(
             "When true, restrict the download to the HRC subset (variants mapped to HRC r1.1, "
             "`Mapped_in_HRC = Y`). Chromosome and gene-product searches then match hg19 "
-            "coordinates; RSID searches match the HRC rsID (`HRC_rs_dbSNP151`). Defaults to "
+            "coordinates; RSID searches match `rs_dbSNP` and VCF-id searches match `HRC_chr_pos_ref_alt` (hg19). Defaults to"
             "false (full dataset, unchanged behaviour)."
         ),
     )

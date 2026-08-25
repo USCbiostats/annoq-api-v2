@@ -167,7 +167,7 @@ async def search_by_rsID(
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
-            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
+            search_hrc: When set, restrict results to the HRC-mapped subset (Mapped_in_HRC=Y), in hg19 space
 
     Returns: List of Snps
     """
@@ -220,7 +220,7 @@ async def search_by_rsIDs(
             page_args: PageArgs object for pagination
             filter_args: FilterArgs object for field exists filter
             histogram: Histogram object for aggregation query
-            search_hrc: When set, match HRC_rs_dbSNP151 and restrict to the HRC subset
+            search_hrc: When set, restrict results to the HRC-mapped subset (Mapped_in_HRC=Y), in hg19 space
 
     Returns: List of Snps
     """
