@@ -55,31 +55,73 @@ Follow the https://github.com/USCbiostats/annoq-database repository and use the 
 
 ### Dynamic Snps class generation
 
-Each SNP has over 800+ attributes, hence the strawberry type was generated dynamically. This class has to be executed whenever where are any changes to the schema:
+Each SNP has 800+ attributes, so the Strawberry type is generated rather than hand-written.
+Regenerate whenever the Elasticsearch schema changes — new/removed columns, or changed labels in
+`data/anno_tree.json` / `data/api_mapping_anno_tree.json`.
 
-First json schemas were generated which takes the mapping for the elasticsearch database and creates schemas for pydantic Baseclasses. 
-After scripts/class_generators/generated_schemas/snp_schema.json and scripts/class_generators/generated_schemas/snp_aggs_schema.json were generated. The python files of the pydantic Baseclasses - src/graphql/models/generated/snp.py and src/graphql/models/generated/snp_aggs.py were generated using datamodel-codegen.
-
-If there are changes to the number of columns or labels, which would be reflected in data/anno_tree.json or data/api_mapping_anno_tree.json, the following script has to be executed to re-generate the model json file.   This will generate scripts/class_generators/generated_schemas/snp_schema.json and scripts/class_generators/generated_schemas/snp_aggs_schema.json
+> **Run `scripts/class_generators/generate_model.sh`. Do not run the generator on its own.**
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 -m scripts.class_generators.generator
-```
 
-All of this can be done using the bash script and running the following command - 
-
-```bash
+chmod +x scripts/class_generators/generate_model.sh   # first time only
 scripts/class_generators/generate_model.sh
 ```
 
-Make sure that the above scripts has permissions, if not run 
+#### Why the script, and not `python3 -m scripts.class_generators.generator`
+
+Generation is **two steps**, and the generator is only the first:
+
+| Step | Command | Produces |
+|---|---|---|
+| 1 | `python3 -m scripts.class_generators.generator` | `scripts/class_generators/generated_schemas/snp_schema.json`, `snp_aggs_schema.json` |
+| 2 | `datamodel-codegen` (×2) + post-processing `sed`s | `src/graphql/models/generated/snp.py`, `snp_aggs.py` |
+
+`generate_model.sh` runs both. Running only step 1 rewrites the JSON schemas and leaves the
+pydantic models untouched — so the API keeps serving the **old** field set with no error and no
+warning. The give-away is a timestamp mismatch:
 
 ```bash
-chmod +x scripts/class_generators/generate_model.sh
+ls -la scripts/class_generators/generated_schemas/*.json src/graphql/models/generated/*.py
 ```
+
+If the `.json` files are newer than the `.py` files, step 2 did not run.
+
+#### Prerequisites and follow-up
+
+- **The generator reads the LIVE Elasticsearch mapping**, not a file. Point `ES_URL` / `ES_INDEX`
+  in `.env` at an index that already contains the fields you want exposed. A field must exist in
+  the index before the API can expose it.
+- **Restart the API afterwards** (`python -m src.main`) — the models are imported at start-up, so a
+  running server keeps serving the previous types.
+- The generated files are **gitignored build artifacts**. Never commit
+  `src/graphql/models/generated/` or `scripts/class_generators/generated_schemas/`.
+
+#### Verifying the regeneration
+
+Check that a field you expect actually landed, and that a removed one is gone:
+
+```bash
+grep -c "^    chr_pos:" src/graphql/models/generated/snp.py     # expect 1
+grep -c "HRC_rs_dbSNP151" src/graphql/models/generated/snp.py   # expect 0
+```
+
+Or query the running API's schema directly:
+
+```bash
+curl -s http://localhost:8001/graphql -H 'Content-Type: application/json' \
+  -d '{"query":"{__type(name:\"Snp\"){fields{name}}}"}' | grep -c chr_pos
+```
+
+#### Downstream: annoq-site
+
+`annoq-site` generates its TypeScript types from a GraphQL endpoint set in its `graphql_codegen.ts`,
+which defaults to the **deployed** API. To pick up API changes that are not yet deployed, point that
+`schema:` at your local server (e.g. `http://localhost:8001/graphql`) before running
+`npm run graphql_codegen` — otherwise codegen succeeds against the deployed schema and the site
+fails to compile against arguments and fields your local API has but production does not.
 
 
 # To run the project
