@@ -3,8 +3,15 @@
 Date: 2026-07-15
 Branch: `annoq-site-78-add-hrc-mapping-info`
 Owning issue: [annoq-site#78](https://github.com/USCbiostats/annoq-site/issues/78)
-Supersedes the mechanism sketched in [`docs/issue-78-hrc-mapping.md`](../../issue-78-hrc-mapping.md)
-(that doc proposed carrying the flag on `FilterArgs` with an OR clause; this design does neither).
+
+> **Status:** records the *original design intent* (2026-07-15). Two things changed after it was
+> written: the `HRC_rs_dbSNP151` column was dropped from the index, so HRC rsID search uses
+> `rs_dbSNP` restricted by `Mapped_in_HRC=Y`; and rsID queries now target the `.keyword`
+> sub-field with normalized input (see
+> [`2026-08-31-rsid-case-normalization-design.md`](2026-08-31-rsid-case-normalization-design.md)).
+> For the **as-built** contract, read
+> [`docs/issue-78-hrc-mapping.md`](../../issue-78-hrc-mapping.md), which was rewritten on
+> 2026-08-03 and is authoritative.
 
 ## Goal
 
@@ -22,8 +29,6 @@ Registered in `annoq-site/metadata/annotation_tree.csv` under **HG19 Info**; pre
 - **`Mapped_in_HRC`** (`field_type: text`) — always populated: `Y` (hg19-equivalent variant found in
   HRC r1.1), `N` (not found), or `.` (no hg19 mapping). Because it is a text field and the value is
   uppercase, term queries use **`Mapped_in_HRC.keyword`** with value `"Y"`.
-- **`HRC_rs_dbSNP151`** (`field_type: text`) — the HRC `rs_dbSNP151` id when `Mapped_in_HRC = Y`,
-  else empty string.
 
 Related hg19 fields already present and used by this feature:
 `chr_hg19` (text), `pos_hg19` (**long**), `ref_hg19` (text), `alt_hg19` (text).
@@ -47,8 +52,8 @@ From `annoq-site` (`src/app/main/apps/snp/services/snp.service.ts`), the active 
 | Chromosome | `*_by_chromosome` | range on `chr` + `pos` | range on `chr_hg19` + `pos_hg19` + `Mapped_in_HRC=Y` |
 | VCF File (`chromosomeList`) | `*_by_IDs` | match `_id` (`chr:pos ref>alt`, hg38) | per-variant match on `chr_hg19`+`pos_hg19`+`ref_hg19`+`alt_hg19` + `Mapped_in_HRC=Y` (Option B) |
 | Gene Product | `gene_info` then `*_by_gene_product` | PANTHER → hg38 dict → range on `chr`+`pos` | PANTHER → hg19 dict → range on `chr_hg19`+`pos_hg19` + `Mapped_in_HRC=Y` |
-| rsID | `*_by_RsID` | term on `rs_dbSNP` | term on `HRC_rs_dbSNP151` + `Mapped_in_HRC=Y` |
-| rsID List | `*_by_RsIDs` | terms on `rs_dbSNP` | terms on `HRC_rs_dbSNP151` + `Mapped_in_HRC=Y` |
+| rsID | `*_by_RsID` | term on `rs_dbSNP.keyword` | term on `rs_dbSNP.keyword` + `Mapped_in_HRC=Y` |
+| rsID List | `*_by_RsIDs` | terms on `rs_dbSNP.keyword` | terms on `rs_dbSNP.keyword` + `Mapped_in_HRC=Y` |
 
 Keyword and Gene Id modes are commented out on the site — out of scope. The site's checkbox/param
 wiring is not yet implemented; this API defines the contract the site will introspect.
@@ -95,8 +100,9 @@ All HRC-mode branches append the subset clause `{"term": {"Mapped_in_HRC.keyword
 - **`gene_query(gene, filter_args, search_hrc)`** — when `search_hrc`, resolve coords from the hg19
   dict (`chromosomal_location_dic_hg19`) and delegate to `chromosome_query(..., search_hrc=True)` so it
   inherits the hg19 field switch and subset clause.
-- **`rsID_query` / `rsIDs_query`** — when `search_hrc`, term/terms on `HRC_rs_dbSNP151`
-  (mirroring how `settings.DATA_RSID` is queried today) instead of `settings.DATA_RSID`.
+- **`rsID_query` / `rsIDs_query`** — term/terms on `rs_dbSNP.keyword` (input stripped and
+  lower-cased), plus the subset clause when `search_hrc`. The HRC rsID column was dropped,
+  so both modes query the same field and differ only by the subset clause.
 - **`IDs_query(ids, filter_args, search_hrc)` — Option B** — when `search_hrc`, parse each id of the
   form `chr:pos ref>alt` (e.g. `18:12345A>G`) into `(chr, pos, ref, alt)` and build a
   `bool.should` (`minimum_should_match: 1`) where each variant is a `bool.must` of exact matches on
@@ -122,7 +128,7 @@ the site's displayed gene location matches the hg19 results.
 - Each builder, `search_hrc=None` ⇒ identical to current output (regression).
 - `chromosome_query` with `search_hrc=True` ⇒ uses `chr_hg19`/`pos_hg19` and appends the
   `Mapped_in_HRC.keyword=Y` clause.
-- `rsID_query`/`rsIDs_query` with `search_hrc=True` ⇒ target `HRC_rs_dbSNP151` + subset clause.
+- `rsID_query`/`rsIDs_query` with `search_hrc=True` ⇒ target `rs_dbSNP.keyword` + subset clause.
 - `IDs_query` with `search_hrc=True` ⇒ correct `bool.should` per-variant structure; variant-ID parser
   unit tests (valid ids, multi-base indels, malformed ids skipped).
 - `gene_query`/`gene_info` with `search_hrc=True` ⇒ hg19 coord dict is used.
@@ -134,5 +140,5 @@ the site's displayed gene location matches the hg19 results.
 
 - Regenerating GraphQL models (`snp.py`/`snp_aggs.py`) is only needed if the two HRC fields must be
   *returned/selectable*; this feature only *filters* on them. Regenerate if the site needs to display
-  `Mapped_in_HRC` / `HRC_rs_dbSNP151` in results.
+  `Mapped_in_HRC` in results.
 - Site checkbox wiring (`annoq-site`), and downstream docs (`../annoq-proj` → `/annoq-doc-sync`).
