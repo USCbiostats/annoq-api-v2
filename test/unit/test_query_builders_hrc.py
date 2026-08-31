@@ -16,6 +16,7 @@ from src.graphql.resolvers.helper_resolver import (
 )
 
 MAPPED = {"term": {"Mapped_in_HRC.keyword": "Y"}}
+RSID_FIELD = f"{settings.DATA_RSID}.keyword"
 
 
 # --- chromosome ------------------------------------------------------------
@@ -45,7 +46,7 @@ def test_chromosome_query_with_hrc_uses_hg19_fields_and_subset_clause():
 # --- rsID / rsIDs ----------------------------------------------------------
 def test_rsID_query_without_hrc_uses_primary_rsid_field():
     assert rsID_query("rs123") == {
-        "bool": {"filter": [{"term": {settings.DATA_RSID: "rs123"}}]}
+        "bool": {"filter": [{"term": {RSID_FIELD: "rs123"}}]}
     }
 
 
@@ -54,7 +55,7 @@ def test_rsID_query_with_hrc_uses_primary_rsid_field_and_subset_clause():
     assert rsID_query("rs123", search_hrc=True) == {
         "bool": {
             "filter": [
-                {"term": {settings.DATA_RSID: "rs123"}},
+                {"term": {RSID_FIELD: "rs123"}},
                 MAPPED,
             ]
         }
@@ -65,7 +66,43 @@ def test_rsIDs_query_with_hrc_uses_primary_rsid_field():
     assert rsIDs_query(["rs1", "rs2"], search_hrc=True) == {
         "bool": {
             "filter": [
-                {"terms": {settings.DATA_RSID: ["rs1", "rs2"]}},
+                {"terms": {RSID_FIELD: ["rs1", "rs2"]}},
+                MAPPED,
+            ]
+        }
+    }
+
+
+# rs_dbSNP is a `text` field, so an un-analyzed term query against the bare field is
+# case-sensitive: "RS123" silently matched nothing. Input is normalized instead.
+def test_rsID_query_normalizes_case_without_hrc():
+    assert rsID_query("RS123") == {
+        "bool": {"filter": [{"term": {RSID_FIELD: "rs123"}}]}
+    }
+
+
+def test_rsID_query_normalizes_case_and_whitespace_with_hrc():
+    assert rsID_query("  Rs123  ", search_hrc=True) == {
+        "bool": {
+            "filter": [
+                {"term": {RSID_FIELD: "rs123"}},
+                MAPPED,
+            ]
+        }
+    }
+
+
+def test_rsIDs_query_normalizes_each_id_without_hrc():
+    assert rsIDs_query(["rs1", "RS2", " Rs3 "]) == {
+        "bool": {"filter": [{"terms": {RSID_FIELD: ["rs1", "rs2", "rs3"]}}]}
+    }
+
+
+def test_rsIDs_query_normalizes_each_id_with_hrc():
+    assert rsIDs_query(["RS1", " rs2 "], search_hrc=True) == {
+        "bool": {
+            "filter": [
+                {"terms": {RSID_FIELD: ["rs1", "rs2"]}},
                 MAPPED,
             ]
         }

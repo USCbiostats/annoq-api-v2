@@ -192,6 +192,31 @@ def chromosome_query(chr, start, end, filter_args=None, search_hrc=None):
     return query
 
 
+def _rsid_field() -> str:
+    """Exact-match sub-field for rsID lookups.
+
+    `rs_dbSNP` is mapped as `text`, so a term query against the bare field is matched
+    against analyzed (lower-cased) tokens and is therefore case-sensitive in practice —
+    "RS123" silently returns zero hits. Match the raw value via `.keyword` instead, and
+    normalize the caller's input to suit (see _normalize_rsid).
+
+    NOTE: this is for QUERIES only. `settings.DATA_RSID` is also used as a `_source`
+    projection name in src/routers/snp_router_helpers.py, where `.keyword` must NOT be
+    appended — sub-fields are absent from `_source`.
+    """
+    return f"{settings.DATA_RSID}.keyword"
+
+
+def _normalize_rsid(rsID: str) -> str:
+    """Normalize user-supplied rsID input for exact `.keyword` matching.
+
+    dbSNP rsIDs are stored lower-case with no surrounding whitespace. Users paste them
+    from papers and spreadsheets, which commonly introduces upper-case ("RS1632919") or
+    padding; both return zero hits against `.keyword` without this.
+    """
+    return rsID.strip().lower()
+
+
 def rsID_query(rsID, filter_args=None, search_hrc=None):
     """
     Query for getting annotation by rsID
@@ -208,7 +233,7 @@ def rsID_query(rsID, filter_args=None, search_hrc=None):
         query = {
             "bool": {
                 "filter": [
-                    {"term": {settings.DATA_RSID: rsID}},
+                    {"term": {_rsid_field(): _normalize_rsid(rsID)}},
                     hrc.mapped_in_hrc_clause(),
                 ]
             }
@@ -217,7 +242,7 @@ def rsID_query(rsID, filter_args=None, search_hrc=None):
         query = {
             "bool": {
                 "filter": [
-                    {"term": {settings.DATA_RSID: rsID}},
+                    {"term": {_rsid_field(): _normalize_rsid(rsID)}},
                 ]
             }
         }
@@ -247,13 +272,13 @@ def rsIDs_query(rsIDs, filter_args=None, search_hrc=None):
         query = {
             "bool": {
                 "filter": [
-                    {"terms": {settings.DATA_RSID: rsIDs}},
+                    {"terms": {_rsid_field(): [_normalize_rsid(r) for r in rsIDs]}},
                     hrc.mapped_in_hrc_clause(),
                 ]
             }
         }
     else:
-        query = {"bool": {"filter": [{"terms": {settings.DATA_RSID: rsIDs}}]}}
+        query = {"bool": {"filter": [{"terms": {_rsid_field(): [_normalize_rsid(r) for r in rsIDs]}}]}}
 
     if filter_args and filter_args.exists:
         for field in filter_args.exists:
