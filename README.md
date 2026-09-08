@@ -115,23 +115,13 @@ curl -s http://localhost:8001/graphql -H 'Content-Type: application/json' \
   -d '{"query":"{__type(name:\"Snp\"){fields{name}}}"}' | grep -c chr_pos
 ```
 
-#### Downstream: the stage-4 sites
+#### Downstream: annoq-site
 
-**Stage 4 is split by stack:** **annoq-site-v2** (React + Vite) serves **annoq.org (HRC r1.1)**, and
-**annoq-site** (Angular 9) serves **topmed.annoq.org (TOPMed Freeze 8)**. Both generate TypeScript
-types from a GraphQL endpoint that defaults to the **deployed** API, so both may need regenerating
-after a schema change here.
-
-- **annoq-site** — endpoint set in `graphql_codegen.ts`.
-- **annoq-site-v2** — endpoint from `src/lib/environment.ts` (`annotationApiV2`), overridable per
-  command with `VITE_ANNOQ_API_V2=... npm run graphql_codegen`. Its generated
-  `src/generated/graphql.ts` is read by the build's typecheck, so **codegen must precede
-  `npm run build`**.
-
-To pick up API changes that are not yet deployed, point that endpoint at your local server (e.g.
-`http://localhost:8001/graphql`) before running `npm run graphql_codegen` — otherwise codegen
-succeeds against the deployed schema and the site fails to compile against arguments and fields
-your local API has but production does not.
+`annoq-site` generates its TypeScript types from a GraphQL endpoint set in its `graphql_codegen.ts`,
+which defaults to the **deployed** API. To pick up API changes that are not yet deployed, point that
+`schema:` at your local server (e.g. `http://localhost:8001/graphql`) before running
+`npm run graphql_codegen` — otherwise codegen succeeds against the deployed schema and the site
+fails to compile against arguments and fields your local API has but production does not.
 
 
 # To run the project
