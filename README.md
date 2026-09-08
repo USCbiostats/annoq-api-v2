@@ -82,6 +82,25 @@ chmod +x scripts/class_generators/generate_model.sh
 ```
 
 
+#### Downstream: the stage-4 sites
+
+**Stage 4 is split by stack:** **annoq-site-v2** (React + Vite) serves **annoq.org (HRC r1.1)**, and
+**annoq-site** (Angular 9) serves **topmed.annoq.org (TOPMed Freeze 8)**. Both generate TypeScript
+types from a GraphQL endpoint that defaults to the **deployed** API, so both may need regenerating
+after a schema change here.
+
+- **annoq-site** — endpoint set in `graphql_codegen.ts`.
+- **annoq-site-v2** — endpoint from `src/lib/environment.ts` (`annotationApiV2`), overridable per
+  command with `VITE_ANNOQ_API_V2=... npm run graphql_codegen`. Its generated
+  `src/generated/graphql.ts` is read by the build's typecheck, so **codegen must precede
+  `npm run build`**.
+
+To pick up API changes that are not yet deployed, point that endpoint at your local server
+(`http://localhost:<SITE_PORT>/graphql` — `SITE_PORT` comes from your env; the Docker image
+defaults to `8000`) before running `npm run graphql_codegen` — otherwise codegen succeeds against
+the deployed schema and the site fails to compile against arguments and fields your local API has
+but production does not.
+
 # To run the project
 
 ```bash
