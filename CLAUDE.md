@@ -5,7 +5,9 @@ Standing context for Claude Code sessions in this repo. Terse; read the files it
 ## What this repo is
 
 **annoq-api-v2** is the **current** AnnoQ API (FastAPI + Strawberry GraphQL) — stage 3 of the
-pipeline `annoq-data-builder → annoq-database → annoq-api-v2 → annoq-site`. The old `annoq-api` is
+pipeline `annoq-data-builder → annoq-database → annoq-api-v2 → site`. **Stage 4 is split by
+stack:** `annoq-site-v2` (React) serves annoq.org (HRC), `annoq-site` (Angular 9) serves
+topmed.annoq.org (TOPMed). The old `annoq-api` is
 **deprecated**; do not put new work there.
 
 - GraphQL types are **generated from the Elasticsearch schema** (`scripts/class_generators/`,
@@ -18,7 +20,8 @@ pipeline `annoq-data-builder → annoq-database → annoq-api-v2 → annoq-site`
 
 This repo is one of several sibling repos coordinated by **`../annoq-proj`** (docs + Claude skills,
 no app code). For the full platform picture — the 4-stage pipeline, the **two parallel deployment
-stacks (HRC `main` / TOPMed beta)**, shared contracts, and branch/commit naming — read
+stacks** (HRC = default branches; TOPMed = issue branches, **no `TopMed` branch**), shared
+contracts, and branch/commit naming — read
 `../annoq-proj/CLAUDE.md` and `../annoq-proj/docs/`. A session here does **not** auto-load the hub's
 CLAUDE.md (sibling dir), so consult it explicitly when scope crosses repos.
 
@@ -36,4 +39,5 @@ code. api-v2 instances: `https://api-v2.annoq.org` (HRC) and `https://api-v2.top
 - Code/generated schema is the source of truth; prose docs conform to it.
 - Add `pytest` coverage for resolver/query changes; verify real queries in the GraphQL playground.
 - After changing the ES mapping/schema or any shared contract, regenerate types here **and** run
-  `../annoq-proj` → `/annoq-doc-sync` so consumer docs (annoq-py, AnnoQR, SNPWay, site) don't drift.
+  `../annoq-proj` → `/annoq-doc-sync` so consumer docs (annoq-py, AnnoQR, SNPWay, and **both** site
+  repos) don't drift.
