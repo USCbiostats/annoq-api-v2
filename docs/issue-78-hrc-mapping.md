@@ -8,7 +8,9 @@ that restricts results to the HRC-mapped subset in hg19 coordinate space.
 ## HRC columns in the index
 
 Produced by `annoq-data-builder/wgsa_add/merge_hrc_topmed.py` (TOPMed-only, SNPs only) and
-registered in `annoq-site/metadata/annotation_tree.csv`:
+registered in the annotation-tree CSV — `annoq-site/metadata/annotation_tree.csv` (authoritative
+until [annoq-site#78](https://github.com/USCbiostats/annoq-site/issues/78) merges to `master`) and its replica
+`annoq-site-v2/metadata/annotation_tree.csv`, kept in sync until the switchover:
 
 - **`Mapped_in_HRC`** — `Y` (hg19-equivalent SNP found in HRC r1.1) / `N` (not found) /
   `.` (`ref_hg19 != ref_hg38`).
