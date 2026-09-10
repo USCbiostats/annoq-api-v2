@@ -15,6 +15,11 @@ topmed.annoq.org (TOPMed). The old `annoq-api` is
   Generated models live in `src/graphql/models/generated/` and are **gitignored / built at runtime**.
 - ES connection + target index come from `.env` (`ES_HOST`/`ES_PORT`/`ES_URL`/`ES_INDEX`, see
   `src/config/settings.py`). Point `ES_INDEX` at a local test index to develop against it.
+- **No `docker-compose` file here — database containers belong to `annoq-database`.** Bring ES up
+  with `docker-compose up -d` in that repo, then run this app directly:
+  `uvicorn src.main:app --reload --port 8001` **from the repo root** (`./data/anno_tree.json` is
+  opened by relative path). Never start a second ES for api-v2: both projects used the container
+  name `elasticsearch` but *different* data volumes, so the duplicate came up empty.
 
 ## Cross-repo context lives in the hub
 

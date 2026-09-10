@@ -34,19 +34,25 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-1. Make sure that the Docker Desktop is running. Build the Docker image and start the container.
+1. Start Elasticsearch. **This repo has no `docker-compose` file** — all database containers live
+in [annoq-database](https://github.com/USCbiostats/annoq-database). With Docker Desktop running:
 
 ```bash
-docker-compose up --build
+cd ../annoq-database && docker-compose up -d
 ```
 
-1. Once the image and containers are made, the containers can be started from Docker Desktop or using the following command 
+Elasticsearch comes up on http://localhost:9200 and Kibana on http://localhost:5601. Wait for
+`curl localhost:9200/_cluster/health` to leave `red` (shard recovery takes a minute), then make sure
+this repo's `.env` (`ES_URL`, `ES_INDEX`) points at that instance and index.
+
+1. Run the API **from this repo's root** — the code opens `./data/anno_tree.json` by relative path,
+so the working directory matters:
 
 ```bash
-docker-compose up
+uvicorn src.main:app --reload --port 8001
 ```
 
-The fastAPI application would be running on http://0.0.0.0:8000 and the elasticsearch instance would be on http://0.0.0.0:9200
+The API is then on http://localhost:8001 (`/docs` for REST, `/graphql` for the playground).
 
 ## Sample Elasticsearch Data Setup
 

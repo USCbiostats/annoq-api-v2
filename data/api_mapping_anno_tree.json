@@ -146,7 +146,8 @@
       "name": "chr_pos",
       "detail": "chr:pos (hg38) of the variant.",
       "field_type": "text",
-      "keyword_searchable": true
+      "keyword_searchable": true,
+      "version": "TOPMed: Freeze 8"
     },
     {
       "id": "9",
