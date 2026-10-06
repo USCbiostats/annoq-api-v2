@@ -7589,7 +7589,7 @@
       "detail": "hg19 chr:pos (chr_hg19:pos_hg19) if Mapped_in_HRC = 'Y'.  Else ''.",
       "field_type": "text",
       "keyword_searchable": true,
-      "version": " HRC.r1-1"
+      "version": "HRC.r1-1"
     },
     {
       "id": "1203",
@@ -7599,7 +7599,7 @@
       "detail": "hg19 chr:pos ref>alt (e.g. 18:10005A>T, A=ref T=alt) if Mapped_in_HRC = 'Y'.  Else ''.",
       "field_type": "text",
       "keyword_searchable": true,
-      "version": " HRC.r1-1"
+      "version": "HRC.r1-1"
     }
   ]
 }
