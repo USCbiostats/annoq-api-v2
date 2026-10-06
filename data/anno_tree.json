@@ -7578,7 +7578,8 @@
     "name": "Mapped_in_HRC",
     "detail": " Y(es) If ref_hg19=ref_hg38 == 'Y' and chr_hg19, pos_hg19, ref_hg19 and alt_hg19 are in HRC r1.1.N(o) If ref_hg19=ref_hg38 == 'Y'  and not found in HRC r1.1. '.' If ref_hg19=ref_hg38 == 'N'",
     "field_type": "text",
-    "keyword_searchable": true
+    "keyword_searchable": true,
+    "version": "HRC.r1-1"
   },
   {
     "id": "1202",
