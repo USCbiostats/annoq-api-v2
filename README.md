@@ -34,6 +34,14 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+1. Create your `.env` from the sample for the stack you serve, then edit it (see [Configuration](#configuration-env)).
+
+```bash
+cp .env.hrc .env      # HRC (annoq.org)
+# or
+cp .env.topmed .env   # TOPMed (topmed.annoq.org)
+```
+
 1. Make sure that the Docker Desktop is running. Build the Docker image and start the container.
 
 ```bash
@@ -48,9 +56,69 @@ docker-compose up
 
 The fastAPI application would be running on http://0.0.0.0:8000 and the elasticsearch instance would be on http://0.0.0.0:9200
 
+## Configuration (.env)
+
+The API reads its settings from `.env` in the project root when it starts
+(`src/config/settings.py`). `.env` is ignored by git, so each deployment keeps its own. Start from
+the sample that matches the Elasticsearch index you serve:
+
+| Sample | Stack | `ES_INDEX` | Genome build | dbSNP release | WGSA version |
+| --- | --- | --- | --- | --- | --- |
+| `.env.hrc` | HRC r1.1 (annoq.org) | `annoq-annotations-v5` | GRCh37/hg19 | 151 | 0.8 (probable) |
+| `.env.topmed` | TOPMed Freeze 8 (topmed.annoq.org) | `annoq-annotations-tm-20260828` | GRCh38/hg38 | 155 | 0.95 |
+
+`.env-example` is the generic template; its values match `.env.hrc`.
+
+1. Copy the sample to `.env`. Copying replaces the whole file, so back up an existing `.env`
+   first if it holds real secrets:
+
+    ```bash
+    cp .env .env.bak        # only if you already have a .env
+    cp .env.hrc .env        # or: cp .env.topmed .env
+    ```
+
+2. Edit `.env` as necessary:
+    - `GA_API_SECRET`: the samples hold a placeholder; set the real Google Analytics secret.
+    - `ES_HOST`, `ES_PORT`, `ES_URL`: point these at your Elasticsearch if it is not
+      `localhost:9200`.
+    - `ES_INDEX`: change it if your index has a different name (for example a newer TOPMed load).
+    - `SITE_HOST`, `SITE_PORT`, `SITE_URL`: where the API listens. The samples use 8000 for HRC and
+      8001 for TOPMed so both can run side by side.
+    - `ANNOQ_GENOME_BUILD`, `ANNOQ_DBSNP_RELEASE`, `ANNOQ_WGSA_VERSION`: describe the data in
+      `ES_INDEX`. Keep them in step with the index; change them only when the index is rebuilt from
+      different data.
+
+3. Restart the API so it rereads `.env`.
+
+To switch stacks later, repeat step 1 with the other sample and redo step 2.
+
+Copying `.env` does not switch the annotation tree. `/annotations` and the data version in
+`/version` come from `data/anno_tree.json`, which in this branch is the HRC tree (`chr` version
+`HRC.r1-1`). The TOPMed tree (`chr` version `TOPMed: Freeze 8`) is on the
+`annoq-site-78-add-hrc-mapping-info` branch, so serve TOPMed from a checkout of that branch.
+
+### Version information
+
+`GET /version` describes the data this deployment serves. AnnoQ clients (annoq-site-v2, SNPWay)
+read it instead of hardcoding these values:
+
+```json
+{
+  "api_version": "2.5",
+  "data_version": "HRC.r1-1",
+  "genome_build": "GRCh37/hg19",
+  "dbsnp_release": "151",
+  "wgsa_version": "0.8"
+}
+```
+
+`data_version` is the version of the `chr` field in `data/anno_tree.json`. `genome_build`,
+`dbsnp_release` and `wgsa_version` come from `ANNOQ_GENOME_BUILD`, `ANNOQ_DBSNP_RELEASE` and
+`ANNOQ_WGSA_VERSION` in `.env`, and are `null` when `.env` leaves them out.
+
 ## Sample Elasticsearch Data Setup
 
-Follow the https://github.com/USCbiostats/annoq-database repository and use the sample_data folder to setup the sample data for elasticsearch.  If necessary, modify file .env to reflect URL of database. 
+Follow the https://github.com/USCbiostats/annoq-database repository and use the sample_data folder to setup the sample data for elasticsearch.  If necessary, modify `ES_URL` and `ES_INDEX` in `.env` to reflect the database (see [Configuration](#configuration-env)). 
 
 
 ### Dynamic Snps class generation
