@@ -17,4 +17,11 @@ class Settings(BaseSettings):
     SIZE_DOWNLOAD_SIZE:int = int(os.getenv("SIZE_DOWNLOAD_SIZE"))
     GA_MEASUREMENT_ID:str = os.getenv("GA_MEASUREMENT_ID", "")
     GA_API_SECRET:str = os.getenv("GA_API_SECRET", "")
+    # Describe the ES_INDEX data, returned by /version: its genome build (e.g.
+    # GRCh37/hg19), the dbSNP build of its rsIDs (e.g. 151) and the WGSA version
+    # it was annotated with. None (null in /version) when the deployment's .env
+    # does not set them.
+    ANNOQ_GENOME_BUILD:str | None = os.getenv("ANNOQ_GENOME_BUILD")
+    ANNOQ_DBSNP_RELEASE:str | None = os.getenv("ANNOQ_DBSNP_RELEASE")
+    ANNOQ_WGSA_VERSION:str | None = os.getenv("ANNOQ_WGSA_VERSION")
 settings = Settings()
