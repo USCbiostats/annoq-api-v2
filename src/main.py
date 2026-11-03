@@ -87,7 +87,7 @@ app.include_router(snp.router)
 # Add root endpoint
 @app.get("/", include_in_schema=False)
 def read_root():
-    return {"Annoq API version": "V2"}
+    return read_version()
 
 
 @app.get("/annotations", include_in_schema=False)

@@ -5,7 +5,9 @@ import json
 def test_root():
     response = requests.get(settings.SITE_URL)
     assert response.status_code == 200
-    assert response.json() == {"Annoq API version": "V2"}
+    version = requests.get(settings.SITE_URL + "version")
+    assert version.status_code == 200
+    assert response.json() == version.json()
 
 
 def test_annotations():
