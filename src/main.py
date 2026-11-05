@@ -87,7 +87,7 @@ app.include_router(snp.router)
 # Add root endpoint
 @app.get("/", include_in_schema=False)
 def read_root():
-    return {"Annoq API version": "V2"}
+    return read_version()
 
 
 @app.get("/annotations", include_in_schema=False)
@@ -117,6 +117,32 @@ def read_annotations():
         read_annotations.anno_tree = anno_tree
 
     return {"results": read_annotations.anno_tree}
+
+
+@app.get("/version")
+def read_version():
+    """
+    Endpoint to get the version of the API and of the data it serves
+
+    Returns: API version, data version (the version of the chr field, e.g.
+    HRC.r1-1), genome build, dbSNP release of the rsIDs and the WGSA version
+    the data was annotated with
+    """
+    data_version = next(
+        (
+            elt.get("version")
+            for elt in read_annotations()["results"]
+            if elt.get("api_field") == "chr"
+        ),
+        None,
+    )
+    return {
+        "api_version": snp.VERSION,
+        "data_version": data_version,
+        "genome_build": settings.ANNOQ_GENOME_BUILD,
+        "dbsnp_release": settings.ANNOQ_DBSNP_RELEASE,
+        "wgsa_version": settings.ANNOQ_WGSA_VERSION,
+    }
 
 
 @app.get("/download/{folder}/{name}", include_in_schema=False)
