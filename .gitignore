@@ -316,6 +316,9 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
+!.env.hrc
+!.env.topmed
 .venv
 env/
 venv/

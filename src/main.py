@@ -75,7 +75,7 @@ async def ga4_tracking_middleware(request: Request, call_next):
 schema = strawberry.Schema(
     query=Query,
     config=StrawberryConfig(auto_camel_case=False),
-    extensions=[MaskErrors()],
+    extensions=[MaskErrors],
 )
 graphql_router = GraphQLRouter(schema)
 app.include_router(graphql_router, prefix="/graphql", include_in_schema=False)

@@ -1,18 +1,14 @@
-aiohttp==3.9.3
+aiohttp==3.14.5
 elasticsearch==8.12.0
 fastapi==0.109.2
-graphql-core==3.2.3
+graphql-core==3.3.2
 pydantic==2.6.1
 pydantic-settings
 uvicorn==0.27.1
-elasticsearch==8.12.0
-fastapi==0.109.2
-graphql-core==3.2.3
-pydantic==2.6.1
-strawberry-graphql==0.312.3
+strawberry-graphql==0.334.4
 orjson >= 3.10,<4
 python-dotenv
-datamodel-code-generator==0.53.0
+datamodel-code-generator==0.92.0
 requests
 pandas
 # starlette pinned to fastapi 0.109.2's supported range; its TestClient requires httpx<0.28
